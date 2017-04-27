@@ -23,7 +23,7 @@ module.exports = task('run', () => new Promise((resolve) => {
   rimraf.sync('public/dist/*', { nosort: true, dot: true });
   let count = 0;
   const bs = Browsersync.create();
-  const webpackConfig = require('./webpack.config');
+  const webpackConfig = require('../webpack.config');
   const compiler = webpack(webpackConfig);
   // Node.js middleware that compiles application in watch mode with HMR support
   // http://webpack.github.io/docs/webpack-dev-middleware.html

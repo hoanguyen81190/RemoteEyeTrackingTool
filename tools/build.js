@@ -29,7 +29,7 @@ const html = task('html', () => {
 
 // Generate sitemap.xml
 const sitemap = task('sitemap', () => {
-  const urls = require('../src/routes.json')
+  const urls = require('../core/routes.json')
     .filter(x => !x.path.includes(':'))
     .map(x => ({ loc: x.path }));
   const template = fs.readFileSync('./public/sitemap.ejs', 'utf8');
