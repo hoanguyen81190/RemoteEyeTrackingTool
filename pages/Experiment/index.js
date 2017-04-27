@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import Layout from '../../components/Layout';
-// import s from './styles.css';
-// import { title, html } from './index.md';
+import s from './index.css';
+import BlackScreen from './BlackscreenComponent';
 
 class Experiment extends React.Component {
 
@@ -17,7 +17,9 @@ class Experiment extends React.Component {
 
   render() {
     return (
-      <div>Experiment Index</div>
+      <Layout>
+        <div className={s.container}><BlackScreen /></div>
+      </Layout>
     );
   }
 

@@ -2,16 +2,9 @@ body, html{
   overflow:hidden;
   margin:0;
   padding:0;
+  height: 100%;
+  width: 100%;
 }
-
- .headerlayout {
-   height: 100%;
-   width: 100%;
-   margin:0;
-   padding:0;
-   position:absolute;
-   z-index: 3;
- }
 
 .content {
   height: 100%;
@@ -19,13 +12,5 @@ body, html{
   margin:0;
   padding:0;
   position:absolute;
-}
-
-.footerlayout {
-  height: 100%;
-  width: 100%;
-  margin:0;
-  padding:0;
-  position:absolute;
-  z-index: 3;
+  background-color: red;
 }
