@@ -1,7 +1,7 @@
 [
   {
     "path": "/",
-    "page": "./pages/home",
+    "page": "./pages/Experiment",
     "chunk": "main"
   },
   {
@@ -12,6 +12,10 @@
   {
     "path": "/about",
     "page": "./pages/about"
+  },
+  {
+    "path": "/experiment",
+    "page": "./pages/Experiment"
   },
   {
     "path": "/tasks/:status(pending|completed)?",
