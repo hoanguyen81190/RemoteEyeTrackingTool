@@ -38,7 +38,7 @@ module.exports = task('run', () => new Promise((resolve) => {
     const template = fs.readFileSync('./public/index.ejs', 'utf8');
     const render = ejs.compile(template, { filename: './public/index.ejs' });
     const output = render({ debug: true, bundle: `/dist/${bundle}`, config });
-    fs.writeFileSync('./public/index.html', output, 'utf8');
+    fs.writeFileSync('./web/index.html', output, 'utf8');
 
     // Launch Browsersync after the initial bundling is complete
     // For more information visit https://browsersync.io/docs/options
