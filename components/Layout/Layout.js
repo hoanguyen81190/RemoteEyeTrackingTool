@@ -11,27 +11,26 @@ class Layout extends React.Component {
   };
 
   componentDidMount() {
-    window.componentHandler.upgradeElement(this.root);
-    this.setupTouchListeners();
+    // window.componentHandler.upgradeElement(this.root);
+    // this.setupTouchListeners();
   }
 
   componentWillUnmount() {
-    window.componentHandler.downgradeElements(this.root);
-    this.removeTouchListeners();
+    // window.componentHandler.downgradeElements(this.root);
+    // this.removeTouchListeners();
   }
 
 
   render() {
-    const { footerLeftContent, footerRightContent, ...newProps } = this.props; //exclude footer properties from props because we cannot pass them to the div tag in main content
+    const {...newProps } = this.props; //exclude footer properties from props because we cannot pass them to the div tag in main content
     return (
-      <div id="TouchLayout" className="mdl-layout mdl-js-layout mdl-layout--fixed-header" ref={node => (this.root = node)}>
-        <div className="mdl-layout__inner-container ">
-
-          <main className="mdl-layout__content">
+      // <div id="TouchLayout" className=" mdl-layout mdl-js-layout mdl-layout--fixed-header" ref={node => (this.root = node)}>
+      //   <div className=" mdl-layout__inner-container ">
+      //     <main className="mdl-layout__content">
             <div {...newProps} className={cx(s.content, this.props.className)} />
-          </main>
-          </div>
-      </div>
+      //     </main>
+      //     </div>
+      // </div>
     );
   }
 

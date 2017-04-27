@@ -18,6 +18,10 @@
     "page": "./pages/AOIEditingPage"
   },
   {
+    "path": "/experiment",
+    "page": "./pages/Experiment"
+  },
+  {
     "path": "/tasks/:status(pending|completed)?",
     "page": "./pages/home"
   }
