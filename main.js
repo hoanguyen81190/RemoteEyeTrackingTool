@@ -21,8 +21,6 @@ import store from './core/store';
 import router from './core/router';
 import history from './core/history';
 
-import {eALDocument} from './database-loader';
-
 
 //Check for ServiceWorker support before trying to install it
 // if ('serviceWorker' in navigator) {

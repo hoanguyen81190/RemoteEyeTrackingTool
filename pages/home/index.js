@@ -1,11 +1,9 @@
 import React, { PropTypes } from 'react';
 import Layout from '../../components/Layout';
 import Button from '../../components/Button';
-import {ResetButton} from '../../components/MDL/CustomMDLComponents';
 
 import s from './styles.css';
 import { title, html } from './index.md';
-import {eALDocument} from '../../database-loader';
 
 import store from '../../core/store';
 import history from '../../core/history';
