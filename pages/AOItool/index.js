@@ -3,6 +3,8 @@ import Layout from '../../components/Layout';
 import s from './styles.css';
 import { title, html } from './index.md';
 
+class AOIE
+
 class AOIEditingPage extends React.Component {
 
   static propTypes = {
