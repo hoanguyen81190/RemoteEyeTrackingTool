@@ -5,16 +5,22 @@ var connection = new autobahn.Connection({
    realm: 'realm1'
  }
 );
-
+//RETDataSample
 var session;
 connection.onopen = function (sess, details) {
   session = sess;
-  console.log("Connected");
+  console.log("Connected to WAMP router");
+  function onRETData(args) {
+
+  }
+
+  session.subscribe('RETDataSample', onRETData);
 }
 
 // fired when connection was lost (or could not be established)
 //
 connection.onclose = function (reason, details) {
+  console.log("Disconnected from WAMP router");
 }
 
 
