@@ -17,7 +17,6 @@
 
 .rightPanel {
   position: absolute;
-  background-color: red;
   width: 88%;
   height: 100%;
   right: 0;
@@ -36,4 +35,28 @@
   width: 100%;
   height: 100%;
   position: relative;
+}
+
+.AOIRectangle {
+  border: 2px dashed black;
+  position: absolute;
+  background-color: blue;
+  z-index: 10;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+
+.hiddenAOIRectangle {
+  display: none;
+}
+
+.dragAndDropArea {
+  cursor: crosshair;
+  width: 100%;
+  height: auto;
+}
+
+.normalArea {
+  cursor: default;
 }
