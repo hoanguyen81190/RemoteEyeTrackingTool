@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import s from './styles.css';
-import FileInput from 'react-file-input';
+// import FileInput from 'react-file-input';
 
 import openImageIcon from '../../resources/icons/open_icon.png';
 import saveImageIcon from '../../resources/icons/save_icon.png';
@@ -62,13 +62,13 @@ class ToolBox extends React.Component {
       <ToolBoxButton icon={newAOIIcon}/>
       <ToolBoxButton icon={deleteAOIIcon}/>
       <ToolBoxButton icon={editAOIIcon}/>
-      <form>
+      {/* <form>
         <FileInput name="myImage"
                    accept=".png,.gif"
                    placeholder="My Image"
                    className="inputClass"
                    onChange={this.handleChange} />
-      </form>
+      </form> */}
     </div>);
   }
 }

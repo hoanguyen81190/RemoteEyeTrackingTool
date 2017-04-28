@@ -24,8 +24,17 @@ class HomePage extends React.Component {
     history.push('/AOIEditingPage');
   }
 
+  handleOpenExperimentPage() {
+    history.push('/Experiment');
+  }
+
   render() {
-    return (<div ><button onClick={()=>this.handleOpenEditingPage()}>Test Editing Page</button></div>);
+    return (
+      <div >
+        <button onClick={()=>this.handleOpenEditingPage()}>Test Editing Page</button>
+        <br/>
+        <button onClick={()=>this.handleOpenExperimentPage()}>Test Experiment Page</button>
+      </div>);
   }
 
   // componentDidUpdate(prevProps, prevState){
