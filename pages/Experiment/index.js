@@ -1,7 +1,13 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
 import Layout from '../../components/Layout';
 import s from './index.css';
+
+//The experiment components
+import Instructions from './InstructionsComponent';
 import BlackScreen from './BlackscreenComponent';
+import Stimuli from './StimuliComponent';
+
+// import wamp from '../../core/wamp';
 
 class Experiment extends React.Component {
 
@@ -11,14 +17,74 @@ class Experiment extends React.Component {
   //   }).isRequired).isRequired,
   // };
 
+  constructor() {
+    super();
+
+    this.handleStateUpdate = this.changeState.bind(this);
+
+    this.state = {
+      type: "Instructions",
+      taskCounter: -1
+    };
+  }
+
+  changeState(newState){
+
+    switch(newState){
+      case "Stimuli" : {
+        this.setState({
+          type: newState,
+          taskCounter: this.state.taskCounter++
+        });
+        break;
+      }
+      case "default" : {
+        this.setState({
+          type: newState
+        });
+        break;
+      }
+    }
+
+    console.log(newState);
+    this.setState({
+      type: newState
+    });
+  }
+
   componentDidMount() {
 
   }
 
+  componentWillMount() {
+
+  }
+
   render() {
+    var componentToRender;
+
+    switch(this.state.type){
+      case "Instructions" : {
+        componentToRender = <Instructions stateCallback={this.handleStateUpdate} instructions='Please determine if "Valve 1" is opened or closed'/>;
+        break;
+      }
+      case "Blackscreen" : {
+        componentToRender = <BlackScreen stateCallback={this.handleStateUpdate}/>;
+        break;
+      }
+      case "Stimuli" : {
+        componentToRender = <Stimuli stateCallback={this.handleStateUpdate} instructions='Please determine if "Valve 1" is opened or closed'/>;
+        break;
+      }
+      case "default" : {
+        componentToRender = null;
+        break;
+      }
+    }
+
     return (
       <Layout>
-        <div className={s.container}><BlackScreen /></div>
+        <div className={s.container}>{componentToRender}</div>
       </Layout>
     );
   }

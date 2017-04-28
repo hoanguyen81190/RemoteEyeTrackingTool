@@ -6,20 +6,17 @@ import plusIcon from '../../resources/icons/black_plus_icon.png'
 
 class BlackScreen extends React.Component {
 
-
-
-  // static propTypes = {
-  //   articles: PropTypes.arrayOf(PropTypes.shape({
-  //
-  //   }).isRequired).isRequired,
-  // };
+  constructor(){
+    super();
+    this.handleNextState = this.nextState.bind(this);
+  }
 
   componentDidMount() {
-    this.timer = setInterval(this.nextState, 1000);
+    this.timer = setInterval(this.handleNextState, 1000);
   }
 
   componentWillUnmount(){
-       clearInterval(this.timer);
+    clearInterval(this.timer);
    }
 
   render() {
@@ -31,7 +28,9 @@ class BlackScreen extends React.Component {
   }
 
   nextState(){
-    console.log("One second passed");
+    clearInterval(this.timer);
+    this.props.stateCallback("Stimuli");
+    return false; //Prevents bubbling of the event
   }
 }
 

@@ -12,7 +12,7 @@ connection.onopen = function (sess, details) {
   session = sess;
   console.log("Connected to WAMP router");
   function onRETData(args) {
-
+    console.log("Data recieved");
   }
 
   function onCounter(args) {
