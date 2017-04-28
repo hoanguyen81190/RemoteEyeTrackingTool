@@ -19,7 +19,7 @@ class BlackScreen extends React.Component {
   }
 
   componentWillUnmount(){
-       clearInterval(this.timer);
+
    }
 
   render() {
@@ -31,6 +31,7 @@ class BlackScreen extends React.Component {
   }
 
   nextState(){
+    clearInterval(this.timer);
     console.log("One second passed");
   }
 }
