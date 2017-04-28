@@ -7,6 +7,8 @@ const initialState = {
   falseKey: "x",
   alarmKey: "space",
   instructionsKey: "enter",
+  hsiOrder: null,
+  hsiData: null
 };
 
 const store = createStore((state = initialState, action) => {
@@ -16,6 +18,10 @@ const store = createStore((state = initialState, action) => {
         falseKey: action.falseKey,
         alarmKey: action.alarmKey,
         instructionsKey: action.instructionsKey};
+    case 'SET_HSI_ORDER':
+      return { ...state, hsiOrder: action.hsiOrder};
+    case 'SET_HSI_DATA':
+      return { ...state, hsiOrder: action.hsiData};
     default:
       return state;
   }

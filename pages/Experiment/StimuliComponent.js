@@ -3,6 +3,8 @@ import s from './StimuliComponent.css';
 
 import store from '../../core/store';
 
+import wamp from '../../core/wamp';
+
 var key = require('keymaster');
 
 class Instructions extends React.Component {

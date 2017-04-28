@@ -21,6 +21,14 @@ import store from './core/store';
 import router from './core/router';
 import history from './core/history';
 
+import hsiOrder from './resources/experiment/hsiOrder.json';
+
+//Read in the hsi counterbalancing order and dispatch it to the store for global access
+var actionSetHSIOrder = {
+  type: 'SET_HSI_ORDER',
+  hsiOrder: hsiOrder.hsiOrder
+}
+store.dispatch(actionSetHSIOrder);
 
 //Check for ServiceWorker support before trying to install it
 // if ('serviceWorker' in navigator) {
