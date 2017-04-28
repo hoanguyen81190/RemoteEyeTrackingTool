@@ -8,7 +8,11 @@ const initialState = {
   alarmKey: "space",
   instructionsKey: "enter",
   hsiOrder: null,
-  hsiData: null
+  hsiData: null,
+  gazeData: {
+    locX: 0,
+    locY: 0
+  }
 };
 
 const store = createStore((state = initialState, action) => {
@@ -22,6 +26,8 @@ const store = createStore((state = initialState, action) => {
       return { ...state, hsiOrder: action.hsiOrder};
     case 'SET_HSI_DATA':
       return { ...state, hsiOrder: action.hsiData};
+    case 'SET_GAZE_DATA':
+      return { ...state, gazeData: action.gazeData};
     default:
       return state;
   }

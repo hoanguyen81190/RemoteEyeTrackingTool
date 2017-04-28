@@ -38,6 +38,7 @@ class Instructions extends React.Component {
   alarmPressed(){
     // this.props.stateCallback("Instructions");
     console.log("Alarm pressed");
+    this.props.stateCallback("Blackscreen");
     return false; //Prevents bubbling of the event
   }
 

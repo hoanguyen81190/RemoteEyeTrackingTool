@@ -7,6 +7,9 @@ import Instructions from './InstructionsComponent';
 import BlackScreen from './BlackscreenComponent';
 import Stimuli from './StimuliComponent';
 
+//The gaze cursor
+import GazeCursor from './GazeCursor';
+
 // import wamp from '../../core/wamp';
 
 class Experiment extends React.Component {
@@ -84,7 +87,9 @@ class Experiment extends React.Component {
 
     return (
       <Layout>
+        <GazeCursor />
         <div className={s.container}>{componentToRender}</div>
+
       </Layout>
     );
   }
