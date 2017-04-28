@@ -100,6 +100,7 @@ const config = {
           path.resolve(__dirname, './core'),
           path.resolve(__dirname, './pages'),
           path.resolve(__dirname, './main.js'),
+          path.resolve(__dirname, './autobahn.min.js'),
         ],
         loader: `babel-loader?${JSON.stringify(babelConfig)}`,
       },

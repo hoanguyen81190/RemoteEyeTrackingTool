@@ -10,7 +10,7 @@
 .leftPanel {
   position: absolute;
   background-color: blue;
-  width: 15%;
+  width: 12%;
   height: 100%;
   left: 0;
 }
@@ -18,7 +18,7 @@
 .rightPanel {
   position: absolute;
   background-color: red;
-  width: 85%;
+  width: 88%;
   height: 100%;
   right: 0;
 }
@@ -30,4 +30,10 @@
 
 .fileUploader {
   display: none;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  position: relative;
 }
