@@ -1,3 +1,5 @@
+import store from './store';
+
 var autobahn = require('./autobahn.min.js');
 
 var connection = new autobahn.Connection({
@@ -12,7 +14,15 @@ connection.onopen = function (sess, details) {
   session = sess;
   console.log("Connected to WAMP router");
   function onRETData(args) {
-    console.log("Data recieved");
+    let gazeData = args[1];
+    let gazeAction = {
+      type: 'SET_GAZE_DATA',
+      gazeData: {
+        locX: (gazeData[1] + gazeData[4])/2,
+        locY: (gazeData[2] + gazeData[5])/2
+      }
+    }
+    store.dispatch(gazeAction);
   }
 
   function onCounter(args) {
