@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import Layout from '../../components/Layout';
 import s from './index.css';
 import BlackScreen from './BlackscreenComponent';
+import wamp from '../../core/wamp.js';
 
 class Experiment extends React.Component {
 

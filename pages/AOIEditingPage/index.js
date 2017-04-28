@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
 import s from './styles.css';
-import FileInput from 'react-file-input';
 
 import openImageIcon from '../../resources/icons/open_icon.png';
 import saveImageIcon from '../../resources/icons/save_icon.png';
@@ -36,7 +35,7 @@ class ToolBox extends React.Component {
   }
 
   handleOpenNewImage() {
-    console.log("Open new Image");
+    this.refs['fileUploader'].click();
   }
 
   handleSaveImage() {
@@ -58,17 +57,11 @@ class ToolBox extends React.Component {
   render() {
     return (<div>
       <ToolBoxButton icon={openImageIcon} onClickHanlder={()=>this.handleOpenNewImage()}/>
-      <ToolBoxButton icon={saveImageIcon}/>
-      <ToolBoxButton icon={newAOIIcon}/>
-      <ToolBoxButton icon={deleteAOIIcon}/>
-      <ToolBoxButton icon={editAOIIcon}/>
-      <form>
-        <FileInput name="myImage"
-                   accept=".png,.gif"
-                   placeholder="My Image"
-                   className="inputClass"
-                   onChange={this.handleChange} />
-      </form>
+      <ToolBoxButton icon={saveImageIcon} onClickHanlder={()=>this.handleSaveImage()}/>
+      <ToolBoxButton icon={newAOIIcon} onClickHanlder={()=>this.newAOIIcon()}/>
+      <ToolBoxButton icon={deleteAOIIcon} onClickHanlder={()=>this.deleteAOIIcon()}/>
+      <ToolBoxButton icon={editAOIIcon} onClickHanlder={()=>this.editAOIIcon()}/>
+      <input type="file" ref="fileUploader" accept="image/*" className={s.fileUploader}/>
     </div>);
   }
 }

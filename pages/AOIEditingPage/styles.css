@@ -27,3 +27,7 @@
   width: 25px;
   height: 25px;
 }
+
+.fileUploader {
+  display: none;
+}

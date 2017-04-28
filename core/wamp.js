@@ -1,4 +1,4 @@
-var autobahn = require('autobahn');
+var autobahn = require('./autobahn.min.js');
 
 var connection = new autobahn.Connection({
    url: 'ws://127.0.0.1:8080/ws',
@@ -7,6 +7,7 @@ var connection = new autobahn.Connection({
 );
 //RETDataSample
 var session;
+console.log("hi");
 connection.onopen = function (sess, details) {
   session = sess;
   console.log("Connected to WAMP router");
@@ -14,7 +15,12 @@ connection.onopen = function (sess, details) {
 
   }
 
+  function onCounter(args) {
+    console.log(args);
+  }
+
   session.subscribe('RETDataSample', onRETData);
+  session.subscribe('oncounter', onCounter);
 }
 
 // fired when connection was lost (or could not be established)
