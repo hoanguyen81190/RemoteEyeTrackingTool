@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import s from './styles.css';
+
 const EventEmitter = require('events');
 
 import openImageIcon from '../../resources/icons/open_icon.png';
@@ -10,15 +11,23 @@ import editAOIIcon from '../../resources/icons/edit_icon.png';
 
 const IMAGE_CHANGE_EVENT = 'imageChanged';
 const AOI_CHANGE_EVENT = 'aoiChanged';
+const TOGGLE_CREATING_AOI = 'toggleCreatingAOI';
+const PICKING_AOI = 'pickAOI';
+const EDIT_MODE = 'EDIT_MODE';
+const DELETE_MODE = 'DELETE_MODE';
+const NONE_MODE = 'NONE';
 
 class CEditingPageStore extends EventEmitter {
   constructor() {
     super();
     this.addImageChangeListener(this._onImageChange);
     this.addAOIChangeListener(this._onAOIChange);
+    this.addToggleCreatingAOI(this._onToggleCreatingAOI);
     this.image = null;
     this.AOIs = [];
     this.isCreatingNewAOI = false;
+    this.mode = NONE_MODE;
+    this.pickedAOI = null;
   }
 
   _onImageChange() {
@@ -28,12 +37,36 @@ class CEditingPageStore extends EventEmitter {
 
   }
 
+  _onToggleCreatingAOI() {
+
+  }
+
+  addAOI(aoi) {
+    this.AOIs.push(aoi);
+  }
+  removeAOI(aoi) {
+    this.AOIs.remove(aoi);
+  }
+
+  getMode() {
+    return this.mode;
+  }
+
+  setMode(mode) {
+    this.mode = mode;
+    if(mode !== 'CREATE_AOI') {
+      this.isCreatingNewAOI = false;
+      this.emit(TOGGLE_CREATING_AOI);
+    }
+  }
+
   getIsCreatingNewAOI() {
     return this.isCreatingNewAOI;
   }
 
   toggleIsCreatingNewAOI() {
     this.isCreatingNewAOI = !this.isCreatingNewAOI;
+    this.emit(TOGGLE_CREATING_AOI);
   }
 
   getImage() {
@@ -46,12 +79,33 @@ class CEditingPageStore extends EventEmitter {
   addAOIChangeListener(callback) {
     this.addListener(AOI_CHANGE_EVENT, callback);
   }
+  addToggleCreatingAOI(callback) {
+    this.addListener(TOGGLE_CREATING_AOI, callback);
+  }
+  addPickAOI(callback) {
+    this.addListener(PICKING_AOI, callback);
+  }
 
   removeImageChangeListener(callback) {
     this.removeListener(IMAGE_CHANGE_EVENT, callback);
   }
   removeAOIChangeListener(callback) {
     this.removeListener(AOI_CHANGE_EVENT, callback);
+  }
+  removeToggleCreatingAOI(callback) {
+    this.removeListener(TOGGLE_CREATING_AOI, callback);
+  }
+  removePickAOI(callback) {
+    this.removeListener(PICKING_AOI, callback);
+  }
+
+  getPickedAOI() {
+    return this.pickedAOI;
+  }
+
+  setPickedAOI(aoi) {
+    this.pickedAOI = aoi;
+    this.emit(PICKING_AOI);
   }
 
   emitImageChange(img) {
@@ -60,16 +114,51 @@ class CEditingPageStore extends EventEmitter {
       this.emit(IMAGE_CHANGE_EVENT);
     }
   }
-  addAOI(AOI) {
-    this.AOIs.push(AOI);
-    this.emit(AOI_CHANGE_EVENT);
-  }
+  // addAOI(AOI) {
+  //   this.AOIs.push(AOI);
+  //   this.emit(AOI_CHANGE_EVENT);
+  // }
   deleteAOI(AOI) {
     this.AOIs.remove(AOI);
     this.emit(AOI_CHANGE_EVENT);
   }
   editAOI(AOI) {
     this.emit(AOI_CHANGE_EVENT);
+  }
+
+  getAOIsJson() {
+    var text = "{ \n AOIs : [ \n"
+    this.AOIs.map((item, index) => {
+      text += item.getJson() + ",";
+    });
+    text += "\n ] \n }";
+    return text;
+  }
+
+  saveAOIsToFile() {
+    var text = this.getAOIsJson();
+    var request = new Request('http://localhost:3000/api', {
+       method: 'POST',
+       headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+       },
+       body: JSON.stringify({
+          fileName: './resources/images/test',
+          data: 'yourOtherValue',
+      })
+      // mode: 'no-cors'
+    });
+      fetch(request).then(function(response) {
+        console.log(response);
+        // return response.body.json()
+      }).then(function(body) {
+        console.log(body);
+      });
+  }
+
+  destroyClickedElement(event) {
+      document.body.removeChild(event.target);
   }
 }
 
@@ -88,7 +177,7 @@ class ToolBoxButton extends React.Component {
   }
 }
 ToolBoxButton.propTypes = {
-  icon: React.PropTypes.object.isRequired,
+  icon: React.PropTypes.string.isRequired,
   onClickHandler: React.PropTypes.function
 };
 
@@ -105,7 +194,7 @@ class ToolBox extends React.Component {
   }
 
   handleSaveImage() {
-
+    EditingPageStore.saveAOIsToFile();
   }
 
   handleNewAOI() {
@@ -113,11 +202,11 @@ class ToolBox extends React.Component {
   }
 
   handleDeleteAOI() {
-
+    EditingPageStore.setMode(DELETE_MODE);
   }
 
   handleEditAOI() {
-
+    EditingPageStore.setMode(EDIT_MODE);
   }
 
   handleChosenFile(args) {
@@ -154,10 +243,38 @@ ToolBox.propTypes = {
 class AOIProperties extends React.Component {
   constructor(props) {
     super(props);
+    this.onPickingAOI = this._onPickingAOI.bind(this);
+    this.handleSubmitOnClick = this._handleSubmitOnClick.bind(this);
+  }
+
+  componentDidMount() {
+    EditingPageStore.addPickAOI(this.onPickingAOI);
+  }
+
+  componentWillUnmount() {
+    EditingPageStore.removePickAOI(this.onPickingAOI);
+  }
+
+  _onPickingAOI() {
+    var name = this.refs["nameRef"];
+    if(name) {
+      name.value = EditingPageStore.getPickedAOI().getName();
+    }
+  }
+
+  _handleSubmitOnClick() {
+    var name = this.refs["nameRef"];
+    if(name) {
+      EditingPageStore.getPickedAOI().setName(name.value);
+    }
   }
 
   render() {
-    return (<div/>);
+    return (<div>
+      <div>Area Of Interest</div>
+      <span>Name: <input type="text" ref="nameRef"/></span>
+      <button onClick={this.handleSubmitOnClick}>Submit</button>
+    </div>);
   }
 }
 AOIProperties.propTypes = {
@@ -174,8 +291,40 @@ class AOIOnImage extends React.Component {
       top: props.top,
       left: props.left,
       width: props.width,
-      height: props.height
+      height: props.height,
+      name: ""
     }
+    this.onClickAOI = this._onClickAOI.bind(this);
+  }
+
+  componentDidMount() {
+    if(this.props.visible) {
+      EditingPageStore.addAOI(this);
+    }
+  }
+  // componentWillUnmount() {
+  //   if(this.props.visible) {
+  //     EditingPageStore.removeAOI(this);
+  //   }
+  // }
+
+  getJson() {
+    var text = "{ \n" +
+      "'top' :" + this.state.top + ",\n" +
+      "'left' :" + this.state.left + ",\n" +
+      "'width' :" + this.state.width + ",\n" +
+      "'height' :" + this.state.height + ",\n" +
+      "'name' :" + this.state.name + "\n" +
+    "};";
+    return text;
+  }
+
+  getName() {
+    return this.state.name;
+  }
+
+  setName(name) {
+    this.setState({name: name});
   }
 
   setPosition(top, left) {
@@ -211,14 +360,22 @@ class AOIOnImage extends React.Component {
     });
   }
 
+  _onClickAOI() {
+    if(EditingPageStore.getMode() === EDIT_MODE) {
+      EditingPageStore.setPickedAOI(this);
+    }
+  }
+
   render() {
     var style = this.props.visible ? (s.AOIRectangle) : (s.AOIRectangle + ' ' + s.hiddenAOIRectangle);
-    return (<div className={style}
-      style={{top: this.state.top + 'px', left: this.state.left + 'px', width: this.state.width + 'px', height: this.state.height + 'px'}}/>);
+    return (<div className={style} onClick={this.onClickAOI}
+      style={{top: this.state.top + 'px', left: this.state.left + 'px', width: this.state.width + 'px', height: this.state.height + 'px'}}>
+      {this.props.visible? this.state.name : ""}
+    </div>);
   }
 }
 AOIOnImage.propTypes = {
-
+  visible: React.PropTypes.bool.isRequired
 };
 
 /*******************************************************
@@ -233,7 +390,8 @@ class ImageContainer extends React.Component {
     super(props);
     this.state = {
       newaoi: NEWAOI_HIDDEN,
-      listOfAOIs: []
+      listOfAOIs: [],
+      cursor: 'pointer'
     };
 
     this.AIOTopLeft = null;
@@ -243,14 +401,21 @@ class ImageContainer extends React.Component {
     this.onStartNewAOI = this._onStartNewAOI.bind(this);
     this.onDrawNewAOI = this._onDrawNewAOI.bind(this);
     this.onEndNewAOI = this._onEndNewAOI.bind(this);
+    this.onToggleCreatingAOI = this._onToggleCreatingAOI.bind(this);
   }
 
   componentDidMount() {
     EditingPageStore.addImageChangeListener(this.onImageChange);
+    EditingPageStore.addToggleCreatingAOI(this.onToggleCreatingAOI);
   }
 
   componentWillUnmount() {
     EditingPageStore.removeImageChangeListener(this.onImageChange);
+    EditingPageStore.removeToggleCreatingAOI(this.onToggleCreatingAOI);
+  }
+
+  _onToggleCreatingAOI() {
+    this.setState({cursor: (EditingPageStore.getIsCreatingNewAOI() ? 'arrow' : 'pointer')});
   }
 
   _onImageChange() {
@@ -258,20 +423,21 @@ class ImageContainer extends React.Component {
   }
 
   _onStartNewAOI(event) {
-
-    this.setState({newAOI: NEWAOI_MOUSEDOWN});
-    let top = event.nativeEvent.offsetY;
-    let left = event.nativeEvent.offsetX;
-    let newAOI = this.refs["newAOIRef"];
-    if(newAOI) {
-      newAOI.setPosition(top, left);
+    if(EditingPageStore.getIsCreatingNewAOI()) {
+      this.setState({newAOI: NEWAOI_MOUSEDOWN});
+      let top = event.nativeEvent.offsetY;
+      let left = event.nativeEvent.offsetX;
+      let newAOI = this.refs["newAOIRef"];
+      if(newAOI) {
+        newAOI.setPosition(top, left);
+      }
+      this.AIOTopLeft = {top: top, left: left}
+      event.preventDefault();
     }
-    this.AIOTopLeft = {top: top, left: left}
-    event.preventDefault();
   }
 
   _onDrawNewAOI(event) {
-    if(this.state.newAOI === NEWAOI_MOUSEDOWN) {
+    if(EditingPageStore.getIsCreatingNewAOI() && this.state.newAOI === NEWAOI_MOUSEDOWN) {
       var top = event.nativeEvent.offsetY;
       var left = event.nativeEvent.offsetX;
 
@@ -285,24 +451,26 @@ class ImageContainer extends React.Component {
   }
 
   _onEndNewAOI(event) {
-    this.setState({newAOI: NEWAOI_MOUSEUP});
-    // var top = event.nativeEvent.offsetY;
-    // var left = event.nativeEvent.offsetX;
-    // this.AIOWH = {width: left - position.left, height: top - position.top};
+    if(EditingPageStore.getIsCreatingNewAOI()) {
+      this.setState({newAOI: NEWAOI_MOUSEUP});
+      // var top = event.nativeEvent.offsetY;
+      // var left = event.nativeEvent.offsetX;
+      // this.AIOWH = {width: left - position.left, height: top - position.top};
 
-    var info = this.refs["newAOIRef"].getInformation();
-    this.refs["newAOIRef"].reset();
-    this.state.listOfAOIs.push(info);
-    var newAOI = document.getElementById("newAOIEle");
-    this.setState({listOfAOIs: this.state.listOfAOIs});
-    event.preventDefault();
+      var info = this.refs["newAOIRef"].getInformation();
+      this.refs["newAOIRef"].reset();
+      this.state.listOfAOIs.push(info);
+      var newAOI = document.getElementById("newAOIEle");
+      this.setState({listOfAOIs: this.state.listOfAOIs});
+      event.preventDefault();
+    }
   }
 
   render() {
     let img = this.state.image;
-    var style = EditingPageStore.getIsCreatingNewAOI() ? (s.dragAndDropArea) : (s.normalArea);
+    var style = (this.state.cursor === 'arrow') ? (s.dragAndDropArea) : (s.normalArea);
     if(img) {
-      var newAOI = this.state.newAOI === NEWAOI_MOUSEDOWN ? <AOIOnImage ref="newAOIRef" visible="true"/> : <AOIOnImage ref="newAOIRef" visible="false"/>;
+      var newAOI = <AOIOnImage ref="newAOIRef" visible={false}/>;
     return (<div className={style}>
         <img className={s.image} src={img}
           ref="imageRef"
@@ -311,7 +479,7 @@ class ImageContainer extends React.Component {
           onMouseUp={this.onEndNewAOI}/>
         {newAOI}
         {this.state.listOfAOIs.map((item, index) => {
-          return <AOIOnImage top={item.top} left={item.left} width={item.width} height={item.height} visible="false"/>
+          return <AOIOnImage top={item.top} left={item.left} width={item.width} height={item.height} visible={true}/>
         })}
       </div>);
     }
@@ -343,6 +511,7 @@ class AOIEditingPage extends React.Component {
     return (<div className={s.page}>
       <div className={s.leftPanel}>
         <ToolBox/>
+        <AOIProperties />
       </div>
       <div className={s.rightPanel}>
         <ImageContainer />
