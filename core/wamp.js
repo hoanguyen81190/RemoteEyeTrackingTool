@@ -14,12 +14,14 @@ connection.onopen = function (sess, details) {
   session = sess;
   console.log("Connected to WAMP router");
   function onRETData(args) {
+    let gazeRadius = store.getState().gazeCursorRadius;
+
     let gazeData = args[1];
     let gazeAction = {
       type: 'SET_GAZE_DATA',
       gazeData: {
-        locX: (gazeData[1] + gazeData[4])/2,
-        locY: (gazeData[2] + gazeData[5])/2
+        locX: ((gazeData[1] + gazeData[4])/2),
+        locY: ((gazeData[2] + gazeData[5])/2)
       }
     }
     store.dispatch(gazeAction);

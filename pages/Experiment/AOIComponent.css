@@ -1,0 +1,11 @@
+.aoi{
+  position: absolute;
+}
+
+.active{
+  background-color: yellow;
+}
+
+.inactive{
+  background-color: blue;
+}
