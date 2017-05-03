@@ -15,13 +15,19 @@ class GazeCursor extends React.Component {
     }
     this.handleCursorVisibility = this.toggleVisibility.bind(this);
     this.handleGazeLocUpdate = this.updateCursorLocation.bind(this);
-    this.cursorRadius = 40;
+    this.cursorRadius = 50;
+
+    let radiusAction = {
+      type: 'SET_GAZE_RADIUS',
+      gazeRadius: this.cursorRadius
+    }
+    store.dispatch(radiusAction);
   }
 
   componentDidMount() {
     key.setScope('stimuli');
     key('g', this.handleCursorVisibility);
-    this.timer = setInterval(this.handleGazeLocUpdate, 2); //Update the gaze cursor location every 8ms
+    this.timer = setInterval(this.handleGazeLocUpdate, 2); //Update the gaze cursor location every 2ms
   }
 
   componentWillUnmount(){
@@ -42,14 +48,13 @@ class GazeCursor extends React.Component {
 
   updateCursorLocation(){
     let gazeLoc = store.getState().gazeData;
-
     //Only draw the cursor if it is visible
     if(this.state.visible){
       var cursorDiv = document.getElementById("gazeCursorDiv");
-      cursorDiv.style.left = gazeLoc.locX+'px';
-      cursorDiv.style.top = gazeLoc.locY+'px';
-      cursorDiv.style.width = "80px";
-      cursorDiv.style.height = "80px";
+      cursorDiv.style.left = (gazeLoc.locX-this.cursorRadius)+'px';
+      cursorDiv.style.top = (gazeLoc.locY-this.cursorRadius)+'px';
+      cursorDiv.style.width = this.cursorRadius*2+"px";
+      cursorDiv.style.height = this.cursorRadius*2+"px";
     }
 
     this.setState({

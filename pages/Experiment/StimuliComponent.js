@@ -5,51 +5,120 @@ import store from '../../core/store';
 
 import wamp from '../../core/wamp';
 
+import AOI from './AOIComponent';
+
 var key = require('keymaster');
 
 class Instructions extends React.Component {
-  constructor(){
-    super();
+  constructor(props){
+    super(props);
     this.handleTruePressed = this.truePressed.bind(this);
     this.handleFalsePressed = this.falsePressed.bind(this);
     this.handleAlarmPressed = this.alarmPressed.bind(this);
+
+    this.handleAOIUpdate = this.updateAOIs.bind(this);
+
+    this.aoiRefs = [];
+    this.timerInterval = 2;
+
+    this.firstRender = true;
+
+    this.timeSinceStart = 0;
   }
 
   componentDidMount() {
     key.setScope('stimuli');
-    let storeState = store.getState();
-    key(storeState.trueKey, 'stimuli', this.handleTruePressed);
-    key(storeState.falseKey, 'stimuli', this.handleFalsePressed);
-    key(storeState.alarmKey, 'stimuli', this.handleAlarmPressed);
+    key(this.props.trueKey, 'stimuli', this.handleTruePressed);
+    key(this.props.falseKey, 'stimuli', this.handleFalsePressed);
+    key(this.props.alarmKey, 'stimuli', this.handleAlarmPressed);
+
+    //Timer to update all the AOIs in this stimuli component
+    this.timer = setInterval(this.handleAOIUpdate, this.timerInterval);
   }
 
   componentWillUnmount(){
     key.deleteScope('stimuli');
-   }
+    clearInterval(this.timer);
+  }
 
-  render() {
+ render() {
+    if(this.firstRender){
+      this.firstRender = false;
+
+      let gazePathAction =
+      {
+          category: "Seperator",
+          eventStart: 0,
+          eventEnd: "-",
+          eventDuration: "-",
+          fixationPos: {
+            posX: "-",
+            posY: "-"
+          },
+          // image: this.props.imageName
+          image: "ImageName"
+      }
+
+      this.props.gazeDataCallback(gazePathAction)
+    }
+
+    this.aoiRefs = [];
+    this.aoiRefs.push("test");
     return (
       <div className={s.container}>
         <div className={s.instructionsWrapper}>{this.props.instructions}</div>
+        <div className={s.stimuliWrapper}>
+          {/* <img className={s.stimuli} src={this.props.stimuli}/> */}
+          <AOI topLeftX={500} topLeftY={500} width={100} height={100} visible={true} name="testAOI" ref="test" gazeDataCallback={this.props.gazeDataCallback}/>
+        </div>
       </div>
     );
   }
 
+  updateAOIs(){
+    this.timeSinceStart += this.timerInterval;
+    if(this.aoiRefs.length > 0){
+      this.refs[this.aoiRefs[0]].onTick(this.timerInterval);
+    }
+  }
+
   alarmPressed(){
-    // this.props.stateCallback("Instructions");
     console.log("Alarm pressed");
-    this.props.stateCallback("Blackscreen");
+
+    this.dispatchKeyResponse(store.getState().alarmKey);
+
     return false; //Prevents bubbling of the event
   }
 
   truePressed(){
     console.log("True pressed");
+
+    this.dispatchKeyResponse(store.getState().trueKey);
+
     return false; //Prevents bubbling of the event
   }
 
   falsePressed(){
     console.log("False pressed");
+
+    this.dispatchKeyResponse(store.getState().falseKey);
+
     return false; //Prevents bubbling of the event
+  }
+
+  dispatchKeyResponse(keyPressed){
+    let keyResponseAction = {
+        keyPressed: keyPressed,
+        eventStart: this.timeSinceStart,
+        image: "ImageName"
+        //image: "this.props.stimuli"
+    }
+
+    this.props.keyResponseCallback(keyResponseAction);
+  }
+
+  nextState(){
+    this.props.stateCallback("Blackscreen");
   }
 }
 

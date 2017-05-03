@@ -75,7 +75,37 @@ function saveToFile(fileName, data) {
   return "hello";
 };
 
+function readDirContents(dirname) {
+  let folders = [];
+  let files = [];
 
+  fs.readdir(dirname, function(err, filenames) {
+    if (err) {
+      return "Could not read dir " + dirname;
+    }
+
+    filenames.forEach(function(filename) {
+      if(fs.lstat(filename).isDirectory()){
+        folders.push(filename);
+      }
+      else if(fs.lstat(filename).isFile()){
+        fs.readFile(dirname + filename, 'utf-8', function(err, content) {
+          if (err) {
+            return "Could not read file " + filename;
+          }
+
+          console.log(filename);
+          let file = {
+            filename: filename,
+            content: content
+          }
+          files.push(file);
+        });
+      }
+    });
+  });
+  return {folders: folders, files: files};
+};
 
 // TODO: Update configuration settings
 const config = {

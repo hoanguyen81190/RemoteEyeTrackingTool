@@ -6,14 +6,14 @@ import store from '../../core/store';
 var key = require('keymaster');
 
 class Instructions extends React.Component {
-  constructor(){
-    super();
+  constructor(props){
+    super(props);
     this.handleNextState = this.nextState.bind(this);
   }
 
   componentDidMount() {
     key.setScope('instructions');
-    key(store.getState().instructionsKey, 'instructions', this.handleNextState);
+    key(this.props.nextKey, 'instructions', this.handleNextState);
   }
 
   componentWillUnmount(){
