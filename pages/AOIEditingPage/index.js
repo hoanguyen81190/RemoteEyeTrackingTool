@@ -143,14 +143,16 @@ class CEditingPageStore extends EventEmitter {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
        },
+       redirect: 'follow',
        body: JSON.stringify({
-          fileName: './resources/images/test',
-          data: 'yourOtherValue',
+          request: 'save aois',
+          fileName: 'excel.xlsx',
+          data: 'this is an awesome text',
       })
       // mode: 'no-cors'
     });
       fetch(request).then(function(response) {
-        console.log(response);
+        console.log(response.json().message);
         // return response.body.json()
       }).then(function(body) {
         console.log(body);
