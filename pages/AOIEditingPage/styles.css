@@ -9,7 +9,7 @@
 
 .leftPanel {
   position: absolute;
-  background-color: blue;
+  background-color: lightgray;
   width: 12%;
   height: 100%;
   left: 0;
@@ -43,12 +43,11 @@
   background-color: blue;
   z-index: 10;
   opacity: 0.3;
-  pointer-events: none;
 }
 
 
 .hiddenAOIRectangle {
-  display: none;
+  pointer-events: none;
 }
 
 .dragAndDropArea {

@@ -15,6 +15,54 @@ const del = require('del');
 const ejs = require('ejs');
 const webpack = require('webpack');
 
+var express = require('express');
+var app = express();
+var bodyParser = require('body-parser');
+
+//Listen to POST requests to /users
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+var router = express.Router();
+router.post('/', function(req, res) {
+  //get sent data
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+
+  var user = req.body;
+  // //handle request
+  // console.log(req);
+  // console.log(req.body);
+  // console.log(user.fileName, user.data);
+  saveToFile(user.fileName, user.data);
+  //send response
+  res.json({message: 'Success'});
+});
+router.get('/', function(req, res) {
+  res.json({message: 'hooray'});
+});
+
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
+
+app.use('/api', router);
+var port = 3000;
+app.listen(port);
+
+function saveToFile(fileName, data) {
+  fs.writeFile(fileName, data, function(err) {
+    if(err) {
+      console.error(err);
+    }
+    else {
+      console.log('finished!');
+    }
+  });
+  return "hello";
+};
+
 // TODO: Update configuration settings
 const config = {
   title: 'React Static Boilerplate',        // Your website title
