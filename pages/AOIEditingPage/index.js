@@ -152,10 +152,9 @@ class CEditingPageStore extends EventEmitter {
       // mode: 'no-cors'
     });
       fetch(request).then(function(response) {
-        console.log(response.json().message);
-        // return response.body.json()
-      }).then(function(body) {
-        console.log(body);
+        return response.json();
+      }).then(function(j) {
+        console.log(j);
       });
   }
 
