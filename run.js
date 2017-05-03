@@ -7,9 +7,8 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE.txt file in the root directory of this source tree.
  */
-
+var saveAsExcel = require('./excelWorker');
 /* eslint-disable no-console, global-require */
-
 const fs = require('fs');
 const del = require('del');
 const ejs = require('ejs');
@@ -29,17 +28,30 @@ router.post('/', function(req, res) {
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
   var user = req.body;
+  var request = user.request;
   // //handle request
   // console.log(req);
   // console.log(req.body);
   // console.log(user.fileName, user.data);
-  saveToFile(user.fileName, user.data);
-  //send response
-  res.json({message: 'Success'});
+  try {
+    if (request === 'save aois') {
+      saveToFile(user.fileName, user.data);
+    }
+    else if (request === 'save data') {
+      saveAsExcel(user.fileName, user.data);
+    }
+    //send response
+    res.json({message: 'Success'});
+  }
+  catch (err) {
+    req.json({message: 'Failed'});
+  }
 });
 router.get('/', function(req, res) {
   res.json({message: 'hooray'});
 });
+
+// saveAsExcel('test.xlsx', 'data');
 
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
