@@ -13,14 +13,11 @@ import GazeCursor from './GazeCursor';
 import store from '../../core/store';
 
 //The root folder that contains all the stimuli images and data
-const stimuliFolder = '../../resources/experiment/stimuli/';
+const stimuliFolder = './resources/experiment/stimuli/'; //For the webserver
+const stimuliFolderImages = '../../resources/experiment/stimuli/'; //To read the images here
+
 
 import hsiOrderJson from '../../resources/experiment/hsiOrder.json';
-
-//Reads all the files in the provided directory, callback for file content and for error handling
-function readFiles(dirname){//, onFileContent, onError) {
-
-}
 
 class Experiment extends React.Component {
   constructor() {
@@ -29,6 +26,7 @@ class Experiment extends React.Component {
     this.handleStateUpdate = this.changeState.bind(this);
     this.handleKeyResponse = this.onKeyResponse.bind(this);
     this.handleGazeData = this.onGazeData.bind(this);
+    this.handleRecievedData = this.onRecievedData.bind(this);
 
     this.state = {
       type: "Instructions",
@@ -93,9 +91,11 @@ class Experiment extends React.Component {
 
   loadTrial(){
     let currHSI = this.hsiOrder[this.participantId%this.hsiOrder.length][this.currHSI];
+    this.readDir(stimuliFolder+currHSI, this.handleRecievedData);
+  }
 
-    console.log(this.readDir(stimuliFolder+currHSI));
-
+  onRecievedData(data){
+    console.log(data);
   }
 
   render() {
@@ -157,6 +157,8 @@ class Experiment extends React.Component {
 
     gazeData.participantId = this.participantId;
     this.gazePath.push(gazeData);
+
+    console.log(this.gazePath);
   }
 
   onKeyResponse(keyResponse){
@@ -164,7 +166,7 @@ class Experiment extends React.Component {
     this.keyResponses.push(keyResponse);
   }
 
-  readDir(filename) {
+  readDir(filename, callback) {
     var request = new Request('http://localhost:3000/api', {
        method: 'POST',
        headers: {
@@ -178,14 +180,12 @@ class Experiment extends React.Component {
       })
       // mode: 'no-cors'
     });
-    var response;
-      fetch(request).then(function(response) {
-        return response.json();
-      }).then(function(j) {
-        response = j;
-      });
 
-      return response
+    fetch(request).then(function(response) {
+      return response.json();
+    }).then(function(j) {
+      callback(j);
+    });
   }
 }
 

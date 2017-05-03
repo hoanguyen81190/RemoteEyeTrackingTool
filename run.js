@@ -48,7 +48,7 @@ router.post('/', function(req, res) {
     }
   }
   catch (err) {
-    req.json({message: 'Failed'});
+    res.json({message: 'Failed'});
   }
 });
 router.get('/', function(req, res) {
@@ -80,37 +80,55 @@ function saveToFile(fileName, data) {
 };
 
 function readDirContents(dirname) {
-  let folders = [];
-  let jsonFiles = [];
+  var hsiData = [];
+  // {
+  //   HSI: "HSI1",
+  //   Questions:
+  //   [
+  //     {
+  //       Trial:"Trial1",
+  //       Question: "What is the current status of P 09B?",
+  //       responseKeys:
+  //       [
+  //         {key:"z", meaning:"On"},
+  //         {key:"/", meaning:"Off"},
+  //         {key:"space", meaning:"Alarm"}
+  //       ],
+  //       correctAnswer: 1,
+  //       image: "Image2.png"
+  //     }
+  //   ]
+  // }
 
-  fs.readdir(dirname, function(err, filenames) {
-    if (err) {
-      console.log("Could not read dir " + dirname);
-    }
-    else{
-      filenames.forEach(function(filename) {
-        if(fs.lstat(filename).isDirectory()){
-          console.log("dir: " + filename);
+  var hsiFolders = fs.readdirSync(dirname);
 
-          folders.push(filename);
+  //Read in the HSI folders
+  for(var i = 0; i < hsiFolders.length; i++)
+  {
+    var hsi = {
+      hsi: "hsiFiles[i]",
+      questions: []
+    };
+
+    //Read the question folders
+    if(fs.lstatSync(dirname + "/" + hsiFolders[i]).isDirectory())
+    {
+      var questionFolders = fs.readdirSync(dirname + "/" + hsiFolders[i]);
+
+      //Read in the data files in the questions folder
+      for(var y = 0; y < questionFolders.length; y++)
+      {
+        var question = [];
+
+        if(fs.lstatSync(dirname + "/" + hsiFolders[i] + "/" + questionFolders[y]).isFile() && questionFolders[y].includes(".json"))
+        {
+          console.log(JSON.parse(fs.readFileSync(dirname + "/" + hsiFolders[i] + "/" + questionFolders[y], 'utf-8')));
         }
-        else if(fs.lstat(filename).isFile()){
-          fs.readFile(dirname + filename, 'utf-8', function(err, content) {
-            if (err) {
-              console.log("Could not read file " + filename);
-              return;
-            }
-
-            if(filename.contains(".json")){
-              console.log("json: " + filename);
-              jsonFiles.push(content);
-            }
-          });
-        }
-      });
+      }
     }
-  });
-  return {folders: folders, files: jsonFiles};
+  }
+
+  return result;
 };
 
 // TODO: Update configuration settings

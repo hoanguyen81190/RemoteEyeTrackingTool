@@ -47,6 +47,7 @@ class Instructions extends React.Component {
 
       let gazePathAction =
       {
+          aoiName: "-",
           category: "Seperator",
           eventStart: 0,
           eventEnd: "-",
