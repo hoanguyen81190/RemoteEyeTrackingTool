@@ -19,26 +19,7 @@ import hsiOrderJson from '../../resources/experiment/hsiOrder.json';
 
 //Reads all the files in the provided directory, callback for file content and for error handling
 function readFiles(dirname){//, onFileContent, onError) {
-  // fs.readdir(dirname, function(err, filenames) {
-  //   if (err) {
-  //     //onError(err);
-  //     return;
-  //   }
 
-    //console.log("Reading " + dirname)
-
-    // filenames.forEach(function(filename) {
-    //   fs.readFile(dirname + filename, 'utf-8', function(err, content) {
-    //     if (err) {
-    //       //onError(err);
-    //       return;
-    //     }
-    //
-    //     console.log(filename);
-    //     //onFileContent(filename, content);
-    //   });
-    // });
-  //});
 }
 
 class Experiment extends React.Component {
