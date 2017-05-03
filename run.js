@@ -7,7 +7,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE.txt file in the root directory of this source tree.
  */
-var saveAsExcel = require('./excelWorker');
+const excelWorker = require('./excelWorker.js');
 /* eslint-disable no-console, global-require */
 const fs = require('fs');
 const del = require('del');
@@ -38,20 +38,20 @@ router.post('/', function(req, res) {
       saveToFile(user.fileName, user.data);
     }
     else if (request === 'save data') {
-      saveAsExcel(user.fileName, user.data);
+      excelWorker.saveAsExcel(user.fileName, user.data);
     }
     //send response
     res.json({message: 'Success'});
   }
   catch (err) {
-    req.json({message: 'Failed'});
+    // req.json({message: 'Failed'});
   }
 });
 router.get('/', function(req, res) {
   res.json({message: 'hooray'});
 });
 
-// saveAsExcel('test.xlsx', 'data');
+console.log(excelWorker);
 
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");

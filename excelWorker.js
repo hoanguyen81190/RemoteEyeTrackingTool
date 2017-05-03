@@ -1,6 +1,7 @@
 var Excel = require('exceljs');
 
-function saveAsExcel(fileName, data) {
+var exports = module.exports = {};
+exports.saveAsExcel = function(fileName, data) {
   var workbook = new Excel.Workbook();
 
   workbook.creator = 'Me';
