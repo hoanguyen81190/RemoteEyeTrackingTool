@@ -36,12 +36,16 @@ router.post('/', function(req, res) {
   try {
     if (request === 'save aois') {
       saveToFile(user.fileName, user.data);
+      res.json({message: 'Success'});
     }
     else if (request === 'save data') {
       saveAsExcel(user.fileName, user.data);
+      res.json({message: 'Success'});
     }
-    //send response
-    res.json({message: 'Success'});
+    else if(request === 'read dir'){
+      let result = readDirContents(user.fileName);
+      res.json(result);
+    }
   }
   catch (err) {
     req.json({message: 'Failed'});
@@ -77,34 +81,36 @@ function saveToFile(fileName, data) {
 
 function readDirContents(dirname) {
   let folders = [];
-  let files = [];
+  let jsonFiles = [];
 
   fs.readdir(dirname, function(err, filenames) {
     if (err) {
-      return "Could not read dir " + dirname;
+      console.log("Could not read dir " + dirname);
     }
+    else{
+      filenames.forEach(function(filename) {
+        if(fs.lstat(filename).isDirectory()){
+          console.log("dir: " + filename);
 
-    filenames.forEach(function(filename) {
-      if(fs.lstat(filename).isDirectory()){
-        folders.push(filename);
-      }
-      else if(fs.lstat(filename).isFile()){
-        fs.readFile(dirname + filename, 'utf-8', function(err, content) {
-          if (err) {
-            return "Could not read file " + filename;
-          }
+          folders.push(filename);
+        }
+        else if(fs.lstat(filename).isFile()){
+          fs.readFile(dirname + filename, 'utf-8', function(err, content) {
+            if (err) {
+              console.log("Could not read file " + filename);
+              return;
+            }
 
-          console.log(filename);
-          let file = {
-            filename: filename,
-            content: content
-          }
-          files.push(file);
-        });
-      }
-    });
+            if(filename.contains(".json")){
+              console.log("json: " + filename);
+              jsonFiles.push(content);
+            }
+          });
+        }
+      });
+    }
   });
-  return {folders: folders, files: files};
+  return {folders: folders, files: jsonFiles};
 };
 
 // TODO: Update configuration settings

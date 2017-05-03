@@ -94,7 +94,7 @@ class Experiment extends React.Component {
   loadTrial(){
     let currHSI = this.hsiOrder[this.participantId%this.hsiOrder.length][this.currHSI];
 
-    readFiles(stimuliFolder+currHSI);
+    console.log(this.readDir(stimuliFolder+currHSI));
 
   }
 
@@ -162,6 +162,30 @@ class Experiment extends React.Component {
   onKeyResponse(keyResponse){
     keyResponse.participantId = this.participantId;
     this.keyResponses.push(keyResponse);
+  }
+
+  readDir(filename) {
+    var request = new Request('http://localhost:3000/api', {
+       method: 'POST',
+       headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+       },
+       redirect: 'follow',
+       body: JSON.stringify({
+          request: 'read dir',
+          fileName: filename
+      })
+      // mode: 'no-cors'
+    });
+    var response;
+      fetch(request).then(function(response) {
+        return response.json();
+      }).then(function(j) {
+        response = j;
+      });
+
+      return response
   }
 }
 
