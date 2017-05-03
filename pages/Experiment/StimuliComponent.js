@@ -28,10 +28,9 @@ class Instructions extends React.Component {
 
   componentDidMount() {
     key.setScope('stimuli');
-    let storeState = store.getState();
-    key(storeState.trueKey, 'stimuli', this.handleTruePressed);
-    key(storeState.falseKey, 'stimuli', this.handleFalsePressed);
-    key(storeState.alarmKey, 'stimuli', this.handleAlarmPressed);
+    key(this.props.trueKey, 'stimuli', this.handleTruePressed);
+    key(this.props.falseKey, 'stimuli', this.handleFalsePressed);
+    key(this.props.alarmKey, 'stimuli', this.handleAlarmPressed);
 
     //Timer to update all the AOIs in this stimuli component
     this.timer = setInterval(this.handleAOIUpdate, this.timerInterval);
@@ -40,15 +39,14 @@ class Instructions extends React.Component {
   componentWillUnmount(){
     key.deleteScope('stimuli');
     clearInterval(this.timer);
-   }
+  }
 
-  render() {
-
+ render() {
     if(this.firstRender){
       this.firstRender = false;
-      let gazePathAction = {
-        type: 'ADD_GAZE_PATH',
-        gazePath: {
+
+      let gazePathAction =
+      {
           category: "Seperator",
           eventStart: 0,
           eventEnd: "-",
@@ -57,12 +55,11 @@ class Instructions extends React.Component {
             posX: "-",
             posY: "-"
           },
-          aoiName: "-",
+          // image: this.props.imageName
           image: "ImageName"
-          //image: this.props.stimuli
-        }
       }
-      store.dispatch(gazePathAction);
+
+      this.props.gazeDataCallback(gazePathAction)
     }
 
     this.aoiRefs = [];
@@ -70,11 +67,9 @@ class Instructions extends React.Component {
     return (
       <div className={s.container}>
         <div className={s.instructionsWrapper}>{this.props.instructions}</div>
-        <div className={s.aoiWrapper}>
-          <AOI topLeftX={500} topLeftY={500} width={100} height={100} visible={true} name="testAOI" ref="test"/>
-        </div>
-        <div className={s.dtimuliWrapper}>
-          {/* <img src={this.props.stimuli}/> */}
+        <div className={s.stimuliWrapper}>
+          {/* <img className={s.stimuli} src={this.props.stimuli}/> */}
+          <AOI topLeftX={500} topLeftY={500} width={100} height={100} visible={true} name="testAOI" ref="test" gazeDataCallback={this.props.gazeDataCallback}/>
         </div>
       </div>
     );
@@ -113,17 +108,13 @@ class Instructions extends React.Component {
 
   dispatchKeyResponse(keyPressed){
     let keyResponseAction = {
-      type: 'ADD_KEY_RESPONSE',
-      keyResponse: {
         keyPressed: keyPressed,
         eventStart: this.timeSinceStart,
         image: "ImageName"
         //image: "this.props.stimuli"
-      }
     }
-    store.dispatch(keyResponseAction);
 
-    console.log(store.getState().keyResponses);
+    this.props.keyResponseCallback(keyResponseAction);
   }
 
   nextState(){

@@ -21,42 +21,6 @@ import store from './core/store';
 import router from './core/router';
 import history from './core/history';
 
-import hsiOrder from './resources/experiment/hsiOrder.json';
-
-//Read in the hsi counterbalancing order and dispatch it to the store for global access
-var actionSetHSIOrder = {
-  type: 'SET_HSI_ORDER',
-  hsiOrder: hsiOrder.hsiOrder
-}
-store.dispatch(actionSetHSIOrder);
-
-//Check for ServiceWorker support before trying to install it
-// if ('serviceWorker' in navigator) {
-//     // Install ServiceWorker
-//   console.log(navigator.serviceWorker);
-//   navigator.serviceWorker.register('./service-worker.js').then(() => {
-//   }).catch((err) => {
-//     // Installation failed
-//     console.log('ServiceWorker registration failed, error:', err);
-//   });
-// } else {
-//   // No ServiceWorker Support
-//   console.log('ServiceWorker is not supported in this browser');
-// }
-
-// fired when connection was lost (or could not be established)
-//
-// connection.onclose = function (reason, details) {
-//   console.log("Disconnected from WAMP router");
-// }
-//
-//
-// // now actually open the connection
-// //
-// connection.open();
-
-
-
 let routes = require('./routes.json'); // Loaded with utils/routes-loader.js
 const container = document.getElementById('container');
 

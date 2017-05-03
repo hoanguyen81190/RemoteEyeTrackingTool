@@ -95,9 +95,8 @@ class AOIComponent extends React.Component {
       let fixationLocX = parseFloat((this.addedFixationPoints.locX/this.numberOfFixationPoints).toFixed(1));
       let fixationLocY = parseFloat((this.addedFixationPoints.locY/this.numberOfFixationPoints).toFixed(1));
 
-      let gazePathAction = {
-        type: 'ADD_GAZE_PATH',
-        gazePath: {
+      let gazePathAction =
+      {
           category: "Fixation",
           eventStart: this.eventStart,
           eventEnd: this.eventEnd,
@@ -108,11 +107,9 @@ class AOIComponent extends React.Component {
           },
           aoiName: this.props.name,
           image: "-"
-        }
       }
-      store.dispatch(gazePathAction);
 
-      console.log(store.getState().gazePath);
+      this.props.gazeDataCallback(gazePathAction)
     }
 
     //Reset the state and the duration as it is no longer being looked at
