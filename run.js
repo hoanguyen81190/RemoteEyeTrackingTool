@@ -7,7 +7,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE.txt file in the root directory of this source tree.
  */
-var saveAsExcel = require('./excelWorker');
+const excelWorker = require('./excelWorker.js');
 /* eslint-disable no-console, global-require */
 const fs = require('fs');
 const del = require('del');
@@ -39,23 +39,21 @@ router.post('/', function(req, res) {
       res.json({message: 'Success'});
     }
     else if (request === 'save data') {
-      saveAsExcel(user.fileName, user.data);
+      excelWorker.saveAsExcel(user.fileName, user.data);
       res.json({message: 'Success'});
     }
-    else if(request === 'read dir'){
-      let result = readDirContents(user.fileName);
+    else if(request === 'read stimuli data'){
+      let result = readStimuliData(user.fileName);
       res.json(result);
     }
   }
   catch (err) {
     res.json({message: 'Failed'});
-  }
-});
+}});
 router.get('/', function(req, res) {
   res.json({message: 'hooray'});
 });
-
-// saveAsExcel('test.xlsx', 'data');
+console.log(excelWorker);
 
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -79,56 +77,59 @@ function saveToFile(fileName, data) {
   return "hello";
 };
 
-function readDirContents(dirname) {
+function readStimuliData(dirname) {
   var hsiData = [];
-  // {
-  //   HSI: "HSI1",
-  //   Questions:
-  //   [
-  //     {
-  //       Trial:"Trial1",
-  //       Question: "What is the current status of P 09B?",
-  //       responseKeys:
-  //       [
-  //         {key:"z", meaning:"On"},
-  //         {key:"/", meaning:"Off"},
-  //         {key:"space", meaning:"Alarm"}
-  //       ],
-  //       correctAnswer: 1,
-  //       image: "Image2.png"
-  //     }
-  //   ]
-  // }
-
-  var hsiFolders = fs.readdirSync(dirname);
 
   //Read in the HSI folders
+  var hsiFolders = fs.readdirSync(dirname);
   for(var i = 0; i < hsiFolders.length; i++)
   {
+    //For every hsi folder we create an hsi object to hold the hsi data.
     var hsi = {
-      hsi: "hsiFiles[i]",
+      hsi: hsiFolders[i],
       questions: []
     };
 
-    //Read the question folders
+    //check if the file is a dir
     if(fs.lstatSync(dirname + "/" + hsiFolders[i]).isDirectory())
     {
+      //Read the question folders
       var questionFolders = fs.readdirSync(dirname + "/" + hsiFolders[i]);
-
-      //Read in the data files in the questions folder
       for(var y = 0; y < questionFolders.length; y++)
       {
-        var question = [];
-
-        if(fs.lstatSync(dirname + "/" + hsiFolders[i] + "/" + questionFolders[y]).isFile() && questionFolders[y].includes(".json"))
+        //check if the file is a dir
+        if(fs.lstatSync(dirname + "/" + hsiFolders[i] + "/" + questionFolders[y]).isDirectory())
         {
-          console.log(JSON.parse(fs.readFileSync(dirname + "/" + hsiFolders[i] + "/" + questionFolders[y], 'utf-8')));
+          //For every question folder we create a question objct to hold the questions data
+          var question = {
+            question: questionFolders[y],
+            trials: []
+          }
+
+          //Read the question folders
+          var trialDataFolders = fs.readdirSync(dirname + "/" + hsiFolders[i] + "/" + questionFolders[y]);
+          for(var z = 0; z < trialDataFolders.length; z++){
+            //Check if the file is a json file
+            if(fs.lstatSync(dirname + "/" + hsiFolders[i] + "/" + questionFolders[y] + "/" + trialDataFolders[z]).isFile() && trialDataFolders[z].includes(".json"))
+            {
+              //For every json file we read in the json data and add it to the questions trials list
+              var trial = JSON.parse(fs.readFileSync(dirname + "/" + hsiFolders[i] + "/" + questionFolders[y] + "/" + trialDataFolders[z], 'utf-8'));
+              question.trials.push(trial);
+            }
+          }
+
+          //Add the question data to the hsi questions list
+          hsi.questions.push(question);
         }
       }
     }
+
+    //Add the hsi data to the list of hsi data
+    hsiData.push(hsi);
   }
 
-  return result;
+  //Return the list of hsi data
+  return hsiData;
 };
 
 // TODO: Update configuration settings

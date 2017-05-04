@@ -28,6 +28,21 @@ class CEditingPageStore extends EventEmitter {
     this.isCreatingNewAOI = false;
     this.mode = NONE_MODE;
     this.pickedAOI = null;
+    this.ratios = {
+      width: 1,
+      height: 1
+    }
+  }
+
+  getRatios() {
+    return this.ratios;
+  }
+
+  setRatios(w, h) {
+    this.ratios = {
+      width: w,
+      height: h
+    }
   }
 
   _onImageChange() {
@@ -127,9 +142,9 @@ class CEditingPageStore extends EventEmitter {
   }
 
   getAOIsJson() {
-    var text = "{ \n AOIs : [ \n"
+    var text = "{ \n \"AOIs\" : [ \n"
     this.AOIs.map((item, index) => {
-      text += item.getJson() + ",";
+      text += JSON.stringify(item.getInformation()) + ",";
     });
     text += "\n ] \n }";
     return text;
@@ -146,8 +161,8 @@ class CEditingPageStore extends EventEmitter {
        redirect: 'follow',
        body: JSON.stringify({
           request: 'save aois',
-          fileName: 'excel.xlsx',
-          data: 'this is an awesome text',
+          fileName: './resources/images/aois.json',
+          data: text,
       })
       // mode: 'no-cors'
     });
@@ -293,6 +308,8 @@ class AOIOnImage extends React.Component {
       left: props.left,
       width: props.width,
       height: props.height,
+      widthRatio: 1,
+      heightRatio: 1,
       name: ""
     }
     this.onClickAOI = this._onClickAOI.bind(this);
@@ -308,16 +325,8 @@ class AOIOnImage extends React.Component {
   //     EditingPageStore.removeAOI(this);
   //   }
   // }
-
-  getJson() {
-    var text = "{ \n" +
-      "'top' :" + this.state.top + ",\n" +
-      "'left' :" + this.state.left + ",\n" +
-      "'width' :" + this.state.width + ",\n" +
-      "'height' :" + this.state.height + ",\n" +
-      "'name' :" + this.state.name + "\n" +
-    "};";
-    return text;
+  setRatios(width, height) {
+    this.setState({widthRatio: width, heightRatio: height});
   }
 
   getName() {
@@ -340,7 +349,12 @@ class AOIOnImage extends React.Component {
   }
 
   getInformation() {
-    return {top: this.state.top, left: this.state.left, width: this.state.width, height: this.state.height};
+    return {
+      top: this.state.top,
+      left: this.state.left,
+      width: this.state.width,
+      height: this.state.height,
+      name: this.state.name};
   }
 
   reset() {
@@ -369,8 +383,10 @@ class AOIOnImage extends React.Component {
 
   render() {
     var style = this.props.visible ? (s.AOIRectangle) : (s.AOIRectangle + ' ' + s.hiddenAOIRectangle);
+    var widthRatio = EditingPageStore.getRatios().width;
+    var heightRatio = EditingPageStore.getRatios().height;
     return (<div className={style} onClick={this.onClickAOI}
-      style={{top: this.state.top + 'px', left: this.state.left + 'px', width: this.state.width + 'px', height: this.state.height + 'px'}}>
+      style={{top: (this.state.top*heightRatio) + '%', left: (this.state.left*widthRatio) + '%', width: (this.state.width*widthRatio) + '%', height: (this.state.height*heightRatio) + '%'}}>
       {this.props.visible? this.state.name : ""}
     </div>);
   }
@@ -415,6 +431,19 @@ class ImageContainer extends React.Component {
     EditingPageStore.removeToggleCreatingAOI(this.onToggleCreatingAOI);
   }
 
+  componentDidUpdate() {
+    let img = this.refs["imageRef"];
+    let imgContainer = this.refs["imgContainerRef"];
+    if(img && imgContainer) {
+      let ratios = EditingPageStore.getRatios();
+      let w = img.clientWidth/imgContainer.clientWidth;
+      let h = img.clientHeight/imgContainer.clientHeight;
+      if(ratios.width != w || ratios.height != h) {
+        EditingPageStore.setRatios(w, h);
+      }
+    }
+  }
+
   _onToggleCreatingAOI() {
     this.setState({cursor: (EditingPageStore.getIsCreatingNewAOI() ? 'arrow' : 'pointer')});
   }
@@ -428,11 +457,13 @@ class ImageContainer extends React.Component {
       this.setState({newAOI: NEWAOI_MOUSEDOWN});
       let top = event.nativeEvent.offsetY;
       let left = event.nativeEvent.offsetX;
+      let img = this.refs["imageRef"];
       let newAOI = this.refs["newAOIRef"];
-      if(newAOI) {
-        newAOI.setPosition(top, left);
+      if(newAOI && img) {
+        let t = (top/img.clientHeight) * 100;
+        let l = (left/img.clientWidth) * 100;
+        newAOI.setPosition(t, l);
       }
-      this.AIOTopLeft = {top: top, left: left}
       event.preventDefault();
     }
   }
@@ -441,11 +472,13 @@ class ImageContainer extends React.Component {
     if(EditingPageStore.getIsCreatingNewAOI() && this.state.newAOI === NEWAOI_MOUSEDOWN) {
       var top = event.nativeEvent.offsetY;
       var left = event.nativeEvent.offsetX;
-
+      let img = this.refs["imageRef"];
       let newAOI = this.refs["newAOIRef"];
-      if(newAOI) {
+      if(newAOI && img) {
+        let t = (top/img.clientHeight) * 100;
+        let l = (left/img.clientWidth) *100;
         let position = newAOI.getPosition();
-        newAOI.setSize(left - position.left, top - position.top);
+        newAOI.setSize(l - position.left, t - position.top);
       }
     }
     event.preventDefault();
@@ -472,7 +505,7 @@ class ImageContainer extends React.Component {
     var style = (this.state.cursor === 'arrow') ? (s.dragAndDropArea) : (s.normalArea);
     if(img) {
       var newAOI = <AOIOnImage ref="newAOIRef" visible={false}/>;
-    return (<div className={style}>
+    return (<div className={style} ref="imgContainerRef">
         <img className={s.image} src={img}
           ref="imageRef"
           onMouseDown={this.onStartNewAOI}

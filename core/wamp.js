@@ -7,9 +7,9 @@ var connection = new autobahn.Connection({
    realm: 'realm1'
  }
 );
+
 //RETDataSample
 var session;
-console.log("hi");
 connection.onopen = function (sess, details) {
   session = sess;
   console.log("Connected to WAMP router");
