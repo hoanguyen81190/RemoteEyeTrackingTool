@@ -7,6 +7,9 @@ import wamp from '../../core/wamp';
 
 import AOI from './AOIComponent';
 
+import aois from '../../resources/experiment/aois.json';
+import testImage from '../../resources/images/test.png';
+
 var key = require('keymaster');
 
 const stimuliFolderImages = 'experiment/stimuli/'; //To read the images
@@ -36,6 +39,19 @@ class StimuliComponent extends React.Component {
 
     //Timer to update all the AOIs in this stimuli component
     this.timer = setInterval(this.handleAOIUpdate, this.timerInterval);
+
+    let img = this.refs["imageRef"];
+    let imgContainer = this.refs["imgContainerRef"];
+    if(img && imgContainer) {
+      let w = img.clientWidth/imgContainer.clientWidth;
+      let h = img.clientHeight/imgContainer.clientHeight;
+      this.aoiRefs.map((item, index) => {
+        var aoi = this.refs[item];
+        if(aoi) {
+          aoi.setRatios(w, h);
+        }
+      });
+    }
   }
 
   componentWillUnmount(){
@@ -66,7 +82,6 @@ class StimuliComponent extends React.Component {
     }
 
     this.aoiRefs = [];
-    this.aoiRefs.push("test");
 
     let trialData = this.props.trialData;
 
@@ -86,9 +101,15 @@ class StimuliComponent extends React.Component {
           <div className={s.trueText}>{trueInstruction}</div>
           <div className={s.falseText}>{falseInstruction}</div>
         </div>
-        <div className={s.stimuliWrapper}>
+        <div className={s.stimuliWrapper} ref="imgContainerRef">
            <img className={s.stimuli} src={stimuliFolderImages+trialData.currHSI+"/"+trialData.currQuestion+"/"+trialData.data.image}/>
-          <AOI topLeftX={500} topLeftY={500} width={100} height={100} visible={true} name="testAOI" ref="test" gazeDataCallback={this.props.gazeDataCallback}/>
+          {
+            aois.AOIs.map((item, index) => {
+              var ref = "AOIref" + index;
+              this.aoiRefs.push(ref);
+              return (<AOI topLeftX={item.left} topLeftY={item.top} width={item.width} height={item.height} visible={true} name={item.name} ref={ref} gazeDataCallback={this.props.gazeDataCallback}/>);
+            })
+          }
         </div>
       </div>
     );

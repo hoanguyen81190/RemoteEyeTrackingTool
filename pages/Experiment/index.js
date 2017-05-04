@@ -13,6 +13,8 @@ import GazeCursor from './GazeCursor';
 //The global store
 import store from '../../core/store';
 
+import testData from '../../ExperimentDataExample.json';
+
 //The root folder that contains all the stimuli images and data
 const stimuliFolder = './public/experiment/stimuli/'; //For the webserver
 
@@ -69,6 +71,8 @@ class Experiment extends React.Component {
 
     //Holds the data for the current trial
     this.trialIndexData = null;
+
+    this.testSaveData = this._testSaveData.bind(this);
   }
 
   changeState(newState){
@@ -156,7 +160,7 @@ class Experiment extends React.Component {
     return (
       <Layout>
         <GazeCursor />
-        <div className={s.container}>{componentToRender}</div>
+        <div className={s.container} onClick={this.testSaveData}>{componentToRender}</div>
       </Layout>
     );
   }
