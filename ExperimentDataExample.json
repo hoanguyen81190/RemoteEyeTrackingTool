@@ -1,18 +1,37 @@
 {
 	"participantId": 0,
 	"hsiOrder": ["HSI1", "HSI4", "HSI2", "HSI3"],
-	"hsiData": 
+	"hsiData":
 	[
-		"HSI1":
-		[
-			"Question1":
+		{
+			"hsi": "HSI1",
+			"questions":
 			[
-				"Trial1":{
-					"KeyResponse": {key: "z", reponseTime: 2000},
-					"GazePath": [],
-				},
-				
-			],
-		],
+				{
+					"question": "question1",
+					"trials": [
+						{
+							"keyResponse": {"key": "z", "reponseTime": 2000},
+							"image": "Image1.png",
+							"correctAnswer": "/",
+							"gazePath": [
+								{
+									"category": "fixation",
+									"startTime": 2,
+									"endTime": 5,
+									"duration": 3,
+									"position": {
+										"X": 4,
+										"Y": 5
+									},
+									"aoi": "white space"
+								}
+							]
+						}
+					]
+				}
+
+			]
+		}
 	]
 }

@@ -3,7 +3,7 @@ var Excel = require('exceljs');
 var exports = module.exports = {};
 exports.saveAsExcel = function(fileName, data) {
   var jsonData = JSON.parse(data);
-  if (!hsiData) {
+  if (!jsonData) {
     return;
   }
 
@@ -27,7 +27,10 @@ exports.saveAsExcel = function(fileName, data) {
   ]
   var worksheet = workbook.addWorksheet(data);
   worksheet.columns = [
-      { header: 'Participant', key: 'id', width: 20 },
+      { header: 'Participant', key: 'id', width: 20, outlineLevel: 2 },
+      { header: 'HSI', key: 'hsi', width: 20 },
+      { header: 'Question', key: 'question', width: 20 },
+      { header: 'Trial', key: 'trial', width: 20 },
       { header: 'Category', key: 'category', width: 20 },
       { header: 'Event Start Trial Time [ms]', key: 'start_time', width: 20 },
       { header: 'Event End Trial Time [ms]', key: 'end_time', width: 20 },
@@ -42,6 +45,9 @@ exports.saveAsExcel = function(fileName, data) {
   ];
 
   var idCol = worksheet.getColumn('id');
+  var hsiCol = worksheet.getColumn('hsi');
+  var questionCol = worksheet.getColumn('question');
+  var trialCol = worksheet.getColumn('trial');
   var categoryCol = worksheet.getColumn('category');
   var startTimeCol = worksheet.getColumn('start_time');
   var endTimeCol = worksheet.getColumn('end_time');
@@ -53,9 +59,38 @@ exports.saveAsExcel = function(fileName, data) {
   var answerCol = worksheet.getColumn('answer');
   var correctAnsCol = worksheet.getColumn('correct_answer');
 
-  // hsiData.map((item, index) => {
-  //   worksheet.addRow({id: });
-  // });
+  hsiData.map((hsiItem, hsiIndex) => {
+    var hsi = hsiItem.hsi;
+    var questions = hsiItem.questions;
+    questions.map((qItem, qIndex) => {
+      var questionId = qItem.question;
+      var trials = qItem.trials;
+      trials.map((tItem, tIndex) => {
+        var keyResponse = tItem.keyResponse;
+        var img = tItem.image;
+        var correctAnswer = tItem.correctAnswer;
+        var gazePath = tItem.gazePath;
+        gazePath.map((gItem, gIndex) => {
+          worksheet.addRow({
+            id: participantId,
+            hsi: hsi,
+            question: questionId,
+            trial: tIndex,
+            category: gItem.category,
+            start_time: gItem.startTime,
+            end_time: gItem.endTime,
+            duration: gItem.duration,
+            fixation_x: gItem.position.X,
+            fixation_y: gItem.position.Y,
+            aoi: gItem.aoi,
+            image: img,
+            response_time: keyResponse.responseTime,
+            answer: keyResponse.key,
+            correct_answer: correctAnswer});
+        });
+      });
+    });
+  });
 
   // set an outline level for columns
   //worksheet.getColumn(4).outlineLevel = 0;
@@ -65,9 +100,8 @@ exports.saveAsExcel = function(fileName, data) {
   // expect(worksheet.getColumn(5).collapsed).to.equal(true);
 
 
-  worksheet.spliceColumns(3, 1, newCol3Values, newCol4Values);
   workbook.xlsx.writeFile(fileName)
       .then(function() {
-          // done
+          console.log("Excel file saved!");
       });
 }

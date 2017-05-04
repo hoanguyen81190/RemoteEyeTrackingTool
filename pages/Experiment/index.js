@@ -13,6 +13,8 @@ import GazeCursor from './GazeCursor';
 //The global store
 import store from '../../core/store';
 
+import testData from '../../ExperimentDataExample.json';
+
 //The root folder that contains all the stimuli images and data
 const stimuliFolder = './resources/experiment/stimuli/'; //For the webserver
 const stimuliFolderImages = '../../resources/experiment/stimuli/'; //To read the images here
@@ -115,7 +117,7 @@ class Experiment extends React.Component {
   }
 
   _testSaveData() {
-    console.log(JSON.stringify(this.experimentData));
+    console.log(JSON.stringify(testData));
     var request = new Request('http://localhost:3000/api', {
        method: 'POST',
        headers: {
@@ -126,8 +128,7 @@ class Experiment extends React.Component {
        body: JSON.stringify({
           request: 'save data',
           fileName: './resources/data/test.xlsx',
-          data: JSON.stringify(this.experimentData
-          ),
+          data: JSON.stringify(testData)
       })
       // mode: 'no-cors'
     });
@@ -152,7 +153,7 @@ class Experiment extends React.Component {
         break;
       }
       case "Stimuli" : {
-        loadTrialData();
+        this.loadTrialData();
 
         componentToRender = <Stimuli stateCallback={this.handleStateUpdate} trueKey={this.trueKey} falseKey={this.falseKey} alarmKey={this.alarmKey}
           keyResponseCallback={this.handleKeyResponse} gazeDataCallback={this.handleGazeData}
