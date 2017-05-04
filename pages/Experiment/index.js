@@ -14,10 +14,9 @@ import GazeCursor from './GazeCursor';
 import store from '../../core/store';
 
 //The root folder that contains all the stimuli images and data
-const stimuliFolder = './resources/experiment/stimuli/'; //For the webserver
-const stimuliFolderImages = '../../resources/experiment/stimuli/'; //To read the images here
+const stimuliFolder = './public/experiment/stimuli/'; //For the webserver
 
-import hsiOrderJson from '../../resources/experiment/hsiOrder.json';
+import hsiOrderJson from '../../public/experiment/hsiOrder.json';
 
 class Experiment extends React.Component {
   constructor() {
@@ -43,8 +42,11 @@ class Experiment extends React.Component {
 
     //The id of the current participant
     this.participantId = store.getState().participantId;
-    //The index of the HSI to load from the hsiOrder
-    this.hsiIndex = 0;
+
+    //The variables used to control the flow of the experiment.
+    this.hsiIndex = 0; //The index of the HSI to load from the hsiOrder
+    this.questionIndex = 0; //e.g. The index of the current question
+    this.trialIndex = 0; //The index of the current trial
 
     /*
     The loaded 2D array of hsi orders. Use the participant id % hsiOrder.length
@@ -65,11 +67,8 @@ class Experiment extends React.Component {
     //Holds all the data required to run the experiment
     this.hsiData = null;
 
-    //The variables used to control the flow of the experiment.
-    this.questions = []; //The names of the question folders
-    this.currQuestion = 0; //e.g. The index of the current question
-    this.trials = []; //The loaded trials of the current question
-    this.currTrial = 0; //The index of the current trial
+    //Holds the data for the current trial
+    this.trialIndexData = null;
   }
 
   changeState(newState){
@@ -94,23 +93,38 @@ class Experiment extends React.Component {
     });
   }
 
-  componentDidMount() {
-
-  }
-
   componentWillMount() {
     this.readStimuliDir(stimuliFolder, this.handleRecievedData);
   }
 
   loadTrialData(){
     let currHSI = this.hsiOrder[this.participantId%this.hsiOrder.length][this.hsiIndex];
-    console.log(currHSI);
+    let currHSIData = null;
+
+    for(var i = 0; i < this.hsiData.length; i++){
+      if(currHSI === this.hsiData[i].hsi){
+        currHSIData = this.hsiData[i];
+      }
+    }
+
+
+    let currTrial = currHSIData.questions[this.questionIndex].trials[this.trialIndex];
+
+    let result = {
+      currHSI: currHSI,
+      currQuestion: currHSIData.questions[this.questionIndex].question,
+      data: currTrial
+    }
+
+    return result;
   }
 
   onRecievedStimuliData(data){
     console.log(data);
     this.hsiData = data;
   }
+
+
 
   render() {
     var componentToRender;
@@ -126,11 +140,11 @@ class Experiment extends React.Component {
         break;
       }
       case "Stimuli" : {
-        loadTrialData();
+        let trialData = this.loadTrialData();
 
         componentToRender = <Stimuli stateCallback={this.handleStateUpdate} trueKey={this.trueKey} falseKey={this.falseKey} alarmKey={this.alarmKey}
           keyResponseCallback={this.handleKeyResponse} gazeDataCallback={this.handleGazeData}
-          instructions='Please determine if "Valve 1" is opened or closed'/>;
+          trialData={trialData}/>;
         break;
       }
       case "default" : {

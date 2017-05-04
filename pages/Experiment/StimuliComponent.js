@@ -9,7 +9,9 @@ import AOI from './AOIComponent';
 
 var key = require('keymaster');
 
-class Instructions extends React.Component {
+const stimuliFolderImages = 'experiment/stimuli/'; //To read the images
+
+class StimuliComponent extends React.Component {
   constructor(props){
     super(props);
     this.handleTruePressed = this.truePressed.bind(this);
@@ -65,11 +67,27 @@ class Instructions extends React.Component {
 
     this.aoiRefs = [];
     this.aoiRefs.push("test");
+
+    let trialData = this.props.trialData;
+
+    // currHSI: currHSI,
+    // currQuestion: currHSIData.questions[this.questionIndex].question,
+    // data: currTrial
+
+    let trueInstruction = "Press " + trialData.data.responseKeys[0].key + ' for "'  + trialData.data.responseKeys[0].meaning + '"';
+    let falseInstruction = "Press " + trialData.data.responseKeys[1].key + ' for "'  + trialData.data.responseKeys[1].meaning + '"';
+
+    console.log(stimuliFolderImages+trialData.currHSI+"/"+trialData.currQuestion+"/"+trialData.data.image);
+
     return (
       <div className={s.container}>
-        <div className={s.instructionsWrapper}>{this.props.instructions}</div>
+        <div className={s.instructionsWrapper}>
+          <div className={s.instructions}>{trialData.data.question}</div>
+          <div className={s.trueText}>{trueInstruction}</div>
+          <div className={s.falseText}>{falseInstruction}</div>
+        </div>
         <div className={s.stimuliWrapper}>
-          {/* <img className={s.stimuli} src={this.props.stimuli}/> */}
+           <img className={s.stimuli} src={stimuliFolderImages+trialData.currHSI+"/"+trialData.currQuestion+"/"+trialData.data.image}/>
           <AOI topLeftX={500} topLeftY={500} width={100} height={100} visible={true} name="testAOI" ref="test" gazeDataCallback={this.props.gazeDataCallback}/>
         </div>
       </div>
@@ -123,4 +141,4 @@ class Instructions extends React.Component {
   }
 }
 
-export default Instructions;
+export default StimuliComponent;
