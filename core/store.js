@@ -9,7 +9,10 @@ const initialState = {
   gazeData: {
     locX: 0,
     locY: 0
-  }
+  },
+
+  widthRatio: 1,
+  heightRatio: 1
 };
 
 const store = createStore((state = initialState, action) => {
@@ -20,6 +23,9 @@ const store = createStore((state = initialState, action) => {
       return { ...state, gazeCursorRadius: action.gazeRadius};
     case 'SET_GAZE_DATA':{
       return { ...state, gazeData: action.gazeData};
+    }
+    case 'SET_AOI_RATIOS': {
+      return {...state, widthRatio: action.widthRatio, heightRatio: action.heightRatio};
     }
     default:
       return state;

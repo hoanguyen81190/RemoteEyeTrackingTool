@@ -2,13 +2,22 @@ var Excel = require('exceljs');
 
 var exports = module.exports = {};
 exports.saveAsExcel = function(fileName, data) {
+  var jsonData = JSON.parse(data);
+  if (!hsiData) {
+    return;
+  }
+
+  var participantId = jsonData.participantId;
+  var hsiOrder = jsonData.hsiOrder;
+  var hsiData = jsonData.hsiData;
+
   var workbook = new Excel.Workbook();
 
-  workbook.creator = 'Me';
-  workbook.lastModifiedBy = 'Her';
-  workbook.created = new Date(1985, 8, 30);
+  workbook.creator = 'SynOpticonTeam';
+  workbook.lastModifiedBy = 'SynOpticonTeam';
+  workbook.created = new Date(2017, 5, 1);
   workbook.modified = new Date();
-  workbook.lastPrinted = new Date(2016, 9, 27);
+  workbook.lastPrinted = new Date();
   workbook.properties.date1904 = true;
   workbook.views = [
     {
@@ -18,61 +27,44 @@ exports.saveAsExcel = function(fileName, data) {
   ]
   var worksheet = workbook.addWorksheet(data);
   worksheet.columns = [
-      { header: 'Id', key: 'id', width: 10 },
-      { header: 'Name', key: 'name', width: 32 },
-      { header: 'D.O.B.', key: 'DOB', width: 10, outlineLevel: 1 }
+      { header: 'Participant', key: 'id', width: 20 },
+      { header: 'Category', key: 'category', width: 20 },
+      { header: 'Event Start Trial Time [ms]', key: 'start_time', width: 20 },
+      { header: 'Event End Trial Time [ms]', key: 'end_time', width: 20 },
+      { header: 'Event Duration [ms]', key: 'duration', width: 20 },
+      { header: 'Fixation Position X [px]', key: 'fixation_x', width: 20 },
+      { header: 'Fixation Position Y [px]', key: 'fixation_y', width: 20 },
+      { header: 'AOI Name', key: 'aoi', width: 20 },
+      { header: 'Image', key: 'image', width: 20 },
+      { header: 'Response Time', key: 'response_time', width: 20 },
+      { header: 'Answer', key: 'answer', width: 20 },
+      { header: 'Correct Answer', key: 'correct_answer', width: 20 }
   ];
 
-  // Access an individual columns by key, letter and 1-based column number
   var idCol = worksheet.getColumn('id');
-  var nameCol = worksheet.getColumn('B');
-  var dobCol = worksheet.getColumn(3);
+  var categoryCol = worksheet.getColumn('category');
+  var startTimeCol = worksheet.getColumn('start_time');
+  var endTimeCol = worksheet.getColumn('end_time');
+  var durationCol = worksheet.getColumn('duration');
+  var fixationXCol = worksheet.getColumn('fixation_x');
+  var fixationYCol = worksheet.getColumn('fixation_y');
+  var aoiCol = worksheet.getColumn('aoi');
+  var imageCol = worksheet.getColumn('image');
+  var answerCol = worksheet.getColumn('answer');
+  var correctAnsCol = worksheet.getColumn('correct_answer');
 
-  // set column properties
-
-  // Note: will overwrite cell value C1
-  dobCol.header = 'Date of Birth';
-
-  // Note: this will overwrite cell values C1:C2
-  dobCol.header = ['Date of Birth', 'A.K.A. D.O.B.'];
-
-  // from this point on, this column will be indexed by 'dob' and not 'DOB'
-  dobCol.key = 'dob';
-
-  dobCol.width = 15;
-
-  // Hide the column if you'd like
-  dobCol.hidden = true;
+  // hsiData.map((item, index) => {
+  //   worksheet.addRow({id: });
+  // });
 
   // set an outline level for columns
-  worksheet.getColumn(4).outlineLevel = 0;
-  worksheet.getColumn(5).outlineLevel = 1;
+  //worksheet.getColumn(4).outlineLevel = 0;
 
   // columns support a readonly field to indicate the collapsed state based on outlineLevel
   // expect(worksheet.getColumn(4).collapsed).to.equal(false);
   // expect(worksheet.getColumn(5).collapsed).to.equal(true);
 
-  // iterate over all current cells in this column
-  dobCol.eachCell(function(cell, rowNumber) {
-      // ...
-  });
 
-  // iterate over all current cells in this column including empty cells
-  dobCol.eachCell({ includeEmpty: true }, function(cell, rowNumber) {
-      // ...
-  });
-
-  // cut one or more columns (columns to the right are shifted left)
-  // If column properties have been definde, they will be cut or moved accordingly
-  // Known Issue: If a splice causes any merged cells to move, the results may be unpredictable
-  worksheet.spliceColumns(3,2);
-
-  // remove one column and insert two more.
-  // Note: columns 4 and above will be shifted right by 1 column.
-  // Also: If the worksheet has more rows than values in the colulmn inserts,
-  //  the rows will still be shifted as if the values existed
-  var newCol3Values = [1,2,3,4,5];
-  var newCol4Values = ['one', 'two', 'three', 'four', 'five'];
   worksheet.spliceColumns(3, 1, newCol3Values, newCol4Values);
   workbook.xlsx.writeFile(fileName)
       .then(function() {

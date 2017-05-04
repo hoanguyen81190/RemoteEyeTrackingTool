@@ -59,6 +59,8 @@ class Experiment extends React.Component {
     this.currQuestion = 0; //e.g. The index of the current question
     this.trials = []; //The loaded trials of the current question
     this.currTrial = 0; //The index of the current trial
+
+    this.testSaveData = this._testSaveData.bind(this);
   }
 
   changeState(newState){
@@ -98,6 +100,30 @@ class Experiment extends React.Component {
 
   }
 
+  _testSaveData() {
+    console.log(JSON.stringify(this.experimentData));
+    var request = new Request('http://localhost:3000/api', {
+       method: 'POST',
+       headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+       },
+       redirect: 'follow',
+       body: JSON.stringify({
+          request: 'save data',
+          fileName: './resources/data/test.xlsx',
+          data: JSON.stringify(this.experimentData
+          ),
+      })
+      // mode: 'no-cors'
+    });
+      fetch(request).then(function(response) {
+        return response.json();
+      }).then(function(j) {
+        console.log(j);
+      });
+  }
+
   render() {
     this.loadTrial();
 
@@ -128,7 +154,7 @@ class Experiment extends React.Component {
     return (
       <Layout>
         <GazeCursor />
-        <div className={s.container}>{componentToRender}</div>
+        <div className={s.container} onClick={this.testSaveData}>{componentToRender}</div>
 
       </Layout>
     );

@@ -4,8 +4,10 @@
 
 .active{
   background-color: yellow;
+  opacity: 0.5;
 }
 
 .inactive{
   background-color: blue;
+  opacity: 0.5;
 }

@@ -144,7 +144,12 @@ class CEditingPageStore extends EventEmitter {
   getAOIsJson() {
     var text = "{ \n \"AOIs\" : [ \n"
     this.AOIs.map((item, index) => {
-      text += JSON.stringify(item.getInformation()) + ",";
+      if(index === this.AOIs.length - 1) {
+        text += JSON.stringify(item.getInformation());
+      }
+      else {
+        text += JSON.stringify(item.getInformation()) + ",";
+      }
     });
     text += "\n ] \n }";
     return text;
@@ -161,7 +166,7 @@ class CEditingPageStore extends EventEmitter {
        redirect: 'follow',
        body: JSON.stringify({
           request: 'save aois',
-          fileName: './resources/images/aois.json',
+          fileName: './resources/experiment/aois.json',
           data: text,
       })
       // mode: 'no-cors'

@@ -11,21 +11,25 @@ class AOIComponent extends React.Component {
     this.state = {
       visible: true,
       active: false,
+      widthRatio: 1,
+      heightRatio: 1
     }
+
+    this.name = this.props.name;
 
     //TODO tune this parameter
     this.activationThreshold = 100; //100 ms activation threshold so saccades do not activate the AOI
     this.activationTimer = 0;
 
     this.visibleStyle = {
-      left: this.props.topLeftX+'px',
-      top: this.props.topLeftY+'px',
-      width: this.props.width+'px',
-      height: this.props.height+'px',
+      left: (this.props.topLeftX*this.state.widthRatio)+'%',
+      top: (this.props.topLeftY*this.state.heightRatio)+'%',
+      width: (this.props.width*this.state.widthRatio)+'%',
+      height: (this.props.height*this.state.heightRatio)+'%',
     };
 
     this.hiddenStyle = {
-      display: "hidden",
+      display: "block",
     }
 
     this.handleVisibilityUpdate = this.toggleVisibility.bind(this);
@@ -47,6 +51,10 @@ class AOIComponent extends React.Component {
 
   componentWillUnmount(){
     key.unbind('v');
+  }
+
+  setRatios(w, h) {
+    this.setState({widthRatio: w, heightRatio: h});
   }
 
   render() {
