@@ -71,8 +71,6 @@ class Experiment extends React.Component {
 
     //Holds the data for the current trial
     this.trialIndexData = null;
-
-    this.testSaveData = this._testSaveData.bind(this);
   }
 
   changeState(newState){

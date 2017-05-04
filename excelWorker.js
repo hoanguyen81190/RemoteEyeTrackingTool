@@ -71,6 +71,7 @@ exports.saveAsExcel = function(fileName, data) {
         var correctAnswer = tItem.correctAnswer;
         var gazePath = tItem.gazePath;
         gazePath.map((gItem, gIndex) => {
+          worksheet.addRow();
           worksheet.addRow({
             id: participantId,
             hsi: hsi,

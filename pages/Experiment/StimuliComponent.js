@@ -7,8 +7,7 @@ import wamp from '../../core/wamp';
 
 import AOI from './AOIComponent';
 
-import aois from '../../resources/experiment/aois.json';
-import testImage from '../../resources/images/test.png';
+import aois from '../../resources/images/aois.json';
 
 var key = require('keymaster');
 
@@ -42,13 +41,15 @@ class StimuliComponent extends React.Component {
 
     let img = this.refs["imageRef"];
     let imgContainer = this.refs["imgContainerRef"];
-    if(img && imgContainer) {
+    let imgWrapper = this.refs["imgWrapperRef"];
+    if(img && imgContainer && imgWrapper) {
       let w = img.clientWidth/imgContainer.clientWidth;
       let h = img.clientHeight/imgContainer.clientHeight;
+
       this.aoiRefs.map((item, index) => {
         var aoi = this.refs[item];
         if(aoi) {
-          aoi.setRatios(w, h);
+          aoi.setContainerSizeBox(w, h, imgContainer.clientWidth, imgContainer.clientHeight, imgWrapper.offsetTop, imgWrapper.offsetLeft);
         }
       });
     }
@@ -95,22 +96,23 @@ class StimuliComponent extends React.Component {
     console.log(stimuliFolderImages+trialData.currHSI+"/"+trialData.currQuestion+"/"+trialData.data.image);
 
     return (
-      <div className={s.container}>
+      <div className={s.container} ref="imgContainerRef">
         <div className={s.instructionsWrapper}>
           <div className={s.instructions}>{trialData.data.question}</div>
           <div className={s.trueText}>{trueInstruction}</div>
           <div className={s.falseText}>{falseInstruction}</div>
         </div>
-        <div className={s.stimuliWrapper} ref="imgContainerRef">
-           <img className={s.stimuli} src={stimuliFolderImages+trialData.currHSI+"/"+trialData.currQuestion+"/"+trialData.data.image}/>
-          {
-            aois.AOIs.map((item, index) => {
-              var ref = "AOIref" + index;
-              this.aoiRefs.push(ref);
-              return (<AOI topLeftX={item.left} topLeftY={item.top} width={item.width} height={item.height} visible={true} name={item.name} ref={ref} gazeDataCallback={this.props.gazeDataCallback}/>);
-            })
-          }
+        <div className={s.stimuliWrapper} ref="imgWrapperRef">
+           <img className={s.stimuli} src={stimuliFolderImages+trialData.currHSI+"/"+trialData.currQuestion+"/"+trialData.data.image} ref="imageRef"/>
+
         </div>
+        {
+          aois.AOIs.map((item, index) => {
+            var ref = "AOIref" + index;
+            this.aoiRefs.push(ref);
+            return (<AOI topLeftX={item.left} topLeftY={item.top} width={item.width} height={item.height} visible={true} name={item.name} ref={ref} gazeDataCallback={this.props.gazeDataCallback}/>);
+          })
+        }
       </div>
     );
   }
@@ -118,7 +120,12 @@ class StimuliComponent extends React.Component {
   updateAOIs(){
     this.timeSinceStart += this.timerInterval;
     if(this.aoiRefs.length > 0){
-      this.refs[this.aoiRefs[0]].onTick(this.timerInterval);
+      this.aoiRefs.map((aoiRef, index) => {
+        var aoi = this.refs[aoiRef];
+        if(aoi) {
+          aoi.onTick(this.timerInterval);
+        }
+      });
     }
   }
 

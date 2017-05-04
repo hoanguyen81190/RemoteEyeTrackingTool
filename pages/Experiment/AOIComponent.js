@@ -12,7 +12,13 @@ class AOIComponent extends React.Component {
       visible: true,
       active: false,
       widthRatio: 1,
-      heightRatio: 1
+      heightRatio: 1,
+      visibleStyle: {
+        left: 0,
+        top: 0,
+        width: 0,
+        height: 0,
+      }
     }
 
     this.name = this.props.name;
@@ -21,15 +27,8 @@ class AOIComponent extends React.Component {
     this.activationThreshold = 100; //100 ms activation threshold so saccades do not activate the AOI
     this.activationTimer = 0;
 
-    this.visibleStyle = {
-      left: (this.props.topLeftX*this.state.widthRatio)+'%',
-      top: (this.props.topLeftY*this.state.heightRatio)+'%',
-      width: (this.props.width*this.state.widthRatio)+'%',
-      height: (this.props.height*this.state.heightRatio)+'%',
-    };
-
     this.hiddenStyle = {
-      display: "block",
+      display: "hidden",
     }
 
     this.handleVisibilityUpdate = this.toggleVisibility.bind(this);
@@ -53,14 +52,37 @@ class AOIComponent extends React.Component {
     key.unbind('v');
   }
 
-  setRatios(w, h) {
-    this.setState({widthRatio: w, heightRatio: h});
+  setContainerSizeBox(wr, hr, w, h, t, l) {
+    console.log("set containerSizeBox");
+
+    this.containerSizeBox = {
+      width: w,
+      height: h
+    };
+    var left = this.props.topLeftX*wr*w/100 + l;
+    var top = this.props.topLeftY*hr*h/100 + t;
+    var width = this.props.width*wr*w/100;
+    var height = this.props.height*hr*h/100;
+
+    this.setState({visibleStyle: {
+      top: top,
+      left: left,
+      width: width,
+      height: height
+    }});
   }
 
   render() {
     let divStyle;
     if(this.state.visible){
-      divStyle = this.visibleStyle;
+      let visStyle = {
+        top: this.state.visibleStyle.top + 'px',
+        left: this.state.visibleStyle.left + 'px',
+        width: this.state.visibleStyle.width + 'px',
+        height: this.state.visibleStyle.height + 'px'
+      };
+
+      divStyle = visStyle;
     }
     else
     {
@@ -90,6 +112,7 @@ class AOIComponent extends React.Component {
 
   onEnter(){
     this.eventStart = this.timeSinceBeginning;
+
     this.setState({
       active: true,
     });
@@ -128,6 +151,7 @@ class AOIComponent extends React.Component {
     this.eventStart = 0;
     this.eventEnd = 0;
     this.timeSinceBeginning = 0;
+
     this.setState({
       active: false,
     });
@@ -167,8 +191,10 @@ class AOIComponent extends React.Component {
       var inside = false;
 
       // Find the closest point to the circle within the rectangle
-      let closestX = Math.max(this.props.topLeftX, Math.min((this.props.topLeftX+this.props.width), location.locX));//-gazeRadius));
-      let closestY = Math.max(this.props.topLeftY, Math.min((this.props.topLeftY+this.props.height), location.locY));//-gazeRadius));
+
+
+      let closestX = Math.max(this.state.visibleStyle.left, Math.min((this.state.visibleStyle.left+this.state.visibleStyle.width), location.locX));//-gazeRadius));
+      let closestY = Math.max(this.state.visibleStyle.top, Math.min((this.state.visibleStyle.top+this.state.visibleStyle.height), location.locY));//-gazeRadius));
 
       // Calculate the distance between the circle's center and this closest point
       let distanceX = location.locX - closestX;
