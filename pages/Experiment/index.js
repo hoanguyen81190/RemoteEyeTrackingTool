@@ -10,51 +10,62 @@ import Stimuli from './StimuliComponent';
 //The gaze cursor
 import GazeCursor from './GazeCursor';
 
+//The global store
 import store from '../../core/store';
 
 //The root folder that contains all the stimuli images and data
-const stimuliFolder = '../../resources/experiment/stimuli/';
+const stimuliFolder = './resources/experiment/stimuli/'; //For the webserver
+const stimuliFolderImages = '../../resources/experiment/stimuli/'; //To read the images here
 
 import hsiOrderJson from '../../resources/experiment/hsiOrder.json';
-
-//Reads all the files in the provided directory, callback for file content and for error handling
-function readFiles(dirname){//, onFileContent, onError) {
-
-}
 
 class Experiment extends React.Component {
   constructor() {
     super();
 
-    this.handleStateUpdate = this.changeState.bind(this);
-    this.handleKeyResponse = this.onKeyResponse.bind(this);
-    this.handleGazeData = this.onGazeData.bind(this);
-
+    //Set the initial state of the component
     this.state = {
       type: "Instructions",
       taskCounter: -1
     };
 
+    //Bind all the callback functions with the context of this
+    this.handleStateUpdate = this.changeState.bind(this);
+    this.handleKeyResponse = this.onKeyResponse.bind(this);
+    this.handleGazeData = this.onGazeData.bind(this);
+    this.handleRecievedData = this.onRecievedStimuliData.bind(this);
+
+    //The keys that will be used during the experiments
     this.instructionsKey = "enter";
     this.trueKey = "z";
     this.falseKey = "/";
     this.alarmKey = "space";
 
+    //The id of the current participant
+    this.participantId = store.getState().participantId;
+    //The index of the HSI to load from the hsiOrder
+    this.hsiIndex = 0;
 
+    /*
+    The loaded 2D array of hsi orders. Use the participant id % hsiOrder.length
+    to get the outer index, then use the currHSI to get the inner index
+      e.g. hsiOrder[participantId%hsiOrder.length][currHSI]
+    */
+    this.hsiOrder = hsiOrderJson.hsiOrder;
+
+    //TODO make the data structure we discussed to hold the participant data. e.g. put the gazepath and keyresponses in this hsiData array. ["HSI1" ["Question1" ["Trial1"{gazePath, keyResponses}]]]
     this.gazePath = [];
     this.keyResponses = [];
-
-    this.participantId = store.getState().participantId;
-    this.hsiOrder = hsiOrderJson.hsiOrder; //The loaded 2D array of hsi orders. Use the participant id % hsiOrder.length to get the outer index, then use the currHSI to get the inner index
-                                          //e.g. hsiOrder[participantId%hsiOrder.length][currHSI]
-    this.currHSI = 0; //The index of the HSI to load from the hsiOrder
-
     this.experimentData = {
       participantId: this.participantId,
       hsiOrder: this.hsiOrder[this.participantId%this.hsiOrder.length],
       hsiData: []
     };
 
+    //Holds all the data required to run the experiment
+    this.hsiData = null;
+
+    //The variables used to control the flow of the experiment.
     this.questions = []; //The names of the question folders
     this.currQuestion = 0; //e.g. The index of the current question
     this.trials = []; //The loaded trials of the current question
@@ -90,14 +101,17 @@ class Experiment extends React.Component {
   }
 
   componentWillMount() {
-
+    this.readStimuliDir(stimuliFolder, this.handleRecievedData);
   }
 
-  loadTrial(){
-    let currHSI = this.hsiOrder[this.participantId%this.hsiOrder.length][this.currHSI];
+  loadTrialData(){
+    let currHSI = this.hsiOrder[this.participantId%this.hsiOrder.length][this.hsiIndex];
+    console.log(currHSI);
+  }
 
-    readFiles(stimuliFolder+currHSI);
-
+  onRecievedStimuliData(data){
+    console.log(data);
+    this.hsiData = data;
   }
 
   _testSaveData() {
@@ -125,14 +139,12 @@ class Experiment extends React.Component {
   }
 
   render() {
-    this.loadTrial();
-
     var componentToRender;
 
     switch(this.state.type){
       case "Instructions" : {
         componentToRender = <Instructions stateCallback={this.handleStateUpdate} nextKey={this.instructionsKey}
-          instructions='Please determine if "Valve 1" is opened or closed'/>; //TODO pass keys down to these ones as props, pass callbacks for the gaze data and the key responses
+          instructions='Please determine if "Valve 1" is opened or closed'/>;
         break;
       }
       case "Blackscreen" : {
@@ -140,6 +152,8 @@ class Experiment extends React.Component {
         break;
       }
       case "Stimuli" : {
+        loadTrialData();
+
         componentToRender = <Stimuli stateCallback={this.handleStateUpdate} trueKey={this.trueKey} falseKey={this.falseKey} alarmKey={this.alarmKey}
           keyResponseCallback={this.handleKeyResponse} gazeDataCallback={this.handleGazeData}
           instructions='Please determine if "Valve 1" is opened or closed'/>;
@@ -155,7 +169,6 @@ class Experiment extends React.Component {
       <Layout>
         <GazeCursor />
         <div className={s.container} onClick={this.testSaveData}>{componentToRender}</div>
-
       </Layout>
     );
   }
@@ -188,6 +201,26 @@ class Experiment extends React.Component {
   onKeyResponse(keyResponse){
     keyResponse.participantId = this.participantId;
     this.keyResponses.push(keyResponse);
+  }
+
+  readStimuliDir(filename, callback) {
+    var request = new Request('http://localhost:3000/api', {
+       method: 'POST',
+       headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+       },
+       redirect: 'follow',
+       body: JSON.stringify({
+          request: 'read stimuli data',
+          fileName: filename
+      })
+    });
+    fetch(request).then(function(response) {
+      return response.json();
+    }).then(function(j) {
+      callback(j);
+    });
   }
 }
 

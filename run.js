@@ -36,21 +36,23 @@ router.post('/', function(req, res) {
   try {
     if (request === 'save aois') {
       saveToFile(user.fileName, user.data);
+      res.json({message: 'Success'});
     }
     else if (request === 'save data') {
       excelWorker.saveAsExcel(user.fileName, user.data);
+      res.json({message: 'Success'});
     }
-    //send response
-    res.json({message: 'Success'});
+    else if(request === 'read stimuli data'){
+      let result = readStimuliData(user.fileName);
+      res.json(result);
+    }
   }
   catch (err) {
-    // req.json({message: 'Failed'});
-  }
-});
+    res.json({message: 'Failed'});
+}});
 router.get('/', function(req, res) {
   res.json({message: 'hooray'});
 });
-
 console.log(excelWorker);
 
 app.use(function(req, res, next) {
@@ -75,36 +77,59 @@ function saveToFile(fileName, data) {
   return "hello";
 };
 
-function readDirContents(dirname) {
-  let folders = [];
-  let files = [];
+function readStimuliData(dirname) {
+  var hsiData = [];
 
-  fs.readdir(dirname, function(err, filenames) {
-    if (err) {
-      return "Could not read dir " + dirname;
+  //Read in the HSI folders
+  var hsiFolders = fs.readdirSync(dirname);
+  for(var i = 0; i < hsiFolders.length; i++)
+  {
+    //For every hsi folder we create an hsi object to hold the hsi data.
+    var hsi = {
+      hsi: hsiFolders[i],
+      questions: []
+    };
+
+    //check if the file is a dir
+    if(fs.lstatSync(dirname + "/" + hsiFolders[i]).isDirectory())
+    {
+      //Read the question folders
+      var questionFolders = fs.readdirSync(dirname + "/" + hsiFolders[i]);
+      for(var y = 0; y < questionFolders.length; y++)
+      {
+        //check if the file is a dir
+        if(fs.lstatSync(dirname + "/" + hsiFolders[i] + "/" + questionFolders[y]).isDirectory())
+        {
+          //For every question folder we create a question objct to hold the questions data
+          var question = {
+            question: questionFolders[y],
+            trials: []
+          }
+
+          //Read the question folders
+          var trialDataFolders = fs.readdirSync(dirname + "/" + hsiFolders[i] + "/" + questionFolders[y]);
+          for(var z = 0; z < trialDataFolders.length; z++){
+            //Check if the file is a json file
+            if(fs.lstatSync(dirname + "/" + hsiFolders[i] + "/" + questionFolders[y] + "/" + trialDataFolders[z]).isFile() && trialDataFolders[z].includes(".json"))
+            {
+              //For every json file we read in the json data and add it to the questions trials list
+              var trial = JSON.parse(fs.readFileSync(dirname + "/" + hsiFolders[i] + "/" + questionFolders[y] + "/" + trialDataFolders[z], 'utf-8'));
+              question.trials.push(trial);
+            }
+          }
+
+          //Add the question data to the hsi questions list
+          hsi.questions.push(question);
+        }
+      }
     }
 
-    filenames.forEach(function(filename) {
-      if(fs.lstat(filename).isDirectory()){
-        folders.push(filename);
-      }
-      else if(fs.lstat(filename).isFile()){
-        fs.readFile(dirname + filename, 'utf-8', function(err, content) {
-          if (err) {
-            return "Could not read file " + filename;
-          }
+    //Add the hsi data to the list of hsi data
+    hsiData.push(hsi);
+  }
 
-          console.log(filename);
-          let file = {
-            filename: filename,
-            content: content
-          }
-          files.push(file);
-        });
-      }
-    });
-  });
-  return {folders: folders, files: files};
+  //Return the list of hsi data
+  return hsiData;
 };
 
 // TODO: Update configuration settings

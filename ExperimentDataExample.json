@@ -1,0 +1,18 @@
+{
+	"participantId": 0,
+	"hsiOrder": ["HSI1", "HSI4", "HSI2", "HSI3"],
+	"hsiData": 
+	[
+		"HSI1":
+		[
+			"Question1":
+			[
+				"Trial1":{
+					"KeyResponse": {key: "z", reponseTime: 2000},
+					"GazePath": [],
+				},
+				
+			],
+		],
+	]
+}
