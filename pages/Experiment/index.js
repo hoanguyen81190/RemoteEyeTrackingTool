@@ -6,6 +6,7 @@ import s from './index.css';
 import Instructions from './InstructionsComponent';
 import BlackScreen from './BlackscreenComponent';
 import Stimuli from './StimuliComponent';
+import PracticeComponent from './PracticeComponent';
 
 //The gaze cursor
 import GazeCursor from './GazeCursor';
@@ -149,8 +150,14 @@ class Experiment extends React.Component {
       }
       case "TrialInstructions" : {
           var trialData = this.loadTrialData();
-        componentToRender = <Instructions stateCallback={this.handleStateUpdate} callbackState="Blackscreen"
+        componentToRender = <Instructions stateCallback={this.handleStateUpdate} callbackState="PracticeSession"
         nextKey={this.instructionsKey} instructions={trialData.data.question}/>;
+        break;
+      }
+      case "PracticeSession" : {
+        var trialData = this.loadTrialData();
+        componentToRender = <PracticeComponent stateCallback={this.handleStateUpdate} callbackState="Blackscreen"
+          responseKeys={trialData.data.responseKeys}/>;
         break;
       }
       case "Blackscreen" : {

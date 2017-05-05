@@ -1,4 +1,4 @@
 The following block includes questions about the status of valves. The questions is always What is the 
-status of valve x but the specific component in each question will change? The answer can be either or 
+status of valve x but the specific component in each question will change? The answer can be either open or 
 closed. Press the "z" key for Open and the "/" key for closed. Rest your left index finger on the z key 
 and you right on the / key.

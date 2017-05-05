@@ -82,7 +82,7 @@ class QuestionPane extends React.Component {
         return;
       }
       var fileName = q.body.image + '.json';
-      var path = './resources/experiment/stimuli/HSI' + hsiID + '/Question' + questionID;
+      var path = './public/experiment/stimuli/HSI' + hsiID + '/Question' + questionID;
       var request = new Request('http://localhost:3000/api', {
          method: 'POST',
          headers: {
