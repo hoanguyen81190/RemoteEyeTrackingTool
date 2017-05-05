@@ -10,14 +10,14 @@
 .leftPanel {
   position: absolute;
   background-color: lightgray;
-  width: 12%;
+  width: 25%;
   height: 100%;
   left: 0;
 }
 
 .rightPanel {
   position: absolute;
-  width: 88%;
+  width: 75%;
   height: 100%;
   right: 0;
 }
@@ -38,7 +38,6 @@
 }
 
 .AOIRectangle {
-  border: 2px dashed black;
   position: absolute;
   background-color: blue;
   z-index: 10;
@@ -48,6 +47,18 @@
 
 .hiddenAOIRectangle {
   pointer-events: none;
+  background-color: red;
+  border: 3px dashed black;
+}
+
+.AOIName {
+  color: white;
+  font-size: 1.5em;
+  left: 50%;
+  top: 50%;
+  display: inline-block;
+  position: relative;
+  transform: translate(-50%, -50%);
 }
 
 .dragAndDropArea {

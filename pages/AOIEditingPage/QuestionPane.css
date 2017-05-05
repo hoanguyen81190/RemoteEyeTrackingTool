@@ -1,0 +1,23 @@
+.questionPane {
+  height: 75%;
+  width: 100%;
+  bottom: 0;
+  position: absolute;
+  padding: 5px;
+  border: 2px solid white;
+}
+
+.smallTextBox {
+  width: 50px;
+  height: auto;
+  position: relative;
+}
+
+.question {
+  border: 1px solid white;
+}
+
+.title {
+  font-weight: bold;
+  display: inline-block;
+}

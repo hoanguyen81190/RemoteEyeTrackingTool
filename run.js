@@ -38,6 +38,9 @@ router.post('/', function(req, res) {
       saveToFile(user.fileName, user.data);
       res.json({message: 'Success'});
     }
+    else if (request === 'save question') {
+      saveQuestion(user.path, user.fileName, user.data);
+    }
     else if (request === 'save data') {
       excelWorker.saveAsExcel(user.fileName, user.data);
       res.json({message: 'Success'});
@@ -64,6 +67,13 @@ app.use(function(req, res, next) {
 app.use('/api', router);
 var port = 3000;
 app.listen(port);
+
+function saveQuestion(path, fileName, data) {
+  if(!fs.existsSync(path)) {
+    fs.mkdirSync(path);
+  }
+  saveToFile(path + '/' + fileName, data);
+}
 
 function saveToFile(fileName, data) {
   fs.writeFile(fileName, data, function(err) {
