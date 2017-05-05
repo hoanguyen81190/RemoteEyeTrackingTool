@@ -1,31 +1,55 @@
 .container{
   width: 100%;
   height: 100%;
-  background-color: rgb(220,220,220);
+  background-color: rgb(223,223,223);
 }
 
 .instructionsWrapper{
   position: absolute;
-  margin-top: 2%;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 10%;
+  width: 80%;
+  height: 120px;
+}
+
+.instructions{
+  position: absolute;
+  padding-top: 20px;
+  height: calc(50% - 20px);
+  width: 100%;
+  text-align: center;
   font-size: 2em;
   font-family: sans-serif;
-  max-width: 50%;
+}
 
+.trueText{
+  position: absolute;
+  padding-top: 20px;
+  height: calc(50% - 20px);
+  top: 50%;
+  left: 25%;
+  width: 25%;
+  text-align: center;
+  font-size: 2em;
+  font-family: sans-serif;
+}
 
-  box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
-  border: 2px solid black;
-  padding: 12px;
-  background-color: rgb(200,200,200);
-  border-radius: 10px;
+.falseText{
+  position: absolute;
+  padding-top: 20px;
+  height: calc(50% - 20px);
+  top: 50%;
+  left: 50%;
+  width: 25%;
+  text-align: center;
+  font-size: 2em;
+  font-family: sans-serif;
 }
 
 .stimuliWrapper{
+  position: absolute;
   width: 100%;
-  height: 100%;
+  height: calc(100% - 120px); /*The height of the instructions div */
+  top: 120px; /*The height of the instructions div */
 }
 
 .stimuli{

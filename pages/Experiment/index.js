@@ -16,10 +16,9 @@ import store from '../../core/store';
 import testData from '../../ExperimentDataExample.json';
 
 //The root folder that contains all the stimuli images and data
-const stimuliFolder = './resources/experiment/stimuli/'; //For the webserver
-const stimuliFolderImages = '../../resources/experiment/stimuli/'; //To read the images here
+const stimuliFolder = './public/experiment/stimuli/'; //For the webserver
 
-import hsiOrderJson from '../../resources/experiment/hsiOrder.json';
+import hsiOrderJson from '../../public/experiment/hsiOrder.json';
 
 class Experiment extends React.Component {
   constructor() {
@@ -27,9 +26,11 @@ class Experiment extends React.Component {
 
     //Set the initial state of the component
     this.state = {
-      type: "Instructions",
-      taskCounter: -1
+      type: "BlockInstructions",
+      hsiData: null
     };
+
+    this.dataRecieved = false;
 
     //Bind all the callback functions with the context of this
     this.handleStateUpdate = this.changeState.bind(this);
@@ -45,8 +46,14 @@ class Experiment extends React.Component {
 
     //The id of the current participant
     this.participantId = store.getState().participantId;
-    //The index of the HSI to load from the hsiOrder
-    this.hsiIndex = 0;
+
+    //The variables used to control the flow of the experiment.
+    this.hsiIndex = 0; //The index of the HSI to load from the hsiOrder
+    this.nmbHSI = null; //The number of HSIs
+    this.questionIndex = 0; //e.g. The index of the current question
+    this.nmbQuestions = null; //The number of questions in the HSI
+    this.trialIndex = 0; //The index of the current trial
+    this.nmbTrials = null; //The number of trials in the current question
 
     /*
     The loaded 2D array of hsi orders. Use the participant id % hsiOrder.length
@@ -64,16 +71,8 @@ class Experiment extends React.Component {
       hsiData: []
     };
 
-    //Holds all the data required to run the experiment
-    this.hsiData = null;
-
-    //The variables used to control the flow of the experiment.
-    this.questions = []; //The names of the question folders
-    this.currQuestion = 0; //e.g. The index of the current question
-    this.trials = []; //The loaded trials of the current question
-    this.currTrial = 0; //The index of the current trial
-
-    this.testSaveData = this._testSaveData.bind(this);
+    //Holds the data for the current trial
+    this.trialIndexData = null;
   }
 
   changeState(newState){
@@ -81,7 +80,6 @@ class Experiment extends React.Component {
       case "Stimuli" : {
         this.setState({
           type: newState,
-          taskCounter: this.state.taskCounter++
         });
         break;
       }
@@ -98,54 +96,61 @@ class Experiment extends React.Component {
     });
   }
 
-  componentDidMount() {
-
-  }
-
   componentWillMount() {
     this.readStimuliDir(stimuliFolder, this.handleRecievedData);
   }
 
   loadTrialData(){
     let currHSI = this.hsiOrder[this.participantId%this.hsiOrder.length][this.hsiIndex];
-    console.log(currHSI);
+    let currHSIData = null;
+
+    for(var i = 0; i < this.state.hsiData.length; i++){
+      if(currHSI === this.state.hsiData[i].hsi){
+        currHSIData = this.state.hsiData[i];
+      }
+    }
+
+    this.nmbHSI = this.state.hsiData.length;
+    this.nmbQuestions = currHSIData.questions.length;
+    this.nmbTrials = currHSIData.questions[this.questionIndex].trials.length;
+
+    let currTrial = currHSIData.questions[this.questionIndex].trials[this.trialIndex];
+
+    let result = {
+      currHSI: currHSI,
+      currBlockInstructions: currHSIData.questions[this.questionIndex].blockInstructions,
+      currQuestion: currHSIData.questions[this.questionIndex].question,
+      data: currTrial
+    }
+
+    return result;
   }
 
   onRecievedStimuliData(data){
-    console.log(data);
-    this.hsiData = data;
-  }
-
-  _testSaveData() {
-    console.log(JSON.stringify(testData));
-    var request = new Request('http://localhost:3000/api', {
-       method: 'POST',
-       headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-       },
-       redirect: 'follow',
-       body: JSON.stringify({
-          request: 'save data',
-          fileName: './resources/data/test.xlsx',
-          data: JSON.stringify(testData)
-      })
-      // mode: 'no-cors'
-    });
-      fetch(request).then(function(response) {
-        return response.json();
-      }).then(function(j) {
-        console.log(j);
-      });
+    this.dataRecieved = true;
+    this.setState({
+      hsiData: data
+    })
   }
 
   render() {
     var componentToRender;
 
+    if(!this.dataRecieved){
+      return null;
+    }
+
     switch(this.state.type){
-      case "Instructions" : {
-        componentToRender = <Instructions stateCallback={this.handleStateUpdate} nextKey={this.instructionsKey}
-          instructions='Please determine if "Valve 1" is opened or closed'/>;
+      case "BlockInstructions" : {
+          var trialData = this.loadTrialData();
+          componentToRender = <Instructions stateCallback={this.handleStateUpdate} callbackState="TrialInstructions"
+          nextKey={this.instructionsKey} instructions={trialData.currBlockInstructions}/>;
+        break;
+      }
+      case "TrialInstructions" : {
+          var trialData = this.loadTrialData();
+        componentToRender = <Instructions stateCallback={this.handleStateUpdate} callbackState="Blackscreen"
+        nextKey={this.instructionsKey} instructions={trialData.data.question}/>;
         break;
       }
       case "Blackscreen" : {
@@ -153,11 +158,10 @@ class Experiment extends React.Component {
         break;
       }
       case "Stimuli" : {
-        this.loadTrialData();
-
+          var trialData = this.loadTrialData();
         componentToRender = <Stimuli stateCallback={this.handleStateUpdate} trueKey={this.trueKey} falseKey={this.falseKey} alarmKey={this.alarmKey}
           keyResponseCallback={this.handleKeyResponse} gazeDataCallback={this.handleGazeData}
-          instructions='Please determine if "Valve 1" is opened or closed'/>;
+          trialData={trialData}/>;
         break;
       }
       case "default" : {
@@ -202,6 +206,42 @@ class Experiment extends React.Component {
   onKeyResponse(keyResponse){
     keyResponse.participantId = this.participantId;
     this.keyResponses.push(keyResponse);
+
+    this.prepareNextStep();
+  }
+
+  prepareNextStep(){
+    //Increment the trialIndex and check if we need to move to the next question block
+    this.trialIndex++;
+    if(this.trialIndex === this.nmbTrials){
+      this.trialIndex = 0;
+
+      //Increment the questionIndex and check if we need to move to the next hsi
+      this.questionIndex++;
+      if(this.questionIndex === this.nmbQuestions){
+        this.questionIndex = 0;
+
+        //Increment the hsiIndex and check if the experiment is finished
+        this.hsiIndex++;
+        if(this.hsiIndex === this.nmbHSI){
+          //TODO end experiment here
+          console.log("Experiment finished, all blocks and trials done");
+        }
+        //Otherwise we move on to the next hsi
+        else{
+          this.changeState("Blackscreen");
+        }
+      }
+      //Otherwise we move to the block information screen
+      else{
+        //TODO add the block instruction screen
+        this.changeState("BlockInstructions");
+      }
+    }
+    //Otherwise we go back to the instruction screen
+    else{
+      this.changeState("TrialInstructions");
+    }
   }
 
   readStimuliDir(filename, callback) {

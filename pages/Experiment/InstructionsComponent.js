@@ -5,7 +5,8 @@ import store from '../../core/store';
 
 var key = require('keymaster');
 
-class Instructions extends React.Component {
+//Used for the trial instructions
+class TrialInstructions extends React.Component {
   constructor(props){
     super(props);
     this.handleNextState = this.nextState.bind(this);
@@ -29,9 +30,9 @@ class Instructions extends React.Component {
   }
 
   nextState(){
-    this.props.stateCallback("Blackscreen");
+    this.props.stateCallback(this.props.callbackState);
     return false; //Prevents bubbling of the event
   }
 }
 
-export default Instructions;
+export default TrialInstructions;

@@ -113,18 +113,29 @@ function readStimuliData(dirname) {
           //For every question folder we create a question objct to hold the questions data
           var question = {
             question: questionFolders[y],
+            blockInstructions: "",
             trials: []
           }
 
           //Read the question folders
           var trialDataFolders = fs.readdirSync(dirname + "/" + hsiFolders[i] + "/" + questionFolders[y]);
           for(var z = 0; z < trialDataFolders.length; z++){
-            //Check if the file is a json file
-            if(fs.lstatSync(dirname + "/" + hsiFolders[i] + "/" + questionFolders[y] + "/" + trialDataFolders[z]).isFile() && trialDataFolders[z].includes(".json"))
-            {
-              //For every json file we read in the json data and add it to the questions trials list
-              var trial = JSON.parse(fs.readFileSync(dirname + "/" + hsiFolders[i] + "/" + questionFolders[y] + "/" + trialDataFolders[z], 'utf-8'));
-              question.trials.push(trial);
+
+            if(fs.lstatSync(dirname + "/" + hsiFolders[i] + "/" + questionFolders[y] + "/" + trialDataFolders[z]).isFile()){
+              //Check if the file is a json file
+              if(trialDataFolders[z].includes(".json"))
+              {
+                  //For every json file we read in the json data and add it to the questions trials list
+                  var trial = JSON.parse(fs.readFileSync(dirname + "/" + hsiFolders[i] + "/" + questionFolders[y] + "/" + trialDataFolders[z], 'utf-8'));
+                  question.trials.push(trial);
+
+              }
+              else if(trialDataFolders[z].includes(".txt")){
+                var instructions = fs.readFileSync(dirname + "/" + hsiFolders[i] + "/" + questionFolders[y] + "/" + trialDataFolders[z], 'utf-8');
+                instructions = instructions.replace(/\r?\n|\r/g, " ");
+                instructions = instructions.trim();
+                question.blockInstructions = instructions;
+              }
             }
           }
 
