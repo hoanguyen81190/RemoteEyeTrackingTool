@@ -53,8 +53,6 @@ class AOIComponent extends React.Component {
   }
 
   setContainerSizeBox(wr, hr, w, h, t, l) {
-    console.log("set containerSizeBox");
-
     this.containerSizeBox = {
       width: w,
       height: h
@@ -164,21 +162,23 @@ class AOIComponent extends React.Component {
     let gazeLoc = store.getState().gazeData;
     let result = this.isInside(gazeLoc);
 
-    //If the AOI is not marked as looked at and the cursor is inside we call the on enter function
-    if(result && !this.state.active){
-      this.onEnter();
-    }
     //If the AOI is marked as looked at and the cursor is outside we call the on exit function
-    else if(!result && this.state.active){
+    if(!result.isInside && this.state.active){
       this.onExit();
     }
 
-    if(result){
+    if(result.isInside){
       this.addedFixationPoints.locX += gazeLoc.locX;
       this.addedFixationPoints.locY += gazeLoc.locY;
       this.numberOfFixationPoints ++;
       this.activationTimer += DeltaTime;
     }
+
+    return result;
+  }
+
+  isActive(){
+    return this.state.active;
   }
 
   /**
@@ -207,7 +207,12 @@ class AOIComponent extends React.Component {
           inside = true;
       }
 
-      return inside;
+      let result = {
+        inside: inside,
+        distance: distanceSquared
+      }
+
+      return result;
   }
 }
 

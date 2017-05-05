@@ -122,7 +122,6 @@ class Experiment extends React.Component {
   }
 
   onRecievedStimuliData(data){
-    console.log(data);
     this.hsiData = data;
   }
 

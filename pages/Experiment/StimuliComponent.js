@@ -86,14 +86,8 @@ class StimuliComponent extends React.Component {
 
     let trialData = this.props.trialData;
 
-    // currHSI: currHSI,
-    // currQuestion: currHSIData.questions[this.questionIndex].question,
-    // data: currTrial
-
     let trueInstruction = "Press " + trialData.data.responseKeys[0].key + ' for "'  + trialData.data.responseKeys[0].meaning + '"';
     let falseInstruction = "Press " + trialData.data.responseKeys[1].key + ' for "'  + trialData.data.responseKeys[1].meaning + '"';
-
-    console.log(stimuliFolderImages+trialData.currHSI+"/"+trialData.currQuestion+"/"+trialData.data.image);
 
     return (
       <div className={s.container} ref="imgContainerRef">
@@ -110,7 +104,7 @@ class StimuliComponent extends React.Component {
           aois.AOIs.map((item, index) => {
             var ref = "AOIref" + index;
             this.aoiRefs.push(ref);
-            return (<AOI topLeftX={item.left} topLeftY={item.top} width={item.width} height={item.height} visible={true} name={item.name} ref={ref} gazeDataCallback={this.props.gazeDataCallback}/>);
+            return (<AOI key={index} topLeftX={item.left} topLeftY={item.top} width={item.width} height={item.height} visible={true} name={item.name} ref={ref} gazeDataCallback={this.props.gazeDataCallback}/>);
           })
         }
       </div>
@@ -120,12 +114,23 @@ class StimuliComponent extends React.Component {
   updateAOIs(){
     this.timeSinceStart += this.timerInterval;
     if(this.aoiRefs.length > 0){
+      var closestAOI = null;
       this.aoiRefs.map((aoiRef, index) => {
         var aoi = this.refs[aoiRef];
         if(aoi) {
-          aoi.onTick(this.timerInterval);
+          let result = aoi.onTick(this.timerInterval);
+          if(!closestAOI || result.distance < closestAOI.distance){
+            closestAOI = result;
+          }
         }
       });
+
+      if(closestAOI){
+        //If the AOI is not marked as looked at and the cursor is inside we call the on enter function
+        if(closestAOI.isInside && !closestAOI.isActive()){
+          closestAOI.onEnter();
+        }
+      }
     }
   }
 
