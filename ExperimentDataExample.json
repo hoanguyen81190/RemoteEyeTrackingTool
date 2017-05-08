@@ -17,14 +17,14 @@
 							"gazePath": [
 								{
 									"category": "fixation",
-									"startTime": 2,
-									"endTime": 5,
-									"duration": 3,
-									"position": {
-										"X": 4,
-										"Y": 5
+									"eventStart": 2,
+									"eventEnd": 5,
+									"eventDuration": 3,
+									"fixationPos": {
+										"posX": 4,
+										"posY": 5
 									},
-									"aoi": "white space"
+									"aoiName": "white space"
 								}
 							]
 						}
