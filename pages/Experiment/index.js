@@ -157,7 +157,7 @@ class Experiment extends React.Component {
 
   render() {
     var componentToRender;
-
+    console.log(this.state.hsiData);
     if(!this.dataRecieved){
       return null;
     }
@@ -165,20 +165,20 @@ class Experiment extends React.Component {
     switch(this.state.type){
       case "BlockInstructions" : {
           var trialData = this.loadTrialData();
-          componentToRender = <Instructions stateCallback={this.handleStateUpdate} callbackState="TrialInstructions"
+          componentToRender = <Instructions stateCallback={this.handleStateUpdate} callbackState="PracticeSession"
           nextKey={this.instructionsKey} instructions={trialData.currBlockInstructions}/>;
-        break;
-      }
-      case "TrialInstructions" : {
-          var trialData = this.loadTrialData();
-        componentToRender = <Instructions stateCallback={this.handleStateUpdate} callbackState="PracticeSession"
-        nextKey={this.instructionsKey} instructions={trialData.data.question}/>;
         break;
       }
       case "PracticeSession" : {
         var trialData = this.loadTrialData();
-        componentToRender = <PracticeComponent stateCallback={this.handleStateUpdate} callbackState="Blackscreen"
+        componentToRender = <PracticeComponent stateCallback={this.handleStateUpdate} callbackState="TrialInstructions"
           responseKeys={trialData.data.responseKeys}/>;
+        break;
+      }
+      case "TrialInstructions" : {
+          var trialData = this.loadTrialData();
+        componentToRender = <Instructions stateCallback={this.handleStateUpdate} callbackState="Blackscreen"
+        nextKey={this.instructionsKey} instructions={trialData.data.question}/>;
         break;
       }
       case "Blackscreen" : {
@@ -231,14 +231,14 @@ class Experiment extends React.Component {
     this.gazePath.push(gazeData);
   }
 
-  onKeyResponse(keyResponse){
+  onKeyResponse(keyResponse, correctAnswer){
     keyResponse.participantId = this.participantId;
     this.keyResponses.push(keyResponse);
 
-    this.prepareNextStep();
+    this.prepareNextStep(correctAnswer);
   }
 
-  prepareNextStep(){
+  prepareNextStep(correctAnswer){
     if(this.experimentFinished){
       return;
     }
@@ -246,11 +246,13 @@ class Experiment extends React.Component {
     console.log("HSI: " + this.hsiIndex);
     console.log("Question: " + this.questionIndex);
     console.log("Trial: " + this.trialIndex);
+    console.log("correctAnswer", correctAnswer);
 
     this.experimentData.hsiData[this.hsiIndex].questions[this.questionIndex].trials.push({
       trial: this.trialIndex,
-      gazePath: this.gazePath,
-      keyResponse: this.keyResponses
+      keyResponse: this.keyResponses,
+      correctAnswer: correctAnswer,
+      gazePath: this.gazePath
     });
 
     this.gazePath = [];
@@ -273,6 +275,7 @@ class Experiment extends React.Component {
           this.experimentFinished = true;
           console.log("Experiment finished, all blocks and trials done");
           console.log(this.experimentData);
+          this.saveDataToExcelFiles(this.experimentData);
         }
         //Otherwise we move on to the next hsi
         else{
@@ -321,6 +324,31 @@ class Experiment extends React.Component {
     else{
       this.changeState("TrialInstructions");
     }
+  }
+
+  saveDataToExcelFiles(excelData) {
+    console.log(excelData);
+    var fileName = './public/experiment/Participant' + excelData.participantId + '.xlsx';
+    var request = new Request('http://localhost:3000/api', {
+       method: 'POST',
+       headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+       },
+       redirect: 'follow',
+       body: JSON.stringify({
+          request: 'save data',
+          fileName: fileName,
+          data: JSON.stringify(excelData)
+      })
+      // mode: 'no-cors'
+    });
+      fetch(request).then(function(response) {
+        return response.json();
+      }).then(function(j) {
+        alert('Data Saved!');
+        console.log(j);
+      });
   }
 
   readStimuliDir(filename, callback) {

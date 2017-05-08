@@ -30,6 +30,8 @@ class CEditingPageStore extends EventEmitter {
       height: 1
     }
     this.AOIs = [];
+    this.tempAOIs = [];
+    this.onFinishDelete = this._onFinishDelete.bind(this);
   }
 
   getRatios() {
@@ -102,18 +104,41 @@ class CEditingPageStore extends EventEmitter {
     this.AOIs.push(aoi);
   }
 
+  _onFinishDelete() {
+    this.AOIs = this.tempAOIs;
+    this.emit(DELETE_AOI_EVENT);
+  }
+
   deleteAOI(aoi) {
     for(var i = this.AOIs.length - 1; i >= 0; i--) {
         var item = this.AOIs[i];
         if((item.top === aoi.top) && (item.left === aoi.left) &&
           (item.width === aoi.width) && (item.height === aoi.height)) {
-           delete(this.AOIs[i]);
            this.AOIs.splice(i, 1);
            break;
         }
     }
+    this.tempAOIs = this.AOIs;
+    this.AOIs = [];
     this.emit(DELETE_AOI_EVENT);
+    window.setTimeout(this.onFinishDelete, 1);
+
   }
+
+
+  setName(name) {
+    var aoi = this.pickedAOI.getInformation();
+    for(var i = 0; i < this.AOIs.length; i++) {
+        var item = this.AOIs[i];
+        if((item.top === aoi.top) && (item.left === aoi.left) &&
+          (item.width === aoi.width) && (item.height === aoi.height)) {
+           this.AOIs[i].name = name;
+           this.pickedAOI.setName(name);
+           break;
+        }
+    }
+  }
+
 
   getAOIs() {
     return this.AOIs;
@@ -132,7 +157,6 @@ class CEditingPageStore extends EventEmitter {
         return null;
     };
     var text = "{ \n \"AOIs\" : [ \n";
-    console.log(aois);
     if(!aois) {
       return;
     }
@@ -282,7 +306,7 @@ class AOIProperties extends React.Component {
   _handleSubmitOnClick() {
     var name = this.refs["nameRef"];
     if(name) {
-      EditingPageStore.getPickedAOI().setName(name.value);
+      EditingPageStore.setName(name.value);
     }
   }
 
@@ -314,6 +338,13 @@ class AOIOnImage extends React.Component {
       name: ""
     }
     this.onClickAOI = this._onClickAOI.bind(this);
+  }
+
+  componentDidMount() {
+    if(this.props.visible) {
+      this.setState({name: this.props.name});
+      console.log(this.state.name);
+    }
   }
 
   setRatios(width, height) {
@@ -501,17 +532,17 @@ class ImageContainer extends React.Component {
     var style = (this.state.cursor === 'arrow') ? (s.dragAndDropArea) : (s.normalArea);
     if(img) {
       var newAOI = (this.state.cursor === 'arrow') ? <AOIOnImage ref="newAOIRef" visible={false}/> : null;
-    return (<div className={style} ref="imgContainerRef">
-        <img className={s.image} src={img}
-          ref="imageRef"
-          onMouseDown={this.onStartNewAOI}
-          onMouseMove={this.onDrawNewAOI}
-          onMouseUp={this.onEndNewAOI}/>
-        {newAOI}
-        {EditingPageStore.getAOIs().map((item, index) => {
-          return <AOIOnImage top={item.top} left={item.left} width={item.width} height={item.height} visible={true}/>
-        })}
-      </div>);
+      return (<div className={style} ref="imgContainerRef">
+          <img className={s.image} src={img}
+            ref="imageRef"
+            onMouseDown={this.onStartNewAOI}
+            onMouseMove={this.onDrawNewAOI}
+            onMouseUp={this.onEndNewAOI}/>
+          {newAOI}
+          {EditingPageStore.getAOIs().map((item, index) => {
+            return <AOIOnImage key={index} top={item.top} left={item.left} width={item.width} height={item.height} name={item.name} visible={true}/>
+          })}
+        </div>);
     }
     else {
       return (<div  className={style}/>);

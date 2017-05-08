@@ -30,25 +30,7 @@ class HomePage extends React.Component {
   }
 
   testSaveExcel() {
-    var request = new Request('http://localhost:3000/api', {
-       method: 'POST',
-       headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-       },
-       redirect: 'follow',
-       body: JSON.stringify({
-          request: 'save data',
-          fileName: './public/experiment/test.xlsx',
-          data: JSON.stringify(excelData)
-      })
-      // mode: 'no-cors'
-    });
-      fetch(request).then(function(response) {
-        return response.json();
-      }).then(function(j) {
-        console.log(j);
-      });
+    // Array.apply(null, {length: 5}).map(Number.call, Number);
   }
 
   render() {

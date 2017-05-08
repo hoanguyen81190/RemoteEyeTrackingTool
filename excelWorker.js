@@ -41,28 +41,68 @@ exports.saveAsExcel = function(fileName, data) {
   worksheet.addRow();
   worksheet.addRow();
 
+  var rows = [];
+
   var columns = ['Participant', 'HSI', 'Question', 'Trial', 'Category', 'Event Start Trial Time [ms]', 'Event End Trial Time [ms]', 'Event Duration [ms]',
                 'Fixation Position X [px]', 'Fixation Position Y [px]', 'AOI Name', 'Image', 'Response Time', 'Answer', 'Correct Answer'];
-
-  worksheet.addRow(columns);
+  var numOfCorrectAns = [];
+  hsiOrder.map((d, i) => {
+    numOfCorrectAns.push(0);
+  });
 
   hsiData.map((hsiItem, hsiIndex) => {
-    var hsi = hsiItem.hsi;
+    var hsiID = hsiItem.hsi;
     var questions = hsiItem.questions;
+    var hsiRows = [];
     questions.map((qItem, qIndex) => {
       var questionId = qItem.question;
       var trials = qItem.trials;
+
       trials.map((tItem, tIndex) => {
-        var keyResponse = tItem.keyResponse;
+        var keyResponse = tItem.keyResponse[0];
         var correctAnswer = tItem.correctAnswer;
+        console.log(correctAnswer, keyResponse.keyPressed);
+        if(correctAnswer === keyResponse.keyPressed) {
+          numOfCorrectAns[hsiIndex]++;
+        }
+        var trialID = tItem.trial;
         var gazePath = tItem.gazePath;
+
         gazePath.map((gItem, gIndex) => {
-          worksheet.addRow([gItem.participantId, hsi, questionId, tIndex, gItem.category, gItem.eventStart, gItem.eventEnd, gItem.eventDuration,
-                            gItem.fixationPos.posX, gItem.fixationPos.posY, gItem.aoiName, gItem.image, keyResponse.responseTime, keyResponse.key, correctAnswer]);
+          var keyPressed;
+          var responseTime;
+          if ((gItem.eventStart <= keyResponse.eventStart) && (gItem.eventEnd > keyResponse.eventStart)) {
+            keyPressed = keyResponse.keyPressed;
+            responseTime = keyResponse.eventStart;
+          }
+          else {
+            keyPressed = '-';
+            responseTime = '-';
+          }
+          hsiRows.push([gItem.participantId, hsiID, questionId, trialID, gItem.category, gItem.eventStart, gItem.eventEnd, gItem.eventDuration,
+                            gItem.fixationPos.posX, gItem.fixationPos.posY, gItem.aoiName, gItem.image, responseTime, keyPressed, correctAnswer]);
         });
       });
     });
+    rows.push({id: hsiID, hsi: hsiRows});
   });
+
+  var total = numOfCorrectAns.reduce((a, b) => a + b);
+  worksheet.addRow(['Total number of correct answers: ', total]);
+  worksheet.addRow();
+  worksheet.addRow();
+  rows.map((hsiRows, index)=>{
+    worksheet.addRow(['HSI ID: ', hsiRows.id]);
+    worksheet.addRow(['Number of correct answers: ', numOfCorrectAns[index]]);
+    worksheet.addRow();
+    worksheet.addRow(columns);
+    hsiRows.hsi.map((r, i) => {
+      worksheet.addRow(r);
+    });
+    worksheet.addRow();
+    worksheet.addRow();
+  });
+
 
   // set an outline level for columns
   //worksheet.getColumn(4).outlineLevel = 0;

@@ -11,8 +11,8 @@
 					"question": "question1",
 					"trials": [
 						{
+							"trial": 0,
 							"keyResponse": {"key": "z", "reponseTime": 2000},
-							"image": "Image1.png",
 							"correctAnswer": "/",
 							"gazePath": [
 								{
@@ -24,7 +24,9 @@
 										"posX": 4,
 										"posY": 5
 									},
-									"aoiName": "white space"
+									"aoiName": "white space",
+									"image": "img.png",
+									"participantId": 0
 								}
 							]
 						}

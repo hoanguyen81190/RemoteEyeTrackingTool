@@ -175,8 +175,8 @@ class StimuliComponent extends React.Component {
         image: "ImageName"
         //image: "this.props.stimuli"
     }
-
-    this.props.keyResponseCallback(keyResponseAction);
+    var correctAnswer = this.props.trialData.data.correctAnswer;
+    this.props.keyResponseCallback(keyResponseAction, this.props.trialData.data.responseKeys[correctAnswer].key);
   }
 
   nextState(){
