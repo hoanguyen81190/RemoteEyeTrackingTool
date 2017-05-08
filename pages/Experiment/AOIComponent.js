@@ -162,11 +162,6 @@ class AOIComponent extends React.Component {
     let gazeLoc = store.getState().gazeData;
     let result = this.isInside(gazeLoc);
 
-    //If the AOI is marked as looked at and the cursor is outside we call the on exit function
-    if(!result.isInside && this.state.active){
-      this.onExit();
-    }
-
     if(result.isInside){
       this.addedFixationPoints.locX += gazeLoc.locX;
       this.addedFixationPoints.locY += gazeLoc.locY;
