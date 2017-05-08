@@ -120,7 +120,17 @@ class StimuliComponent extends React.Component {
         if(aoi) {
           let result = aoi.onTick(this.timerInterval);
           if(!closestAOI || result.distance < closestAOI.distance){
-            closestAOI = result;
+
+            //If the previous closest AOI was active mark it as inactive
+            if(closestAOI && closestAOI.isActive()){
+              closestAOI.onExit();
+            }
+            closestAOI = aoi;
+          }
+
+          //Mark active aois as inactive if the cursor is not inside
+          if(!result.isInside && aoi.isActive()){
+            aoi.onExit();
           }
         }
       });
@@ -137,7 +147,7 @@ class StimuliComponent extends React.Component {
   alarmPressed(){
     console.log("Alarm pressed");
 
-    this.dispatchKeyResponse(store.getState().alarmKey);
+    this.dispatchKeyResponse(this.props.alarmKey);
 
     return false; //Prevents bubbling of the event
   }
@@ -145,7 +155,7 @@ class StimuliComponent extends React.Component {
   truePressed(){
     console.log("True pressed");
 
-    this.dispatchKeyResponse(store.getState().trueKey);
+    this.dispatchKeyResponse(this.props.trueKey);
 
     return false; //Prevents bubbling of the event
   }
@@ -153,7 +163,7 @@ class StimuliComponent extends React.Component {
   falsePressed(){
     console.log("False pressed");
 
-    this.dispatchKeyResponse(store.getState().falseKey);
+    this.dispatchKeyResponse(this.props.falseKey);
 
     return false; //Prevents bubbling of the event
   }

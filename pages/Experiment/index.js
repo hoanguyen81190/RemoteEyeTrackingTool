@@ -31,6 +31,7 @@ class Experiment extends React.Component {
       hsiData: null
     };
 
+    this.experimentFinished = false;
     this.dataRecieved = false;
 
     //Bind all the callback functions with the context of this
@@ -132,6 +133,26 @@ class Experiment extends React.Component {
     this.setState({
       hsiData: data
     })
+
+    let currHSI = this.hsiOrder[this.participantId%this.hsiOrder.length][this.hsiIndex];
+    this.experimentData.hsiData.push({
+      hsi: currHSI,
+      questions: []
+    })
+
+    let currHSIData = null;
+
+    for(var i = 0; i < this.state.hsiData.length; i++){
+      if(currHSI === this.state.hsiData[i].hsi){
+        currHSIData = this.state.hsiData[i];
+      }
+    }
+
+    let currQuestion = currHSIData.questions[this.questionIndex].question;
+    this.experimentData.hsiData[0].questions.push({
+      question: currQuestion,
+      trials: []
+    })
   }
 
   render() {
@@ -218,6 +239,23 @@ class Experiment extends React.Component {
   }
 
   prepareNextStep(){
+    if(this.experimentFinished){
+      return;
+    }
+
+    console.log("HSI: " + this.hsiIndex);
+    console.log("Question: " + this.questionIndex);
+    console.log("Trial: " + this.trialIndex);
+
+    this.experimentData.hsiData[this.hsiIndex].questions[this.questionIndex].trials.push({
+      trial: this.trialIndex,
+      gazePath: this.gazePath,
+      keyResponse: this.keyResponses
+    });
+
+    this.gazePath = [];
+    this.keyResponses = [];
+
     //Increment the trialIndex and check if we need to move to the next question block
     this.trialIndex++;
     if(this.trialIndex === this.nmbTrials){
@@ -232,15 +270,49 @@ class Experiment extends React.Component {
         this.hsiIndex++;
         if(this.hsiIndex === this.nmbHSI){
           //TODO end experiment here
+          this.experimentFinished = true;
           console.log("Experiment finished, all blocks and trials done");
+          console.log(this.experimentData);
         }
         //Otherwise we move on to the next hsi
         else{
+          let currHSI = this.hsiOrder[this.participantId%this.hsiOrder.length][this.hsiIndex];
+          this.experimentData.hsiData.push({
+            hsi: currHSI,
+            questions: []
+          })
+
+          let currHSIData = null;
+          for(var i = 0; i < this.state.hsiData.length; i++){
+            if(currHSI === this.state.hsiData[i].hsi){
+              currHSIData = this.state.hsiData[i];
+            }
+          }
+
+          let currQuestion = currHSIData.questions[this.questionIndex].question;
+          this.experimentData.hsiData[this.hsiIndex].questions.push({
+            question: currQuestion,
+            trials: []
+          })
           this.changeState("Blackscreen");
         }
       }
       //Otherwise we move to the block information screen
       else{
+        let currHSIData = null;
+        let currHSI = this.hsiOrder[this.participantId%this.hsiOrder.length][this.hsiIndex];
+
+        for(var i = 0; i < this.state.hsiData.length; i++){
+          if(currHSI === this.state.hsiData[i].hsi){
+            currHSIData = this.state.hsiData[i];
+          }
+        }
+
+        let currQuestion = currHSIData.questions[this.questionIndex].question;
+        this.experimentData.hsiData[this.hsiIndex].questions.push({
+          question: currQuestion,
+          trials: []
+        })
         //TODO add the block instruction screen
         this.changeState("BlockInstructions");
       }
