@@ -139,9 +139,10 @@ function readStimuliData(dirname) {
             }
           }
 
-          console.log(question.trials);
+          //Randomise the order the trials are given
           shuffleArray(question.trials);
-          console.log(question.trials);
+          //Can seed the random generator to reliably get the same order if required
+
           //Add the question data to the hsi questions list
           hsi.questions.push(question);
         }
