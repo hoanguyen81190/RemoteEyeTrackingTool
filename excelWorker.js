@@ -3,9 +3,30 @@ const fs = require('fs');
 
 var exports = module.exports = {};
 exports.saveAsExcel = function(path, fileName, data) {
+  var fullName = path + '/' + fileName;
   if(!fs.existsSync(path)) {
     fs.mkdirSync(path);
   }
+
+  var workbook = new Excel.Workbook();
+  if(fs.existsSync(fullName)) {
+    workbook.xlsx.readFile(fullName)
+        .then(function() {
+            saveHelper(workbook, fullName, data);
+        });
+  }
+  else {
+    saveHelper(workbook, fullName, data);
+  }
+
+}
+function saveHelper(workbook, fileName, data) {
+  // use workbook
+  // workbook.creator = 'SynOpticonTeam';
+  // workbook.lastModifiedBy = 'SynOpticonTeam';
+  // workbook.created = new Date(2017, 5, 1);
+  // workbook.modified = new Date();
+  // workbook.lastPrinted = new Date();
   var jsonData = JSON.parse(data);
   if (!jsonData) {
     return;
@@ -15,13 +36,6 @@ exports.saveAsExcel = function(path, fileName, data) {
   var hsiOrder = jsonData.hsiOrder;
   var hsiData = jsonData.hsiData;
 
-  var workbook = new Excel.Workbook();
-
-  workbook.creator = 'SynOpticonTeam';
-  workbook.lastModifiedBy = 'SynOpticonTeam';
-  workbook.created = new Date(2017, 5, 1);
-  workbook.modified = new Date();
-  workbook.lastPrinted = new Date();
   workbook.properties.date1904 = true;
   workbook.views = [
     {
@@ -42,9 +56,6 @@ exports.saveAsExcel = function(path, fileName, data) {
   });
   worksheet.addRow(row2);
 
-  worksheet.addRow();
-  worksheet.addRow();
-
   var rows = [];
 
   var columns = ['Participant', 'HSI', 'Question', 'Trial', 'Category', 'Event Start Trial Time [ms]', 'Event End Trial Time [ms]', 'Event Duration [ms]',
@@ -53,6 +64,7 @@ exports.saveAsExcel = function(path, fileName, data) {
   hsiOrder.map((d, i) => {
     numOfCorrectAns.push(0);
   });
+  var numOfTrials = 0;
 
   hsiData.map((hsiItem, hsiIndex) => {
     var hsiID = hsiItem.hsi;
@@ -61,7 +73,7 @@ exports.saveAsExcel = function(path, fileName, data) {
     questions.map((qItem, qIndex) => {
       var questionId = qItem.question;
       var trials = qItem.trials;
-
+      numOfTrials += trials.length;
       trials.map((tItem, tIndex) => {
         var keyResponse = tItem.keyResponse[0];
         var correctAnswer = tItem.correctAnswer;
@@ -72,34 +84,39 @@ exports.saveAsExcel = function(path, fileName, data) {
         var gazePath = tItem.gazePath;
 
         gazePath.map((gItem, gIndex) => {
-          var keyPressed;
-          var responseTime;
-          if ((gItem.eventStart <= keyResponse.eventStart) && (gItem.eventEnd > keyResponse.eventStart)) {
-            keyPressed = keyResponse.keyPressed;
-            responseTime = keyResponse.eventStart;
-          }
-          else {
-            keyPressed = '-';
-            responseTime = '-';
-          }
+          // var keyPressed;
+          // var responseTime;
+          // if ((gItem.eventStart <= keyResponse.eventStart) && (gItem.eventEnd > keyResponse.eventStart)) {
+          //   keyPressed = keyResponse.keyPressed;
+          //   responseTime = keyResponse.eventStart;
+          // }
+          // else {
+          //   keyPressed = '-';
+          //   responseTime = '-';
+          // }
           hsiRows.push([gItem.participantId, hsiID, questionId, trialID, gItem.category, gItem.eventStart, gItem.eventEnd, gItem.eventDuration,
-                            gItem.fixationPos.posX, gItem.fixationPos.posY, gItem.aoiName, gItem.image, responseTime, keyPressed, correctAnswer]);
-
+                            gItem.fixationPos.posX, gItem.fixationPos.posY, gItem.aoiName, gItem.image, '-', '-', '-']);
         });
+        // ['Participant', 'HSI', 'Question', 'Trial', 'Category', 'Event Start Trial Time [ms]', 'Event End Trial Time [ms]', 'Event Duration [ms]',
+        //               'Fixation Position X [px]', 'Fixation Position Y [px]', 'AOI Name', 'Image', 'Response Time', 'Answer', 'Correct Answer'];
+        hsiRows.push([participantId, hsiID, questionId, trialID, 'KeyPressed', keyResponse.eventStart, '-', '-',
+                          '-', '-', '-', '-', '-', keyResponse.keyPressed, correctAnswer]);
       });
-      console.log(hsiRows);
     });
     rows.push({id: hsiID, hsi: hsiRows});
   });
   console.log(rows);
 
+  worksheet.addRow(['Number of trials', numOfTrials]);
+
   var total = numOfCorrectAns.reduce((a, b) => a + b);
-  worksheet.addRow(['Total number of correct answers: ', total]);
+  worksheet.addRow(['Total number of correct answers', total]);
+  worksheet.addRow(['Accuracy (%)', parseFloat(Math.round(((total*100)/numOfTrials) * 100) / 100).toFixed(2)]);
   worksheet.addRow();
   worksheet.addRow();
   rows.map((hsiRows, index)=>{
-    worksheet.addRow(['HSI ID: ', hsiRows.id]);
-    worksheet.addRow(['Number of correct answers: ', numOfCorrectAns[index]]);
+    worksheet.addRow(['HSI ID', hsiRows.id]);
+    worksheet.addRow(['Number of correct answers', numOfCorrectAns[index]]);
     worksheet.addRow();
     worksheet.addRow(columns);
     hsiRows.hsi.map((r, i) => {
@@ -118,7 +135,7 @@ exports.saveAsExcel = function(path, fileName, data) {
   // expect(worksheet.getColumn(5).collapsed).to.equal(true);
 
 
-  workbook.xlsx.writeFile(path + '/' + fileName)
+  workbook.xlsx.writeFile(fileName)
       .then(function() {
           console.log("Excel file saved!");
       });

@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import s from './QuestionPane.css';
+import s from './styles.css';
 
 class Question extends React.Component {
   constructor(props) {
@@ -38,13 +38,22 @@ class Question extends React.Component {
           },
           {
             key: (this.refs["key2Ref"].value === "") ? this.refs["key2Ref"].placeholder : this.refs["key2Ref"].value,
-            meaning: this.refs["meaning2Ref"].value
+            meaning: (this.refs["meaning2Ref"].value === "") ? this.refs["meaning2Ref"].placeholder : this.refs["meaning2Ref"].value
           }
         ],
         correctAnswer: this.findCheckedRadioButton(),
         image: this.refs["fileUploader"].value
       }
     });
+  }
+
+  onSaveButtonClicked() {
+
+    this.props.addCallBack();
+  }
+
+  onResetButtonClicked() {
+    // this.refs["hs"]
   }
 
   render() {
@@ -54,14 +63,14 @@ class Question extends React.Component {
         </div>
       </div>
       <div>
-        <div>Question: <input type="text" ref="questionRef"/></div>
+        <div>Question: <textarea name="Text1" cols="40" rows="5" ref="questionRef" className={s.questionInputText}/></div>
         Response Keys: (Please choose the correct one)
         <div><input type="radio" name="correct" value="0" ref="radio0"/>Key: <input type="text" placeholder="z" ref="key0Ref" className={s.smallTextBox}/>Meaning: <input type="text" ref="meaning0Ref"/></div>
         <div><input type="radio" name="correct" value="1" ref="radio1"/>Key: <input type="text" placeholder="/" ref="key1Ref" className={s.smallTextBox}/>Meaning: <input type="text" ref="meaning1Ref"/></div>
-        <div><input type="radio" name="correct" value="2" ref="radio2"/>Key: <input type="text" placeholder="space" ref="key2Ref" className={s.smallTextBox}/>Meaning: <input type="text" ref="meaning2Ref"/></div>
+        <div><input type="radio" name="correct" value="2" ref="radio2"/>Key: <input type="text" placeholder="space" ref="key2Ref" className={s.smallTextBox}/>Meaning: <input type="text" ref="meaning2Ref" placeholder="Alarm"/></div>
       </div>
       <div>Image: <input type="text" ref="fileUploader"/></div>
-      <div><button onClick={this.props.addCallBack}>Save</button><button>Reset</button></div>
+      <div><button onClick={this.onSaveButtonClicked}>Save</button><button onClick={this.onResetButtonClicked}>Reset</button></div>
     </div>);
   }
 }
@@ -94,7 +103,7 @@ class QuestionPane extends React.Component {
             request: 'save question',
             path: path,
             fileName: fileName,
-            data: JSON.stringify(q.body),
+            data: JSON.stringify(q.body, null, "\t"),
         })
         // mode: 'no-cors'
       });
@@ -108,8 +117,8 @@ class QuestionPane extends React.Component {
 
   render() {
     return(<div className={s.questionPane}>
-      <div className={s.title}>Question</div>
-      <Question addCallBack={()=>{this.addNewQuestion()}} ref="newQuestionRef"/><button>New question</button>
+      <div className={s.title}>New Question</div>
+      <Question addCallBack={()=>{this.addNewQuestion()}} ref="newQuestionRef"/>
     </div>);
   }
 }

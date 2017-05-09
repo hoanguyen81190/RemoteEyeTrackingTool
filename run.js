@@ -35,11 +35,12 @@ router.post('/', function(req, res) {
   // console.log(user.fileName, user.data);
   try {
     if (request === 'save aois') {
-      saveToFile(user.fileName, user.data);
+      saveJson(user.path, user.fileName, user.data);
       res.json({message: 'Success'});
     }
     else if (request === 'save question') {
-      saveQuestion(user.path, user.fileName, user.data);
+      saveJson(user.path, user.fileName, user.data);
+      res.json({message: 'Success'});
     }
     else if (request === 'save data') {
       excelWorker.saveAsExcel(user.path, user.fileName, user.data);
@@ -68,15 +69,12 @@ app.use('/api', router);
 var port = 3000;
 app.listen(port);
 
-function saveQuestion(path, fileName, data) {
+function saveJson(path, fileName, data) {
   if(!fs.existsSync(path)) {
     fs.mkdirSync(path);
   }
-  saveToFile(path + '/' + fileName, data);
-}
-
-function saveToFile(fileName, data) {
-  fs.writeFile(fileName, data, function(err) {
+  var fullFileName = path + '/' + fileName;
+  fs.writeFile(fullFileName, data, function(err) {
     if(err) {
       console.error(err);
     }
@@ -84,7 +82,7 @@ function saveToFile(fileName, data) {
       console.log('finished!');
     }
   });
-  return "hello";
+  return;
 };
 
 function readStimuliData(dirname) {

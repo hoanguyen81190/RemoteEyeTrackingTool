@@ -18,6 +18,10 @@
     "page": "./pages/AOIEditingPage"
   },
   {
+    "path": "/QuestionEditingPage",
+    "page": "./pages/QuestionEditingPage"
+  },
+  {
     "path": "/experiment",
     "page": "./pages/Experiment"
   },

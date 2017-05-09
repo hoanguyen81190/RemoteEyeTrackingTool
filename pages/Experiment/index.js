@@ -317,7 +317,6 @@ class Experiment extends React.Component {
       }
       //Otherwise we move to the block information screen
       else{
-        this.saveDataToExcelFiles(this.experimentData);
         let currHSIData = null;
         let currHSI = this.hsiOrder[this.participantId%this.hsiOrder.length][this.hsiIndex];
 

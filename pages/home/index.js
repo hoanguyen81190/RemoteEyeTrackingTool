@@ -29,13 +29,16 @@ class HomePage extends React.Component {
     history.push('/Experiment');
   }
 
+  handleOpenQuestionPage() {
+    history.push('/QuestionEditingPage');
+  }
+
   render() {
     return (
       <Layout><div className={s.container}>
         <div className={s.buttonsWrapper}>
           <button className={s.button} onClick={()=>this.handleOpenEditingPage()}>Test Editing Page</button>
           <button className={s.button} onClick={()=>this.handleOpenExperimentPage()}>Test Experiment Page</button>
-          <button className={s.button} onClick={()=>this.testSaveExcel()}>Test Save Excel Data</button>
         </div>
         <button className={s.fullscreenButton} onClick={()=>this.toggleFullscreen()}>Fullscreen</button>
     </div></Layout>
