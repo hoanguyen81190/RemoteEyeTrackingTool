@@ -4,13 +4,23 @@
   background-color: rgb(223,223,223);
 }
 
-.instructionsWrapper{
+.formWrapper{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+}
+
+.participantField{
+
+}
+.fieldName{
+  margin-left: 15px;
+}
+
+.submitButton{
   position: absolute;
   margin-top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 2em;
-  font-family: sans-serif;
-  max-width: 50%;
-  line-height: 1em;
 }

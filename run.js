@@ -43,7 +43,7 @@ router.post('/', function(req, res) {
       res.json({message: 'Success'});
     }
     else if (request === 'save data') {
-      excelWorker.saveAsExcel(user.fileName, user.data);
+      excelWorker.saveAsExcel(user.path, user.fileName, user.data);
       res.json({message: 'Success'});
     }
     else if(request === 'read stimuli data'){

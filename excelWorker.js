@@ -1,7 +1,11 @@
 var Excel = require('exceljs');
+const fs = require('fs');
 
 var exports = module.exports = {};
-exports.saveAsExcel = function(fileName, data) {
+exports.saveAsExcel = function(path, fileName, data) {
+  if(!fs.existsSync(path)) {
+    fs.mkdirSync(path);
+  }
   var jsonData = JSON.parse(data);
   if (!jsonData) {
     return;
@@ -61,7 +65,6 @@ exports.saveAsExcel = function(fileName, data) {
       trials.map((tItem, tIndex) => {
         var keyResponse = tItem.keyResponse[0];
         var correctAnswer = tItem.correctAnswer;
-        console.log(correctAnswer, keyResponse.keyPressed);
         if(correctAnswer === keyResponse.keyPressed) {
           numOfCorrectAns[hsiIndex]++;
         }
@@ -81,11 +84,14 @@ exports.saveAsExcel = function(fileName, data) {
           }
           hsiRows.push([gItem.participantId, hsiID, questionId, trialID, gItem.category, gItem.eventStart, gItem.eventEnd, gItem.eventDuration,
                             gItem.fixationPos.posX, gItem.fixationPos.posY, gItem.aoiName, gItem.image, responseTime, keyPressed, correctAnswer]);
+
         });
       });
+      console.log(hsiRows);
     });
     rows.push({id: hsiID, hsi: hsiRows});
   });
+  console.log(rows);
 
   var total = numOfCorrectAns.reduce((a, b) => a + b);
   worksheet.addRow(['Total number of correct answers: ', total]);
@@ -112,7 +118,7 @@ exports.saveAsExcel = function(fileName, data) {
   // expect(worksheet.getColumn(5).collapsed).to.equal(true);
 
 
-  workbook.xlsx.writeFile(fileName)
+  workbook.xlsx.writeFile(path + '/' + fileName)
       .then(function() {
           console.log("Excel file saved!");
       });

@@ -23,11 +23,13 @@ class StimuliComponent extends React.Component {
     this.handleAOIUpdate = this.updateAOIs.bind(this);
 
     this.aoiRefs = [];
-    this.timerInterval = 2;
+    this.timerInterval = 4.5;
 
     this.firstRender = true;
 
     this.timeSinceStart = 0;
+
+    this.closestAOI = null;
   }
 
   componentDidMount() {
@@ -70,6 +72,8 @@ class StimuliComponent extends React.Component {
     if(this.firstRender){
       this.firstRender = false;
 
+      console.log(this.props.trialData);
+
       let gazePathAction =
       {
           aoiName: "-",
@@ -81,8 +85,7 @@ class StimuliComponent extends React.Component {
             posX: "-",
             posY: "-"
           },
-          // image: this.props.imageName
-          image: "ImageName"
+          image: this.props.trialData.data.image
       }
 
       this.props.gazeDataCallback(gazePathAction)
@@ -121,30 +124,34 @@ class StimuliComponent extends React.Component {
     this.timeSinceStart += this.timerInterval;
     if(this.aoiRefs.length > 0){
       var closestAOI = null;
+      var closestResult = null;
       this.aoiRefs.map((aoiRef, index) => {
         var aoi = this.refs[aoiRef];
         if(aoi) {
           let result = aoi.onTick(this.timerInterval);
-          if(!closestAOI || result.distance < closestAOI.distance){
 
-            //If the previous closest AOI was active mark it as inactive
-            if(closestAOI && closestAOI.isActive()){
-              closestAOI.onExit();
-            }
+          if(!closestAOI || result.distance < closestResult.distance){
             closestAOI = aoi;
+            closestResult = result;
           }
 
           //Mark active aois as inactive if the cursor is not inside
-          if(!result.isInside && aoi.isActive()){
+          if(!result.inside && aoi.isActive()){
             aoi.onExit();
           }
         }
       });
 
+      //If the previous closest AOI was active mark it as inactive
+      if(this.closestAOI && this.closestAOI !== closestAOI && this.closestAOI.isActive()){
+        this.closestAOI.onExit();
+      }
+
       if(closestAOI){
         //If the AOI is not marked as looked at and the cursor is inside we call the on enter function
-        if(closestAOI.isInside && !closestAOI.isActive()){
+        if(closestResult.inside && !closestAOI.isActive()){
           closestAOI.onEnter();
+          this.closestAOI = closestAOI;
         }
       }
     }
@@ -178,7 +185,7 @@ class StimuliComponent extends React.Component {
     let keyResponseAction = {
         keyPressed: keyPressed,
         eventStart: this.timeSinceStart,
-        image: "ImageName"
+        image: this.props.trialData.data.image
         //image: "this.props.stimuli"
     }
     var correctAnswer = this.props.trialData.data.correctAnswer;
