@@ -109,7 +109,8 @@ class AOIComponent extends React.Component {
   }
 
   onEnter(){
-    this.eventStart = this.timeSinceBeginning;
+    //this.eventStart = this.timeSinceBeginning;
+    this.eventStart = Date.now() - store.getState().trialStartTimestamp;
 
     this.setState({
       active: true,
@@ -117,9 +118,11 @@ class AOIComponent extends React.Component {
   }
 
   onExit(){
-    this.eventEnd = this.timeSinceBeginning;
+    //this.eventEnd = this.timeSinceBeginning;
+    this.eventEnd = Date.now() - store.getState().trialStartTimestamp;
+    let eventDuration = this.eventEnd-this.eventStart;
 
-    if(this.activationTimer > this.activationThreshold){
+    if(eventDuration > this.activationThreshold){
       //TODO calculate fixation centroid instead of the average of the points
       let fixationLocX = parseFloat((this.addedFixationPoints.locX/this.numberOfFixationPoints).toFixed(1));
       let fixationLocY = parseFloat((this.addedFixationPoints.locY/this.numberOfFixationPoints).toFixed(1));
@@ -129,7 +132,7 @@ class AOIComponent extends React.Component {
           category: "Fixation",
           eventStart: this.eventStart,
           eventEnd: this.eventEnd,
-          eventDuration: this.eventEnd-this.eventStart,
+          eventDuration: eventDuration,
           fixationPos: {
             posX: fixationLocX,
             posY: fixationLocY
@@ -137,9 +140,6 @@ class AOIComponent extends React.Component {
           aoiName: this.props.name,
           image: "-"
       }
-
-      console.log("OnExitAOI");
-      console.log(this.activationTimer);
 
       this.props.gazeDataCallback(gazePathAction)
     }

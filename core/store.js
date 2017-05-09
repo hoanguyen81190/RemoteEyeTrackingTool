@@ -12,7 +12,9 @@ const initialState = {
   },
 
   widthRatio: 1,
-  heightRatio: 1
+  heightRatio: 1,
+
+  trialStartTimestamp: null
 };
 
 const store = createStore((state = initialState, action) => {
@@ -26,6 +28,10 @@ const store = createStore((state = initialState, action) => {
     }
     case 'SET_AOI_RATIOS': {
       return {...state, widthRatio: action.widthRatio, heightRatio: action.heightRatio};
+    }
+    case 'SET_TRIAL_START_TS': {
+      console.log("STORE RECIEVED TIMESTAMP");
+      return {...state, trialStartTimestamp: action.timestamp};
     }
     default:
       return state;

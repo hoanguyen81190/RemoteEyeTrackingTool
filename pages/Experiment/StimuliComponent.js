@@ -30,9 +30,13 @@ class StimuliComponent extends React.Component {
     this.timeSinceStart = 0;
 
     this.closestAOI = null;
+    this.keyPressed = false;
+    this.firstUpdate = true;
   }
 
   componentDidMount() {
+    this.firstUpdate = true;
+
     key.setScope('stimuli');
     key(this.props.trueKey, 'stimuli', this.handleTruePressed);
     key(this.props.falseKey, 'stimuli', this.handleFalsePressed);
@@ -121,6 +125,16 @@ class StimuliComponent extends React.Component {
   }
 
   updateAOIs(){
+    if(this.firstUpdate){
+      let timestampAction = {
+        type: 'SET_TRIAL_START_TS',
+        timestamp: Date.now()
+      }
+      store.dispatch(timestampAction);
+
+      this.firstUpdate = false;
+    }
+
     this.timeSinceStart += this.timerInterval;
     if(this.aoiRefs.length > 0){
       var closestAOI = null;
@@ -128,6 +142,7 @@ class StimuliComponent extends React.Component {
       this.aoiRefs.map((aoiRef, index) => {
         var aoi = this.refs[aoiRef];
         if(aoi) {
+
           let result = aoi.onTick(this.timerInterval);
 
           if(!closestAOI || result.distance < closestResult.distance){
@@ -135,8 +150,8 @@ class StimuliComponent extends React.Component {
             closestResult = result;
           }
 
-          //Mark active aois as inactive if the cursor is not inside
-          if(!result.inside && aoi.isActive()){
+          //Mark active aois as inactive if the cursor is not inside, or if the key was pressed
+          if(!result.inside && aoi.isActive() || this.keyPressed && aoi.isActive()){
             aoi.onExit();
           }
         }
@@ -182,14 +197,22 @@ class StimuliComponent extends React.Component {
   }
 
   dispatchKeyResponse(keyPressed){
+    this.addLastFixation();
+
     let keyResponseAction = {
         keyPressed: keyPressed,
-        eventStart: this.timeSinceStart,
+        eventStart: Date.now() - store.getState().trialStartTimestamp,
         image: this.props.trialData.data.image
-        //image: "this.props.stimuli"
     }
     var correctAnswer = this.props.trialData.data.correctAnswer;
     this.props.keyResponseCallback(keyResponseAction, this.props.trialData.data.responseKeys[correctAnswer].key);
+  }
+
+  //Called when a key was pressed to end the current trial. If the participant is looking at an AOI at this time we want to add that fixation data to the gaze path
+  addLastFixation(){
+    this.keyPressed = true;
+    this.updateAOIs();
+    this.keyPressed = false;
   }
 
   nextState(){
