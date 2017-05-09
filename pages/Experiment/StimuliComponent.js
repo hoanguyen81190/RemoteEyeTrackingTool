@@ -216,7 +216,7 @@ class StimuliComponent extends React.Component {
   }
 
   nextState(){
-    this.props.stateCallback("Blackscreen");
+    this.props.stateCallback("TrialInstructions");
   }
 }
 

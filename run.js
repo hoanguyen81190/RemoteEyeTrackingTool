@@ -82,7 +82,7 @@ function saveJson(path, fileName, data) {
       console.log('finished!');
     }
   });
-  return "hello";
+  return;
 };
 
 function readStimuliData(dirname) {
