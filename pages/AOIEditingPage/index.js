@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import s from './styles.css';
 import QuestionPane from './QuestionPane';
+import Layout from '../../components/Layout';
 
 const EventEmitter = require('events');
 
@@ -606,12 +607,14 @@ class AOIEditingPage extends React.Component {
 
   render() {
     var aoiProperties = (EditingPageStore.getMode() === EDIT_MODE) ? <AOIProperties /> : null;
-    return (<div className={s.page}>
+    return (<Layout>
+      <div className={s.page}>
       <LeftPanel />
       <div className={s.rightPanel}>
         <ImageContainer />
       </div>
       </div>
+    </Layout>
     );
   }
 
