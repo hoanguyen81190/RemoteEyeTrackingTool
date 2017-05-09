@@ -195,7 +195,7 @@ class StimuliComponent extends React.Component {
 
     let keyResponseAction = {
         keyPressed: keyPressed,
-        eventStart: this.timeSinceStart,
+        eventStart: Date.now() - store.getState().trialStartTimestamp,
         image: this.props.trialData.data.image
     }
     var correctAnswer = this.props.trialData.data.correctAnswer;
