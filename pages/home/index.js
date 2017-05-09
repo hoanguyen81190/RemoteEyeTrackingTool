@@ -29,18 +29,19 @@ class HomePage extends React.Component {
     history.push('/Experiment');
   }
 
-  testSaveExcel() {
-    // Array.apply(null, {length: 5}).map(Number.call, Number);
+  handleOpenQuestionPage() {
+    history.push('/QuestionEditingPage');
   }
 
   render() {
     return (
       <div >
-        <button onClick={()=>this.handleOpenEditingPage()}>Test Editing Page</button>
+        <button onClick={()=>this.handleOpenEditingPage()}>Editing Areas of Interest</button>
+        <br/>
+        <button onClick={()=>this.handleOpenQuestionPage()}>Add New Question</button>
         <br/>
         <button onClick={()=>this.handleOpenExperimentPage()}>Test Experiment Page</button>
-        <br/>
-        <button onClick={()=>this.testSaveExcel()}>Test Save Excel Data</button>
+
       </div>);
   }
 

@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
 import s from './styles.css';
-import QuestionPane from './QuestionPane';
 
 import savedAOIs from '../../public/experiment/aois.json';
 
@@ -105,6 +104,8 @@ class CEditingPageStore extends EventEmitter {
 
   emitImageChange(img) {
     if(img) {
+      console.log(savedAOIs);
+      this.AOIs = savedAOIs.AOIs;
       this.image = img;
       this.emit(IMAGE_CHANGE_EVENT);
     }
@@ -601,7 +602,6 @@ class LeftPanel extends React.Component {
     return(<div className={s.leftPanel}>
       <ToolBox/>
       {aoiProperties}
-      <QuestionPane />
     </div>);
   }
 }
@@ -618,12 +618,6 @@ class AOIEditingPage extends React.Component {
 
   componentDidMount() {
   }
-
-  // componentWillMount() {
-  //   savedAOIs.AOIs.map((aoi, index)=>{
-  //     EditingPageStore.addAOI(aoi);
-  //   });
-  // }
 
   handleChange() {
 
