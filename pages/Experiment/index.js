@@ -75,6 +75,8 @@ class Experiment extends React.Component {
 
     //Holds the data for the current trial
     this.trialIndexData = null;
+
+    this.previousFixationIndex = null;
   }
 
   initDataStructure(){
@@ -225,8 +227,8 @@ class Experiment extends React.Component {
 
   onGazeData(gazeData){
     if(this.gazePath.length > 0){
-      let prevAction = this.gazePath[this.gazePath.length-1];
-      if(prevAction.category === "Fixation" && gazeData.category=== "Fixation"){
+      let prevAction = this.gazePath[this.previousFixationIndex];
+      if(prevAction.category === "Fixation" && gazeData.category === "Fixation"){
         let saccade = {
             category: "Saccade",
             eventStart: prevAction.eventEnd,
@@ -246,6 +248,7 @@ class Experiment extends React.Component {
 
     gazeData.participantId = this.participantId;
     this.gazePath.push(gazeData);
+    this.previousFixationIndex = this.gazePath.length-1;
   }
 
   onKeyResponse(keyResponse, correctAnswer){
@@ -314,6 +317,7 @@ class Experiment extends React.Component {
       }
       //Otherwise we move to the block information screen
       else{
+        this.saveDataToExcelFiles(this.experimentData);
         let currHSIData = null;
         let currHSI = this.hsiOrder[this.participantId%this.hsiOrder.length][this.hsiIndex];
 
@@ -339,8 +343,8 @@ class Experiment extends React.Component {
   }
 
   saveDataToExcelFiles(excelData) {
-    console.log(excelData);
-    var fileName = './public/experiment/Participant' + excelData.participantId + '.xlsx';
+    console.log("save", excelData);
+    var fileName = 'ExperimentData.xlsx';
     var request = new Request('http://localhost:3000/api', {
        method: 'POST',
        headers: {
@@ -350,6 +354,7 @@ class Experiment extends React.Component {
        redirect: 'follow',
        body: JSON.stringify({
           request: 'save data',
+          path: './public/experiment/data',
           fileName: fileName,
           data: JSON.stringify(excelData)
       })

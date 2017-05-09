@@ -23,11 +23,13 @@ class StimuliComponent extends React.Component {
     this.handleAOIUpdate = this.updateAOIs.bind(this);
 
     this.aoiRefs = [];
-    this.timerInterval = 2;
+    this.timerInterval = 4.5;
 
     this.firstRender = true;
 
     this.timeSinceStart = 0;
+
+    this.closestAOI = null;
   }
 
   componentDidMount() {
@@ -123,11 +125,6 @@ class StimuliComponent extends React.Component {
           let result = aoi.onTick(this.timerInterval);
 
           if(!closestAOI || result.distance < closestResult.distance){
-
-            //If the previous closest AOI was active mark it as inactive
-            if(closestAOI && closestAOI.isActive()){
-              closestAOI.onExit();
-            }
             closestAOI = aoi;
             closestResult = result;
           }
@@ -139,10 +136,16 @@ class StimuliComponent extends React.Component {
         }
       });
 
+      //If the previous closest AOI was active mark it as inactive
+      if(this.closestAOI && this.closestAOI !== closestAOI && this.closestAOI.isActive()){
+        this.closestAOI.onExit();
+      }
+
       if(closestAOI){
         //If the AOI is not marked as looked at and the cursor is inside we call the on enter function
         if(closestResult.inside && !closestAOI.isActive()){
           closestAOI.onEnter();
+          this.closestAOI = closestAOI;
         }
       }
     }

@@ -24,7 +24,7 @@ class AOIComponent extends React.Component {
     this.name = this.props.name;
 
     //TODO tune this parameter
-    this.activationThreshold = 100; //100 ms activation threshold so saccades do not activate the AOI
+    this.activationThreshold = 150; //100 ms activation threshold so saccades do not activate the AOI
     this.activationTimer = 0;
 
     this.hiddenStyle = {
@@ -119,9 +119,6 @@ class AOIComponent extends React.Component {
   onExit(){
     this.eventEnd = this.timeSinceBeginning;
 
-    console.log("OnExitAOI");
-    console.log(this.activationTimer);
-
     if(this.activationTimer > this.activationThreshold){
       //TODO calculate fixation centroid instead of the average of the points
       let fixationLocX = parseFloat((this.addedFixationPoints.locX/this.numberOfFixationPoints).toFixed(1));
@@ -140,6 +137,9 @@ class AOIComponent extends React.Component {
           aoiName: this.props.name,
           image: "-"
       }
+
+      console.log("OnExitAOI");
+      console.log(this.activationTimer);
 
       this.props.gazeDataCallback(gazePathAction)
     }

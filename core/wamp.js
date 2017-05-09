@@ -16,12 +16,38 @@ connection.onopen = function (sess, details) {
   function onRETData(args) {
     let gazeRadius = store.getState().gazeCursorRadius;
 
-    let gazeData = args[1];
+
+
+
+
+  let gazeData = args[1];
+  let gazeX = 0;
+  let gazeY = 0;
+
+  //Both eyes valid
+  if(!(gazeData[0] < Number.EPSILON && gazeData[3] < Number.EPSILON)){
+    gazeX = (gazeData[1] + gazeData[4])/2;
+    gazeY = (gazeData[2] + gazeData[5])/2;
+  }
+  //Left eye validity
+  else if(!(gazeData[0] < Number.EPSILON)){
+    gazeX = gazeData[1];
+    gazeY = gazeData[2];
+  }
+  //Right eye validity
+  else if(!(gazeData[3] < Number.EPSILON)){
+    gazeX = gazeData[4];
+    gazeY = gazeData[5];
+  }
+  else{
+    return;
+  }
+
     let gazeAction = {
       type: 'SET_GAZE_DATA',
       gazeData: {
-        locX: ((gazeData[1] + gazeData[4])/2),
-        locY: ((gazeData[2] + gazeData[5])/2)
+        locX: gazeX,
+        locY: gazeY
       }
     }
     store.dispatch(gazeAction);

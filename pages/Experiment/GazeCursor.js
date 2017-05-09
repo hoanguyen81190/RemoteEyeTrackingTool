@@ -27,7 +27,7 @@ class GazeCursor extends React.Component {
   componentDidMount() {
     key.setScope('stimuli');
     key('g', this.handleCursorVisibility);
-    this.timer = setInterval(this.handleGazeLocUpdate, 2); //Update the gaze cursor location every 2ms
+    this.timer = setInterval(this.handleGazeLocUpdate, 4.5); //Update the gaze cursor location every 2ms
   }
 
   componentWillUnmount(){
