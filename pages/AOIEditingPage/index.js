@@ -2,6 +2,8 @@ import React, { PropTypes } from 'react';
 import s from './styles.css';
 import QuestionPane from './QuestionPane';
 
+import savedAOIs from '../../public/experiment/aois.json';
+
 const EventEmitter = require('events');
 
 import openImageIcon from '../../resources/icons/open_icon.png';
@@ -12,6 +14,7 @@ import editAOIIcon from '../../resources/icons/edit_icon.png';
 
 const IMAGE_CHANGE_EVENT = 'imageChanged';
 const DELETE_AOI_EVENT = 'aoiDeleted';
+const WINDOW_SIZE_CHANGED_EVENT = 'windowSizeChanged';
 const SWITCH_MODE = 'switchMode';
 const PICKING_AOI = 'pickAOI';
 const CREATE_MODE = 'CREATE_MODE';
@@ -43,6 +46,7 @@ class CEditingPageStore extends EventEmitter {
       width: w,
       height: h
     }
+    this.emit(WINDOW_SIZE_CHANGED_EVENT);
   }
 
   getMode() {
@@ -70,6 +74,9 @@ class CEditingPageStore extends EventEmitter {
   addDeleteAOIListener(callback) {
     this.addListener(DELETE_AOI_EVENT, callback);
   }
+  addWindowSizeChangedListener(callback) {
+    this.addListener(WINDOW_SIZE_CHANGED_EVENT, callback);
+  }
 
   removeImageChangeListener(callback) {
     this.removeListener(IMAGE_CHANGE_EVENT, callback);
@@ -82,6 +89,9 @@ class CEditingPageStore extends EventEmitter {
   }
   removeDeleteAOIListener(callback) {
     this.removeListener(DELETE_AOI_EVENT, callback);
+  }
+  removeWindowSizeChangedListener(callback){
+    this.removeListener(WINDOW_SIZE_CHANGED_EVENT, callback);
   }
 
   getPickedAOI() {
@@ -186,7 +196,8 @@ class CEditingPageStore extends EventEmitter {
        redirect: 'follow',
        body: JSON.stringify({
           request: 'save aois',
-          fileName: './resources/experiment/aois.json',
+          path: './public/experiment/',
+          fileName: 'aois.json',
           data: text,
       })
       // mode: 'no-cors'
@@ -333,22 +344,20 @@ class AOIOnImage extends React.Component {
       left: props.left,
       width: props.width,
       height: props.height,
-      widthRatio: 1,
-      heightRatio: 1,
       name: ""
     }
     this.onClickAOI = this._onClickAOI.bind(this);
+    this.onWindowSizeChanged = this._onWindowSizeChanged.bind(this);
   }
 
   componentDidMount() {
     if(this.props.visible) {
       this.setState({name: this.props.name});
-      console.log(this.state.name);
     }
+    EditingPageStore.addWindowSizeChangedListener(this.onWindowSizeChanged);
   }
-
-  setRatios(width, height) {
-    this.setState({widthRatio: width, heightRatio: height});
+  componentWillUnmount() {
+    EditingPageStore.removeWindowSizeChangedListener(this.onWindowSizeChanged);
   }
 
   getName() {
@@ -395,6 +404,10 @@ class AOIOnImage extends React.Component {
       width: style.width,
       height: style.height
     });
+  }
+
+  _onWindowSizeChanged(){
+    this.forceUpdate();
   }
 
   _onClickAOI() {
@@ -447,15 +460,21 @@ class ImageContainer extends React.Component {
     EditingPageStore.addImageChangeListener(this.onImageChange);
     EditingPageStore.addSwitchModeListener(this.onToggleCreatingAOI);
     EditingPageStore.addDeleteAOIListener(this.onDeleteAOI);
+    window.addEventListener("resize", this.updateRatios.bind(this));
   }
 
   componentWillUnmount() {
     EditingPageStore.removeImageChangeListener(this.onImageChange);
     EditingPageStore.removeSwitchModeListener(this.onToggleCreatingAOI);
     EditingPageStore.removeDeleteAOIListener(this.onDeleteAOI);
+    window.removeEventListener("resize", this.updateRatios.bind(this));
   }
 
   componentDidUpdate() {
+    this.updateRatios();
+  }
+
+  updateRatios() {
     let img = this.refs["imageRef"];
     let imgContainer = this.refs["imgContainerRef"];
     if(img && imgContainer) {
@@ -599,6 +618,12 @@ class AOIEditingPage extends React.Component {
 
   componentDidMount() {
   }
+
+  // componentWillMount() {
+  //   savedAOIs.AOIs.map((aoi, index)=>{
+  //     EditingPageStore.addAOI(aoi);
+  //   });
+  // }
 
   handleChange() {
 

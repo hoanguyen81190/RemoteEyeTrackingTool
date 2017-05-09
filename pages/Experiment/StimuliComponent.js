@@ -7,7 +7,7 @@ import wamp from '../../core/wamp';
 
 import AOI from './AOIComponent';
 
-import aois from '../../resources/images/aois.json';
+import aois from '../../public/experiment/aois.json';
 
 var key = require('keymaster');
 
@@ -39,6 +39,11 @@ class StimuliComponent extends React.Component {
     //Timer to update all the AOIs in this stimuli component
     this.timer = setInterval(this.handleAOIUpdate, this.timerInterval);
 
+    this.updateRatios();
+    window.addEventListener("resize", this.updateRatios.bind(this));
+  }
+
+  updateRatios() {
     let img = this.refs["imageRef"];
     let imgContainer = this.refs["imgContainerRef"];
     let imgWrapper = this.refs["imgWrapperRef"];
@@ -58,6 +63,7 @@ class StimuliComponent extends React.Component {
   componentWillUnmount(){
     key.deleteScope('stimuli');
     clearInterval(this.timer);
+    window.removeEventListener("resize", this.updateRatios.bind(this));
   }
 
  render() {

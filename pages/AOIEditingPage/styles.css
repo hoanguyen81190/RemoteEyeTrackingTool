@@ -48,7 +48,6 @@
 .hiddenAOIRectangle {
   pointer-events: none;
   background-color: red;
-  border: 3px dashed black;
 }
 
 .AOIName {
