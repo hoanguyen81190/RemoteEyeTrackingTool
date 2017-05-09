@@ -119,6 +119,9 @@ class AOIComponent extends React.Component {
   onExit(){
     this.eventEnd = this.timeSinceBeginning;
 
+    console.log("OnExitAOI");
+    console.log(this.activationTimer);
+
     if(this.activationTimer > this.activationThreshold){
       //TODO calculate fixation centroid instead of the average of the points
       let fixationLocX = parseFloat((this.addedFixationPoints.locX/this.numberOfFixationPoints).toFixed(1));
@@ -162,7 +165,7 @@ class AOIComponent extends React.Component {
     let gazeLoc = store.getState().gazeData;
     let result = this.isInside(gazeLoc);
 
-    if(result.isInside){
+    if(result.inside){
       this.addedFixationPoints.locX += gazeLoc.locX;
       this.addedFixationPoints.locY += gazeLoc.locY;
       this.numberOfFixationPoints ++;

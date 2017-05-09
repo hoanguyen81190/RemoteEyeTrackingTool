@@ -7,6 +7,7 @@ import Instructions from './InstructionsComponent';
 import BlackScreen from './BlackscreenComponent';
 import Stimuli from './StimuliComponent';
 import PracticeComponent from './PracticeComponent';
+import DataInput from './DataInputComponent';
 
 //The gaze cursor
 import GazeCursor from './GazeCursor';
@@ -27,7 +28,7 @@ class Experiment extends React.Component {
 
     //Set the initial state of the component
     this.state = {
-      type: "BlockInstructions",
+      type: "DataInput",
       hsiData: null
     };
 
@@ -64,7 +65,6 @@ class Experiment extends React.Component {
     */
     this.hsiOrder = hsiOrderJson.hsiOrder;
 
-    //TODO make the data structure we discussed to hold the participant data. e.g. put the gazepath and keyresponses in this hsiData array. ["HSI1" ["Question1" ["Trial1"{gazePath, keyResponses}]]]
     this.gazePath = [];
     this.keyResponses = [];
     this.experimentData = {
@@ -77,7 +77,41 @@ class Experiment extends React.Component {
     this.trialIndexData = null;
   }
 
+  initDataStructure(){
+    this.participantId = store.getState().participantId;
+
+    this.experimentData = {
+      participantId: this.participantId,
+      hsiOrder: this.hsiOrder[this.participantId%this.hsiOrder.length],
+      hsiData: []
+    };
+
+    let currHSI = this.hsiOrder[this.participantId%this.hsiOrder.length][this.hsiIndex];
+    this.experimentData.hsiData.push({
+      hsi: currHSI,
+      questions: []
+    })
+
+    let currHSIData = null;
+
+    for(var i = 0; i < this.state.hsiData.length; i++){
+      if(currHSI === this.state.hsiData[i].hsi){
+        currHSIData = this.state.hsiData[i];
+      }
+    }
+
+    let currQuestion = currHSIData.questions[this.questionIndex].question;
+    this.experimentData.hsiData[0].questions.push({
+      question: currQuestion,
+      trials: []
+    })
+  }
+
   changeState(newState){
+    if(this.state.type==="DataInput"){
+      this.initDataStructure();
+    }
+
     switch(newState){
       case "Stimuli" : {
         this.setState({
@@ -133,36 +167,19 @@ class Experiment extends React.Component {
     this.setState({
       hsiData: data
     })
-
-    let currHSI = this.hsiOrder[this.participantId%this.hsiOrder.length][this.hsiIndex];
-    this.experimentData.hsiData.push({
-      hsi: currHSI,
-      questions: []
-    })
-
-    let currHSIData = null;
-
-    for(var i = 0; i < this.state.hsiData.length; i++){
-      if(currHSI === this.state.hsiData[i].hsi){
-        currHSIData = this.state.hsiData[i];
-      }
-    }
-
-    let currQuestion = currHSIData.questions[this.questionIndex].question;
-    this.experimentData.hsiData[0].questions.push({
-      question: currQuestion,
-      trials: []
-    })
   }
 
   render() {
     var componentToRender;
-    console.log(this.state.hsiData);
     if(!this.dataRecieved){
       return null;
     }
 
     switch(this.state.type){
+      case "DataInput": {
+        componentToRender = <DataInput stateCallback={this.handleStateUpdate} callbackState="BlockInstructions"/>;
+        break;
+      }
       case "BlockInstructions" : {
           var trialData = this.loadTrialData();
           componentToRender = <Instructions stateCallback={this.handleStateUpdate} callbackState="PracticeSession"
@@ -242,12 +259,7 @@ class Experiment extends React.Component {
     if(this.experimentFinished){
       return;
     }
-
-    console.log("HSI: " + this.hsiIndex);
-    console.log("Question: " + this.questionIndex);
-    console.log("Trial: " + this.trialIndex);
-    console.log("correctAnswer", correctAnswer);
-
+    console.log(this.experimentData);
     this.experimentData.hsiData[this.hsiIndex].questions[this.questionIndex].trials.push({
       trial: this.trialIndex,
       keyResponse: this.keyResponses,
