@@ -25,3 +25,8 @@
   font-weight: bold;
   display: inline-block;
 }
+
+.homePageButton {
+  /*margin-left: 100%;
+  transform: translateX(-100%);*/
+}

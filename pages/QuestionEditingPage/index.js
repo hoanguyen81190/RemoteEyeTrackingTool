@@ -1,9 +1,13 @@
 import React, { PropTypes } from 'react';
+import Layout from '../../components/Layout';
 import s from './styles.css';
+import history from '../../core/history';
 
 class Question extends React.Component {
   constructor(props) {
     super(props);
+    this.onResetButtonClicked = this._onResetButtonClicked.bind(this);
+    this.onSaveButtonClicked = this._onSaveButtonClicked.bind(this);
   }
 
   handleChosenFile(event) {
@@ -47,13 +51,25 @@ class Question extends React.Component {
     });
   }
 
-  onSaveButtonClicked() {
+  _onSaveButtonClicked() {
 
     this.props.addCallBack();
   }
 
-  onResetButtonClicked() {
-    // this.refs["hs"]
+  _onResetButtonClicked() {
+    this.refs["hsiIdRef"].value = '';
+    this.refs["questionIdRef"].value = '';
+    this.refs["questionRef"].value = '';
+    this.refs["radio0"].checked = false;
+    this.refs["radio1"].checked = false;
+    this.refs["radio2"].checked = false;
+    this.refs["key0Ref"].value = '';
+    this.refs["key1Ref"].value = '';
+    this.refs["key2Ref"].value = '';
+    this.refs["meaning0Ref"].value = '';
+    this.refs["meaning1Ref"].value = '';
+    this.refs["meaning2Ref"].value = '';
+    this.refs["imageRef"].value = '';
   }
 
   render() {
@@ -110,16 +126,25 @@ class QuestionPane extends React.Component {
         fetch(request).then(function(response) {
           return response.json();
         }).then(function(j) {
+          alert("Saved!");
           console.log(j);
         });
     }
   }
 
+  goToHomePage() {
+    history.push('/');
+  }
+
   render() {
-    return(<div className={s.questionPane}>
+    return(
+      <Layout>
+      <div className={s.questionPane}>
       <div className={s.title}>New Question</div>
       <Question addCallBack={()=>{this.addNewQuestion()}} ref="newQuestionRef"/>
-    </div>);
+      <button onClick={this.goToHomePage} className={s.homePageButton}>Home Page</button>
+    </div>
+  </Layout>);
   }
 }
 QuestionPane.propTypes = {

@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import s from './styles.css';
+import history from '../../core/history';
 
 import savedAOIs from '../../public/experiment/aois.json';
 
@@ -273,6 +274,10 @@ class ToolBox extends React.Component {
     }
   }
 
+  goToHomePage() {
+    history.push('/');
+  }
+
   render() {
     return (<div>
       <ToolBoxButton icon={openImageIcon} onClickHandler={()=>this.handleOpenNewImage()}/>
@@ -280,6 +285,7 @@ class ToolBox extends React.Component {
       <ToolBoxButton icon={newAOIIcon} onClickHandler={()=>this.handleNewAOI()}/>
       <ToolBoxButton icon={deleteAOIIcon} onClickHandler={()=>this.handleDeleteAOI()}/>
       <ToolBoxButton icon={editAOIIcon} onClickHandler={()=>this.handleEditAOI()}/>
+      <button className={s.homePageButton} onClick={this.goToHomePage}>Home Page</button>
       <input type="file" ref="fileUploader" accept="image/*"
         onChange={this.handleChosenFile}
         className={s.fileUploader}/>
@@ -536,8 +542,14 @@ class ImageContainer extends React.Component {
       this.setState({newAOI: NEWAOI_MOUSEUP});
       var info = this.refs["newAOIRef"].getInformation();
       this.refs["newAOIRef"].reset();
-      EditingPageStore.addAOI(info);
-      this.forceUpdate();
+
+      let img = this.refs["imageRef"];
+      let w = info.width * img.clientWidth / 100;
+      let h = info.height * img.clientHeight / 100;
+      if (w > 5 && h > 5) {
+        EditingPageStore.addAOI(info);
+        this.forceUpdate();
+      }
       event.preventDefault();
     }
   }

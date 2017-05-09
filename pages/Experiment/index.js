@@ -338,6 +338,7 @@ class Experiment extends React.Component {
     //Otherwise we go back to the instruction screen
     else{
       this.changeState("TrialInstructions");
+      this.saveDataToExcelFiles(this.experimentData);
     }
   }
 
