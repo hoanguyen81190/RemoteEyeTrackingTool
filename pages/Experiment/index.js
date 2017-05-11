@@ -220,7 +220,7 @@ class Experiment extends React.Component {
     return (
       <Layout>
         <GazeCursor />
-        <div className={s.container} onClick={this.testSaveData}>{componentToRender}</div>
+        <div className={s.container}>{componentToRender}</div>
       </Layout>
     );
   }
@@ -338,7 +338,6 @@ class Experiment extends React.Component {
     //Otherwise we go back to the instruction screen
     else{
       this.changeState("TrialInstructions");
-      this.saveDataToExcelFiles(this.experimentData);
     }
   }
 

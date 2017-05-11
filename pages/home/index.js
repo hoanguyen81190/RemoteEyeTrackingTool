@@ -37,8 +37,9 @@ class HomePage extends React.Component {
     return (
       <Layout><div className={s.container}>
         <div className={s.buttonsWrapper}>
-          <button className={s.button} onClick={()=>this.handleOpenEditingPage()}>Test Editing Page</button>
-          <button className={s.button} onClick={()=>this.handleOpenExperimentPage()}>Test Experiment Page</button>
+          <button className={s.button} onClick={()=>this.handleOpenExperimentPage()}>Start New Experiment</button>
+          <button className={s.button} onClick={()=>this.handleOpenEditingPage()}>Edit Areas Of Interest</button>    
+          <button className={s.button} onClick={()=>this.handleOpenQuestionPage()}>Add New Questions</button>
         </div>
         <button className={s.fullscreenButton} onClick={()=>this.toggleFullscreen()}>Fullscreen</button>
     </div></Layout>

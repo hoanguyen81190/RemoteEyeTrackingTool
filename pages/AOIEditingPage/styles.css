@@ -53,12 +53,13 @@
 
 .AOIName {
   color: white;
-  font-size: 1.5em;
+  font-size: 1em;
   left: 50%;
   top: 50%;
   display: inline-block;
   position: relative;
   transform: translate(-50%, -50%);
+  background-color: black;
 }
 
 .dragAndDropArea {

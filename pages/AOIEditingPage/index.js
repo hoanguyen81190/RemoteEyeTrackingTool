@@ -33,7 +33,7 @@ class CEditingPageStore extends EventEmitter {
       width: 1,
       height: 1
     }
-    this.AOIs = [];
+    this.AOIs = savedAOIs.AOIs;
     this.tempAOIs = [];
     this.onFinishDelete = this._onFinishDelete.bind(this);
   }
@@ -106,8 +106,6 @@ class CEditingPageStore extends EventEmitter {
 
   emitImageChange(img) {
     if(img) {
-      console.log(savedAOIs);
-      this.AOIs = savedAOIs.AOIs;
       this.image = img;
       this.emit(IMAGE_CHANGE_EVENT);
     }
@@ -169,23 +167,20 @@ class CEditingPageStore extends EventEmitter {
             }
         return null;
     };
-    var text = "{ \n \"AOIs\" : [ \n";
+
     if(!aois) {
       return;
+    }
+    var aoisJson = {
+      AOIs: []
     }
 
     for(var i = 0; i < aois.length; i++) {
 			var item = FindReact(aois[i]);
-      if(i == 0) {
-        text += JSON.stringify(item.getInformation());
-      }
-      else {
-        text += "," + JSON.stringify(item.getInformation());
-      }
+      aoisJson.AOIs.push(item.getInformation());
     }
 
-    text += "\n ] \n }";
-    return text;
+    return JSON.stringify(aoisJson, null, "\t");
   }
 
   saveAOIsToFile() {
