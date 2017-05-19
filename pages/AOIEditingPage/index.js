@@ -507,11 +507,11 @@ class ImageContainer extends React.Component {
   }
 
   componentDidUpdate() {
-    if(EditingPageStore.getImage() && this.setImageRatio) {
-      console.log('did update');
+    // if(EditingPageStore.getImage() && this.setImageRatio) {
+    //   console.log('did update');
       this.updateRatios();
       this.setImageRatio = false;
-    }
+    // }
   }
 
   updateRatios() {
@@ -521,7 +521,7 @@ class ImageContainer extends React.Component {
       let ratios = EditingPageStore.getRatios();
       let w = img.clientWidth/imgContainer.clientWidth;
       let h = img.clientHeight/imgContainer.clientHeight;
-      console.log('image', img.offsetHeight);
+
       if(ratios.width != w || ratios.height != h) {
         EditingPageStore.setRatios(w, h);
       }
@@ -595,7 +595,6 @@ class ImageContainer extends React.Component {
 
   render() {
     var aois = (EditingPageStore.getAOIs()) ? EditingPageStore.getAOIs() : [];
-    console.log(aois);
     let img = this.state.image;
     var style = (this.state.cursor === 'arrow') ? (s.dragAndDropArea) : (s.normalArea);
     if(img) {

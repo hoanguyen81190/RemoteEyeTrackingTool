@@ -159,7 +159,7 @@ class Question extends React.Component {
       <div>Image: <input type="file" ref="imageRef" accept="image/*"
         onChange={this.handleChosenFile}
         className={s.fileUploader}/></div>
-      <div><button className={s.button} onClick={this.onSaveButtonClicked}>Save Trial</button><button className={s.button} onClick={this.onResetButtonClicked}>Reset Trial</button></div>
+      <div><button className={s.button} onClick={this.onSaveButtonClicked}>Save Trial</button><button className={s.button} onClick={this.onResetButtonClicked}>Clear Fields</button></div>
       </div>
       <div className={s.imagePane}>
         {image}
