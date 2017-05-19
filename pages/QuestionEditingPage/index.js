@@ -10,17 +10,10 @@ class Question extends React.Component {
     this.handleChosenFile = this._handleChosenFile.bind(this);
     this.onResetButtonClicked = this._onResetButtonClicked.bind(this);
     this.onSaveButtonClicked = this._onSaveButtonClicked.bind(this);
+    this.onSaveBlockInstructions = this._onSaveBlockInstructions.bind(this);
     this.state = {
       img: null
     };
-  }
-
-  handleChosenFile(event) {
-    console.log(event.target.files[0]);
-  }
-
-  handleResetButton() {
-
   }
 
   findCheckedRadioButton() {
@@ -57,7 +50,27 @@ class Question extends React.Component {
   }
 
   _onSaveButtonClicked() {
-
+    var path = './public/experiment/stimuli/HSI' + this.refs["hsiIdRef"].value + '/Question' + this.refs["questionIdRef"].value;
+    var request = new Request('http://localhost:3000/api', {
+       method: 'POST',
+       headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+       },
+       redirect: 'follow',
+       body: JSON.stringify({
+          request: 'copy image',
+          imageName: this.imageName,
+          image: this.state.img,
+          desPath: path,
+      })
+      // mode: 'no-cors'
+    });
+      fetch(request).then(function(response) {
+        return response.json();
+      }).then(function(j) {
+        alert("Image Saved " + j.message);
+      });
     this.props.addCallBack();
   }
 
@@ -92,16 +105,52 @@ class Question extends React.Component {
     }
   }
 
+  _onSaveBlockInstructions() {
+    var blockInstructions = this.refs["blockInstructionsRef"];
+    if(blockInstructions) {
+      var hsiID = this.refs["hsiIdRef"].value;
+      var questionID = this.refs["questionIdRef"].value;
+      if((hsiID === "") || (questionID === "")) {
+        return;
+      }
+      var fileName = 'BlockInstructions.txt';
+      var path = './public/experiment/stimuli/HSI' + hsiID + '/Question' + questionID;
+      var request = new Request('http://localhost:3000/api', {
+         method: 'POST',
+         headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+         },
+         redirect: 'follow',
+         body: JSON.stringify({
+            request: 'save question',
+            path: path,
+            fileName: fileName,
+            data: blockInstructions.value,
+        })
+        // mode: 'no-cors'
+      });
+        fetch(request).then(function(response) {
+          return response.json();
+        }).then(function(j) {
+          alert("Block Instruction Saved " + j.message);
+        });
+    }
+  }
+
   render() {
-    var image = this.state.img ? <img src={this.state.img}/> : null;
+    var image = this.state.img ? <img src={this.state.img} ref="imageInputRef"/> : null;
     return(<div className={s.question}>
       <div className={s.questionPane}>
       <div>
-        <div>HSI ID: <input type="text" ref="hsiIdRef" className={s.smallTextBox}/>Question ID: <input type="text" ref="questionIdRef" className={s.smallTextBox}/>
+        <div className={s.bold}>HSI Folder ID: <input type="text" ref="hsiIdRef" className={s.smallTextBox}/>Question Folder ID: <input type="text" ref="questionIdRef" className={s.smallTextBox}/>
         </div>
       </div>
+      <div className={s.bold + ' ' + s.blockinstructions}>Block Instructions: <textarea name="BlockInstructions" cols="40" rows="5" ref="blockInstructionsRef" className={s.questionInputText} placeholder="Input Block Instructions Here"/>
+      <button className={s.button} onClick={this.onSaveBlockInstructions}>Save Block Instructions</button>
+      </div>
       <div>
-        <div>Question: <textarea name="Text1" cols="40" rows="5" ref="questionRef" className={s.questionInputText}/></div>
+        <div><div className={s.bold + ' ' + s.trialtitle}>New Trial: </div><textarea name="Text1" cols="40" rows="5" ref="questionRef" className={s.questionInputText} placeholder="Input Trial Question Here"/></div>
         Response Keys: (Please choose the correct one)
         <div><input type="radio" name="correct" value="0" ref="radio0"/>Key: <input type="text" placeholder="z" ref="key0Ref" className={s.smallTextBox}/>Meaning: <input type="text" ref="meaning0Ref"/></div>
         <div><input type="radio" name="correct" value="1" ref="radio1"/>Key: <input type="text" placeholder="/" ref="key1Ref" className={s.smallTextBox}/>Meaning: <input type="text" ref="meaning1Ref"/></div>
@@ -110,7 +159,7 @@ class Question extends React.Component {
       <div>Image: <input type="file" ref="imageRef" accept="image/*"
         onChange={this.handleChosenFile}
         className={s.fileUploader}/></div>
-      <div><button onClick={this.onSaveButtonClicked}>Save</button><button onClick={this.onResetButtonClicked}>Reset</button></div>
+      <div><button className={s.button} onClick={this.onSaveButtonClicked}>Save Trial</button><button className={s.button} onClick={this.onResetButtonClicked}>Reset Trial</button></div>
       </div>
       <div className={s.imagePane}>
         {image}
@@ -125,7 +174,6 @@ class QuestionPane extends React.Component {
   }
 
   addNewQuestion() {
-
     var qRef = this.refs["newQuestionRef"];
     if(qRef) {
       var q = qRef.getInformation();
@@ -136,7 +184,6 @@ class QuestionPane extends React.Component {
       }
       var fileName = q.body.image.split('.')[0] + '_data.json';
       var path = './public/experiment/stimuli/HSI' + hsiID + '/Question' + questionID;
-      console.log(JSON.stringify(q.body, null, "\t"));
       var request = new Request('http://localhost:3000/api', {
          method: 'POST',
          headers: {
@@ -155,8 +202,7 @@ class QuestionPane extends React.Component {
         fetch(request).then(function(response) {
           return response.json();
         }).then(function(j) {
-          alert(j.message);
-          console.log(j);
+          alert("Trial Saved " + j.message);
         });
     }
   }
@@ -169,7 +215,7 @@ class QuestionPane extends React.Component {
     return(
       <Layout>
       <div className={s.questionPage}>
-      <div className={s.titlePane}><div className={s.title}>New Question </div><button onClick={this.goToHomePage} className={s.homePageButton}>Home Page</button></div>
+      <div className={s.titlePane}><div className={s.title}> Question Editor </div><button onClick={this.goToHomePage} className={s.homePageButton}>Home Page</button></div>
       <Question addCallBack={()=>{this.addNewQuestion()}} ref="newQuestionRef"/>
 
     </div>

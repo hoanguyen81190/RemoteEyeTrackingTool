@@ -3,7 +3,8 @@ import s from './styles.css';
 import history from '../../core/history';
 import Layout from '../../components/Layout';
 
-import savedAOIs from '../../public/experiment/aois.json';
+// import savedAOIs from '../../public/experiment/aois.json';
+const aoisPath = './public/experiment/aois.json';
 
 const EventEmitter = require('events');
 
@@ -33,9 +34,10 @@ class CEditingPageStore extends EventEmitter {
       width: 1,
       height: 1
     }
-    this.AOIs = savedAOIs.AOIs;
+    this.AOIs = null;
     this.tempAOIs = [];
     this.onFinishDelete = this._onFinishDelete.bind(this);
+    this.handleRecievedData = this.onRecievedStimuliData.bind(this);
   }
 
   getRatios() {
@@ -43,6 +45,7 @@ class CEditingPageStore extends EventEmitter {
   }
 
   setRatios(w, h) {
+    console.log('setRatios', w, h);
     this.ratios = {
       width: w,
       height: h
@@ -107,8 +110,33 @@ class CEditingPageStore extends EventEmitter {
   emitImageChange(img) {
     if(img) {
       this.image = img;
-      this.emit(IMAGE_CHANGE_EVENT);
+      this.readStimuliDir(aoisPath, this.handleRecievedData);
     }
+  }
+
+  readStimuliDir(filename, callback) {
+    var request = new Request('http://localhost:3000/api', {
+       method: 'POST',
+       headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+       },
+       redirect: 'follow',
+       body: JSON.stringify({
+          request: 'read aois',
+          fileName: filename
+      })
+    });
+    fetch(request).then(function(response) {
+      return response.json();
+    }).then(function(j) {
+      callback(j);
+    });
+  }
+
+  onRecievedStimuliData(data){
+    this.AOIs = JSON.parse(data).AOIs;
+    this.emit(IMAGE_CHANGE_EVENT);
   }
 
   addAOI(aoi) {
@@ -184,27 +212,29 @@ class CEditingPageStore extends EventEmitter {
   }
 
   saveAOIsToFile() {
-    var text = this.getAOIsJson();
-    var request = new Request('http://localhost:3000/api', {
-       method: 'POST',
-       headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-       },
-       redirect: 'follow',
-       body: JSON.stringify({
-          request: 'save aois',
-          path: './public/experiment/',
-          fileName: 'aois.json',
-          data: text,
-      })
-      // mode: 'no-cors'
-    });
-      fetch(request).then(function(response) {
-        return response.json();
-      }).then(function(j) {
-        console.log(j);
+    if(this.image) {
+      var text = this.getAOIsJson();
+      var request = new Request('http://localhost:3000/api', {
+         method: 'POST',
+         headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+         },
+         redirect: 'follow',
+         body: JSON.stringify({
+            request: 'save aois',
+            path: './public/experiment/',
+            fileName: 'aois.json',
+            data: text,
+        })
+        // mode: 'no-cors'
       });
+        fetch(request).then(function(response) {
+          return response.json();
+        }).then(function(j) {
+          alert("Saved " + j.message);
+        });
+    }
   }
 
   destroyClickedElement(event) {
@@ -426,6 +456,7 @@ class AOIOnImage extends React.Component {
     var style = this.props.visible ? (s.AOIRectangle + " AOIRef") : (s.AOIRectangle + ' ' + s.hiddenAOIRectangle);
     var widthRatio = EditingPageStore.getRatios().width;
     var heightRatio = EditingPageStore.getRatios().height;
+    console.log(widthRatio, heightRatio);
     return (<div className={style} onClick={this.onClickAOI}
       style={{top: (this.state.top*heightRatio) + '%', left: (this.state.left*widthRatio) + '%', width: (this.state.width*widthRatio) + '%', height: (this.state.height*heightRatio) + '%'}}>
       <div className={s.AOIName}>{this.props.visible? this.state.name : ""}</div>
@@ -457,12 +488,14 @@ class ImageContainer extends React.Component {
     this.onEndNewAOI = this._onEndNewAOI.bind(this);
     this.onToggleCreatingAOI = this._onToggleCreatingAOI.bind(this);
     this.onDeleteAOI = this._onDeleteAOI.bind(this);
+    this.setImageRatio = false;
   }
 
   componentDidMount() {
     EditingPageStore.addImageChangeListener(this.onImageChange);
     EditingPageStore.addSwitchModeListener(this.onToggleCreatingAOI);
     EditingPageStore.addDeleteAOIListener(this.onDeleteAOI);
+    this.updateRatios();
     window.addEventListener("resize", this.updateRatios.bind(this));
   }
 
@@ -474,7 +507,11 @@ class ImageContainer extends React.Component {
   }
 
   componentDidUpdate() {
-    this.updateRatios();
+    if(EditingPageStore.getImage() && this.setImageRatio) {
+      console.log('did update');
+      this.updateRatios();
+      this.setImageRatio = false;
+    }
   }
 
   updateRatios() {
@@ -484,6 +521,7 @@ class ImageContainer extends React.Component {
       let ratios = EditingPageStore.getRatios();
       let w = img.clientWidth/imgContainer.clientWidth;
       let h = img.clientHeight/imgContainer.clientHeight;
+      console.log('image', img.offsetHeight);
       if(ratios.width != w || ratios.height != h) {
         EditingPageStore.setRatios(w, h);
       }
@@ -498,6 +536,7 @@ class ImageContainer extends React.Component {
   }
 
   _onImageChange() {
+    this.setImageRatio = true;
     this.setState({image: EditingPageStore.getImage()});
   }
 
@@ -555,7 +594,8 @@ class ImageContainer extends React.Component {
   }
 
   render() {
-
+    var aois = (EditingPageStore.getAOIs()) ? EditingPageStore.getAOIs() : [];
+    console.log(aois);
     let img = this.state.image;
     var style = (this.state.cursor === 'arrow') ? (s.dragAndDropArea) : (s.normalArea);
     if(img) {
@@ -567,7 +607,7 @@ class ImageContainer extends React.Component {
             onMouseMove={this.onDrawNewAOI}
             onMouseUp={this.onEndNewAOI}/>
           {newAOI}
-          {EditingPageStore.getAOIs().map((item, index) => {
+          {aois.map((item, index) => {
             return <AOIOnImage key={index} top={item.top} left={item.left} width={item.width} height={item.height} name={item.name} visible={true}/>
           })}
         </div>);

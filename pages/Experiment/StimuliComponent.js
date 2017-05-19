@@ -7,8 +7,8 @@ import wamp from '../../core/wamp';
 
 import AOI from './AOIComponent';
 
-import aois from '../../public/experiment/aois.json';
-
+// import aois from '../../public/experiment/aois.json';
+const aoisPath = './public/experiment/aois.json'; //For the webserver
 var key = require('keymaster');
 
 const stimuliFolderImages = 'experiment/stimuli/'; //To read the images
@@ -21,6 +21,7 @@ class StimuliComponent extends React.Component {
     this.handleAlarmPressed = this.alarmPressed.bind(this);
 
     this.handleAOIUpdate = this.updateAOIs.bind(this);
+    this.handleRecievedData = this.onRecievedStimuliData.bind(this);
 
     this.aoiRefs = [];
     this.timerInterval = 4.5;
@@ -32,6 +33,14 @@ class StimuliComponent extends React.Component {
     this.closestAOI = null;
     this.keyPressed = false;
     this.firstUpdate = true;
+    this.state = {
+      aois: null
+    }
+    this.dataRecieved = false;
+  }
+
+  componentWillMount() {
+    this.readStimuliDir(aoisPath, this.handleRecievedData);
   }
 
   componentDidMount() {
@@ -47,6 +56,40 @@ class StimuliComponent extends React.Component {
 
     this.updateRatios();
     window.addEventListener("resize", this.updateRatios.bind(this));
+  }
+
+  readStimuliDir(filename, callback) {
+    var request = new Request('http://localhost:3000/api', {
+       method: 'POST',
+       headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+       },
+       redirect: 'follow',
+       body: JSON.stringify({
+          request: 'read aois',
+          fileName: filename
+      })
+    });
+    fetch(request).then(function(response) {
+      return response.json();
+    }).then(function(j) {
+      callback(j);
+    });
+  }
+
+  componentDidUpdate() {
+    if(this.aoiRefs.length > 0 && this.dataRecieved) {
+      this.updateRatios();
+      this.dataRecieved = false;
+    }
+  }
+
+  onRecievedStimuliData(data){
+    this.dataRecieved = true;
+    this.setState({
+      aois: JSON.parse(data)
+    })
   }
 
   updateRatios() {
@@ -73,6 +116,7 @@ class StimuliComponent extends React.Component {
   }
 
  render() {
+
     if(this.firstRender){
       this.firstRender = false;
 
@@ -101,7 +145,12 @@ class StimuliComponent extends React.Component {
 
     let trueInstruction = "Press " + trialData.data.responseKeys[0].key + ' for "'  + trialData.data.responseKeys[0].meaning + '"';
     let falseInstruction = "Press " + trialData.data.responseKeys[1].key + ' for "'  + trialData.data.responseKeys[1].meaning + '"';
-
+    var aois = this.state.aois ? <div>{this.state.aois.AOIs.map((item, index) => {
+      var ref = "AOIref" + index;
+      this.aoiRefs.push(ref);
+      console.log(item);
+      return (<AOI key={index} topLeftX={item.left} topLeftY={item.top} width={item.width} height={item.height} visible={true} name={item.name} ref={ref} gazeDataCallback={this.props.gazeDataCallback}/>);
+    })}</div> : null;
     return (
       <div className={s.container} ref="imgContainerRef">
         <div className={s.instructionsWrapper}>
@@ -114,11 +163,7 @@ class StimuliComponent extends React.Component {
 
         </div>
         {
-          aois.AOIs.map((item, index) => {
-            var ref = "AOIref" + index;
-            this.aoiRefs.push(ref);
-            return (<AOI key={index} topLeftX={item.left} topLeftY={item.top} width={item.width} height={item.height} visible={true} name={item.name} ref={ref} gazeDataCallback={this.props.gazeDataCallback}/>);
-          })
+          aois
         }
       </div>
     );

@@ -16,7 +16,7 @@ connection.onopen = function (sess, details) {
   function onRETData(args) {
     let gazeRadius = store.getState().gazeCursorRadius;
 
-
+    console.log(args);
 
 
 

@@ -9,6 +9,7 @@
   width: 50px;
   height: auto;
   position: relative;
+  margin: 5px;
 }
 
 .question {
@@ -24,10 +25,11 @@
 .title {
   font-weight: bold;
   display: inline-block;
+  font-size: 1.5em;
 }
 
 .homePageButton {
-  margin-left: 18%;
+  margin-left: 15%;
   /*margin-left: 100%;
   transform: translateX(-100%);*/
 }
@@ -45,4 +47,22 @@
   right: 0;
   width: 70%;
   height: auto;
+}
+
+.button {
+  margin: 5px;
+}
+
+.blockinstructions{
+  border-top: 1px solid white;
+  border-bottom: 1px solid white;
+  margin-top: 10px;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.trialtitle{
+  margin-top: 10px;
 }
