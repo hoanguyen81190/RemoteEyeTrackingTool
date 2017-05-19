@@ -1,7 +1,9 @@
 import React from 'react';
 import s from './DataInputComponent.css';
-
+import history from '../../core/history';
 import store from '../../core/store';
+
+import CalibrationComponent from '../../core/calibrationComponent';
 
 //Used for the trial instructions
 class DataInput extends React.Component {
@@ -9,6 +11,7 @@ class DataInput extends React.Component {
     super(props);
     this.handleData = this.onHandleData.bind(this);
     this.handleNextState = this.nextState.bind(this);
+    this.handleBack = this.onHandleBack.bind(this);
   }
 
   onHandleData(){
@@ -34,15 +37,21 @@ class DataInput extends React.Component {
   render() {
     return (
       <div className={s.container}>
+        <CalibrationComponent/>
         <div className={s.formWrapper}>
           <div className={s.participantField}>
             Participant ID:
             <input className={s.fieldName} type="number" name="participantID" min="0" id="participantIDInput"/>
           </div>
-          <input className={s.submitButton} type="submit" value="Submit" onClick={this.handleData}/>
+          <button className={s.submitButton} onClick={this.handleData}>Submit</button>
+          <button className={s.backButton} onClick={this.handleBack}>Back</button>
         </div>
       </div>
     );
+  }
+
+  onHandleBack(){
+    history.push('/');
   }
 
   nextState(){

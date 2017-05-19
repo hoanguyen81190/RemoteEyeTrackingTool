@@ -179,13 +179,30 @@ class Experiment extends React.Component {
 
     switch(this.state.type){
       case "DataInput": {
-        componentToRender = <DataInput stateCallback={this.handleStateUpdate} callbackState="BlockInstructions"/>;
+        componentToRender = <DataInput stateCallback={this.handleStateUpdate} callbackState="HSIScreen"/>;
         break;
       }
       case "BlockInstructions" : {
           var trialData = this.loadTrialData();
           componentToRender = <Instructions stateCallback={this.handleStateUpdate} callbackState="PracticeSession"
           nextKey={this.instructionsKey} instructions={trialData.currBlockInstructions}/>;
+        break;
+      }
+      case "BreakScreen" : {
+          componentToRender = <Instructions stateCallback={this.handleStateUpdate} callbackState="HSIScreen" calibration={true}
+          nextKey={this.instructionsKey} instructions="HSI completed - Press Enter to continue to the next HSI when ready"/>;
+        break;
+      }
+      case "HSIScreen" : {
+          let currHSI = this.hsiOrder[this.participantId%this.hsiOrder.length][this.hsiIndex];
+          var trialData = this.loadTrialData();
+          componentToRender = <Instructions stateCallback={this.handleStateUpdate} callbackState="BlockInstructions" calibration={true}
+          nextKey={this.instructionsKey} instructions={currHSI + " is beginning - Press Enter to begin"}/>;
+        break;
+      }
+      case "FinishedScreen" : {
+          componentToRender = <Instructions stateCallback={this.handleStateUpdate} finished={true}
+          instructions={"The experiment is completed"}/>;
         break;
       }
       case "PracticeSession" : {
@@ -288,9 +305,9 @@ class Experiment extends React.Component {
         if(this.hsiIndex === this.nmbHSI){
           //TODO end experiment here
           this.experimentFinished = true;
-          console.log("Experiment finished, all blocks and trials done");
           console.log(this.experimentData);
           this.saveDataToExcelFiles(this.experimentData);
+          this.changeState("FinishedScreen");
         }
         //Otherwise we move on to the next hsi
         else{
@@ -312,7 +329,7 @@ class Experiment extends React.Component {
             question: currQuestion,
             trials: []
           })
-          this.changeState("Blackscreen");
+          this.changeState("BreakScreen");
         }
       }
       //Otherwise we move to the block information screen
