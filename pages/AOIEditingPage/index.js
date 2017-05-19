@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import s from './styles.css';
+import history from '../../core/history';
 import Layout from '../../components/Layout';
 
 import savedAOIs from '../../public/experiment/aois.json';
@@ -32,7 +33,7 @@ class CEditingPageStore extends EventEmitter {
       width: 1,
       height: 1
     }
-    this.AOIs = [];
+    this.AOIs = savedAOIs.AOIs;
     this.tempAOIs = [];
     this.onFinishDelete = this._onFinishDelete.bind(this);
   }
@@ -105,8 +106,6 @@ class CEditingPageStore extends EventEmitter {
 
   emitImageChange(img) {
     if(img) {
-      console.log(savedAOIs);
-      this.AOIs = savedAOIs.AOIs;
       this.image = img;
       this.emit(IMAGE_CHANGE_EVENT);
     }
@@ -168,23 +167,20 @@ class CEditingPageStore extends EventEmitter {
             }
         return null;
     };
-    var text = "{ \n \"AOIs\" : [ \n";
+
     if(!aois) {
       return;
+    }
+    var aoisJson = {
+      AOIs: []
     }
 
     for(var i = 0; i < aois.length; i++) {
 			var item = FindReact(aois[i]);
-      if(i == 0) {
-        text += JSON.stringify(item.getInformation());
-      }
-      else {
-        text += "," + JSON.stringify(item.getInformation());
-      }
+      aoisJson.AOIs.push(item.getInformation());
     }
 
-    text += "\n ] \n }";
-    return text;
+    return JSON.stringify(aoisJson, null, "\t");
   }
 
   saveAOIsToFile() {
@@ -274,6 +270,10 @@ class ToolBox extends React.Component {
     }
   }
 
+  goToHomePage() {
+    history.push('/');
+  }
+
   render() {
     return (<div>
       <ToolBoxButton icon={openImageIcon} onClickHandler={()=>this.handleOpenNewImage()}/>
@@ -281,6 +281,7 @@ class ToolBox extends React.Component {
       <ToolBoxButton icon={newAOIIcon} onClickHandler={()=>this.handleNewAOI()}/>
       <ToolBoxButton icon={deleteAOIIcon} onClickHandler={()=>this.handleDeleteAOI()}/>
       <ToolBoxButton icon={editAOIIcon} onClickHandler={()=>this.handleEditAOI()}/>
+      <button className={s.homePageButton} onClick={this.goToHomePage}>Home Page</button>
       <input type="file" ref="fileUploader" accept="image/*"
         onChange={this.handleChosenFile}
         className={s.fileUploader}/>
@@ -537,8 +538,14 @@ class ImageContainer extends React.Component {
       this.setState({newAOI: NEWAOI_MOUSEUP});
       var info = this.refs["newAOIRef"].getInformation();
       this.refs["newAOIRef"].reset();
-      EditingPageStore.addAOI(info);
-      this.forceUpdate();
+
+      let img = this.refs["imageRef"];
+      let w = info.width * img.clientWidth / 100;
+      let h = info.height * img.clientHeight / 100;
+      if (w > 5 && h > 5) {
+        EditingPageStore.addAOI(info);
+        this.forceUpdate();
+      }
       event.preventDefault();
     }
   }

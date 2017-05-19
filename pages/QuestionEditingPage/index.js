@@ -1,9 +1,18 @@
 import React, { PropTypes } from 'react';
+import Layout from '../../components/Layout';
 import s from './styles.css';
+import history from '../../core/history';
 
 class Question extends React.Component {
   constructor(props) {
     super(props);
+    this.imageName = '';
+    this.handleChosenFile = this._handleChosenFile.bind(this);
+    this.onResetButtonClicked = this._onResetButtonClicked.bind(this);
+    this.onSaveButtonClicked = this._onSaveButtonClicked.bind(this);
+    this.state = {
+      img: null
+    };
   }
 
   handleChosenFile(event) {
@@ -42,22 +51,51 @@ class Question extends React.Component {
           }
         ],
         correctAnswer: this.findCheckedRadioButton(),
-        image: this.refs["fileUploader"].value
+        image: this.imageName
       }
     });
   }
 
-  onSaveButtonClicked() {
+  _onSaveButtonClicked() {
 
     this.props.addCallBack();
   }
 
-  onResetButtonClicked() {
-    // this.refs["hs"]
+  _onResetButtonClicked() {
+    this.refs["hsiIdRef"].value = '';
+    this.refs["questionIdRef"].value = '';
+    this.refs["questionRef"].value = '';
+    this.refs["radio0"].checked = false;
+    this.refs["radio1"].checked = false;
+    this.refs["radio2"].checked = false;
+    this.refs["key0Ref"].value = '';
+    this.refs["key1Ref"].value = '';
+    this.refs["key2Ref"].value = '';
+    this.refs["meaning0Ref"].value = '';
+    this.refs["meaning1Ref"].value = '';
+    this.refs["meaning2Ref"].value = '';
+    this.refs["imageRef"].value = '';
+    this.imageName = '';
+    this.setState({img: null});
+  }
+
+  _readFileCallback(e) {
+    this.setState({img: e.target.result});
+  }
+
+  _handleChosenFile(e) {
+    if (e.target.files && e.target.files[0]) {
+      this.imageName = e.target.files[0].name;
+      var reader = new FileReader();
+      reader.onloadend = this._readFileCallback.bind(this);
+      reader.readAsDataURL(e.target.files[0]);
+    }
   }
 
   render() {
+    var image = this.state.img ? <img src={this.state.img}/> : null;
     return(<div className={s.question}>
+      <div className={s.questionPane}>
       <div>
         <div>HSI ID: <input type="text" ref="hsiIdRef" className={s.smallTextBox}/>Question ID: <input type="text" ref="questionIdRef" className={s.smallTextBox}/>
         </div>
@@ -69,9 +107,15 @@ class Question extends React.Component {
         <div><input type="radio" name="correct" value="1" ref="radio1"/>Key: <input type="text" placeholder="/" ref="key1Ref" className={s.smallTextBox}/>Meaning: <input type="text" ref="meaning1Ref"/></div>
         <div><input type="radio" name="correct" value="2" ref="radio2"/>Key: <input type="text" placeholder="space" ref="key2Ref" className={s.smallTextBox}/>Meaning: <input type="text" ref="meaning2Ref" placeholder="Alarm"/></div>
       </div>
-      <div>Image: <input type="text" ref="fileUploader"/></div>
+      <div>Image: <input type="file" ref="imageRef" accept="image/*"
+        onChange={this.handleChosenFile}
+        className={s.fileUploader}/></div>
       <div><button onClick={this.onSaveButtonClicked}>Save</button><button onClick={this.onResetButtonClicked}>Reset</button></div>
-    </div>);
+      </div>
+      <div className={s.imagePane}>
+        {image}
+      </div>
+   </div>);
   }
 }
 
@@ -90,8 +134,9 @@ class QuestionPane extends React.Component {
       if((hsiID === "") || (questionID === "")) {
         return;
       }
-      var fileName = q.body.image + '.json';
+      var fileName = q.body.image.split('.')[0] + '_data.json';
       var path = './public/experiment/stimuli/HSI' + hsiID + '/Question' + questionID;
+      console.log(JSON.stringify(q.body, null, "\t"));
       var request = new Request('http://localhost:3000/api', {
          method: 'POST',
          headers: {
@@ -110,16 +155,25 @@ class QuestionPane extends React.Component {
         fetch(request).then(function(response) {
           return response.json();
         }).then(function(j) {
+          alert(j.message);
           console.log(j);
         });
     }
   }
 
+  goToHomePage() {
+    history.push('/');
+  }
+
   render() {
-    return(<div className={s.questionPane}>
-      <div className={s.title}>New Question</div>
+    return(
+      <Layout>
+      <div className={s.questionPage}>
+      <div className={s.titlePane}><div className={s.title}>New Question </div><button onClick={this.goToHomePage} className={s.homePageButton}>Home Page</button></div>
       <Question addCallBack={()=>{this.addNewQuestion()}} ref="newQuestionRef"/>
-    </div>);
+
+    </div>
+  </Layout>);
   }
 }
 QuestionPane.propTypes = {

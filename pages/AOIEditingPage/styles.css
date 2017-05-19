@@ -11,14 +11,14 @@
 .leftPanel {
   position: absolute;
   background-color: lightgray;
-  width: 25%;
+  width: 23%;
   height: 100%;
   left: 0;
 }
 
 .rightPanel {
   position: absolute;
-  width: 75%;
+  width: 77%;
   height: 100%;
   right: 0;
 }
@@ -53,12 +53,13 @@
 
 .AOIName {
   color: white;
-  font-size: 1.5em;
+  font-size: 1em;
   left: 50%;
   top: 50%;
   display: inline-block;
   position: relative;
   transform: translate(-50%, -50%);
+  background-color: black;
 }
 
 .dragAndDropArea {
@@ -71,4 +72,11 @@
   cursor: default;
   width: 100%;
   height: 100%;
+}
+
+.homePageButton {
+  top: 1px;
+  position: relative;
+  height: 31px;
+  width: auto;
 }

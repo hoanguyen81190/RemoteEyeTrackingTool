@@ -30,8 +30,14 @@ class PracticeComponent extends React.Component {
   }
 
   _checkAnswer() {
-    this.setState({number: (this.state.number + 1)%2});
-    key(this.props.responseKeys[this.state.number].key, 'instructions', this.handleNextState);
+    var nextState = this.state.number + 1;
+    this.setState({number: nextState});
+    if(nextState < 2) {
+      key(this.props.responseKeys[this.state.number].key, 'instructions', this.checkAnswer);
+    }
+    else {
+      key(this.props.responseKeys[this.state.number].key, 'instructions', this.handleNextState);
+    }
   }
 
   nextState(){

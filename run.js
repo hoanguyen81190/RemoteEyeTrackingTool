@@ -57,7 +57,6 @@ router.post('/', function(req, res) {
 router.get('/', function(req, res) {
   res.json({message: 'hooray'});
 });
-console.log(excelWorker);
 
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -68,6 +67,25 @@ app.use(function(req, res, next) {
 app.use('/api', router);
 var port = 3000;
 app.listen(port);
+
+//check the existence of aois.json file, if it does not exist, create new one
+function ensureAOIsJson() {
+  var aoiJson = './public/experiment/aois.json';
+  var aoiJsonData = {
+    AOIs: []
+  };
+  fs.stat(aoiJson, function(err, stat) {
+    if(err == null) {
+        console.log('File exists');
+    } else if(err.code == 'ENOENT') {
+        // file does not exist
+        fs.writeFile(aoiJson, JSON.stringify(aoiJsonData, null, "\t"));
+    } else {
+        console.log('Some other error: ', err.code);
+    }
+  });
+}
+ensureAOIsJson();
 
 function saveJson(path, fileName, data) {
   if(!fs.existsSync(path)) {
@@ -266,6 +284,7 @@ tasks.set('publish', () => {
 tasks.set('start', () => {
   let count = 0;
   global.HMR = !process.argv.includes('--no-hmr'); // Hot Module Replacement (HMR)
+  process.argv.includes('--no-autorestart');
   return run('clean').then(() => new Promise(resolve => {
     const bs = require('browser-sync').create();
     const webpackConfig = require('./webpack.config');

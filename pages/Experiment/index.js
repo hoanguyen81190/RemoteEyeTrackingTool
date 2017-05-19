@@ -220,7 +220,7 @@ class Experiment extends React.Component {
     return (
       <Layout>
         <GazeCursor />
-        <div className={s.container} onClick={this.testSaveData}>{componentToRender}</div>
+        <div className={s.container}>{componentToRender}</div>
       </Layout>
     );
   }

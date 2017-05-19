@@ -2,6 +2,7 @@ var Excel = require('exceljs');
 const fs = require('fs');
 
 var exports = module.exports = {};
+
 exports.saveAsExcel = function(path, fileName, data) {
   var fullName = path + '/' + fileName;
   if(!fs.existsSync(path)) {
@@ -10,16 +11,20 @@ exports.saveAsExcel = function(path, fileName, data) {
 
   var workbook = new Excel.Workbook();
   if(fs.existsSync(fullName)) {
-    workbook.xlsx.readFile(fullName)
-        .then(function() {
-            saveHelper(workbook, fullName, data);
-        });
+    workbook.xlsx.readFile(fullName).then(function() {
+        saveHelper(workbook, fullName, data);
+      }).catch(function(err) {
+        var workbook1 = new Excel.Workbook();
+        fileName = fileName.split('.xlsx')[0] + '(' + counter + ').xlsx';
+        saveHelper(workbook1, fullName, data);
+      });
   }
   else {
     saveHelper(workbook, fullName, data);
   }
-
 }
+
+
 function saveHelper(workbook, fileName, data) {
   // use workbook
   // workbook.creator = 'SynOpticonTeam';
@@ -27,6 +32,7 @@ function saveHelper(workbook, fileName, data) {
   // workbook.created = new Date(2017, 5, 1);
   // workbook.modified = new Date();
   // workbook.lastPrinted = new Date();
+
   var jsonData = JSON.parse(data);
   if (!jsonData) {
     return;
@@ -105,7 +111,6 @@ function saveHelper(workbook, fileName, data) {
     });
     rows.push({id: hsiID, hsi: hsiRows});
   });
-  console.log(rows);
 
   worksheet.addRow(['Number of trials', numOfTrials]);
 
@@ -133,10 +138,17 @@ function saveHelper(workbook, fileName, data) {
   // columns support a readonly field to indicate the collapsed state based on outlineLevel
   // expect(worksheet.getColumn(4).collapsed).to.equal(false);
   // expect(worksheet.getColumn(5).collapsed).to.equal(true);
-
-
-  workbook.xlsx.writeFile(fileName)
-      .then(function() {
-          console.log("Excel file saved!");
-      });
+  var counter = 0;
+  var tryToSaveHelper = function () {
+    workbook.xlsx.writeFile(fileName)
+    .then(function() {
+      console.log("Excel file saved!");
+    }).catch(function() {
+      counter++;
+      fileName = fileName.split('.xlsx')[0] + '(' + counter + ').xlsx';
+      tryToSaveHelper();
+      console.log('savehelper exception');
+    });
+  }
+  tryToSaveHelper();
 }
