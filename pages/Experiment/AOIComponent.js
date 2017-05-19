@@ -9,7 +9,7 @@ class AOIComponent extends React.Component {
   constructor(props){
     super(props);
     this.state = {
-      visible: true,
+      visible: false,
       active: false,
       widthRatio: 1,
       heightRatio: 1,

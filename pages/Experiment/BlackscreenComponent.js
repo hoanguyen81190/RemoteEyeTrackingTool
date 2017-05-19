@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import s from './BlackscreenComponent.css';
 import plusIcon from '../../resources/icons/black_plus_icon.png'
+import blackscreenData from '../../public/experiment/blackscreen_data.json'
 
 // import { title, html } from './index.md';
 
@@ -12,7 +13,7 @@ class BlackScreen extends React.Component {
   }
 
   componentDidMount() {
-    this.timer = setInterval(this.handleNextState, 1000);
+    this.timer = setInterval(this.handleNextState, blackscreenData.timeMS);
   }
 
   componentWillUnmount(){
