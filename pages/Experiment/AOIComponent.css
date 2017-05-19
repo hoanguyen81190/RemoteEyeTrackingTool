@@ -3,11 +3,11 @@
 }
 
 .active{
-  background-color: yellow;
   opacity: 0.5;
+  background-color: yellow;
 }
 
 .inactive{
-  background-color: blue;
   opacity: 0.5;
+  background-color: blue;
 }

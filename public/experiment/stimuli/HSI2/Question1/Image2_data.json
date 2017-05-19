@@ -1,11 +1,19 @@
 {
-	"question": "What is the current status of P 09B?",
-	"responseKeys": 
-	[
-		{"key":"z", "meaning":"On"},
-		{"key":"/", "meaning":"Off"},
-		{"key":"space", "meaning":"Alarm"}
+	"question": "Test saving trial",
+	"responseKeys": [
+		{
+			"key": "z",
+			"meaning": "Opened"
+		},
+		{
+			"key": "/",
+			"meaning": "CLosed"
+		},
+		{
+			"key": "space",
+			"meaning": "Alarm"
+		}
 	],
-	"correctAnswer": 1,
-	"image": "Image2.png"
+	"correctAnswer": 2,
+	"image": "Image2.PNG"
 }

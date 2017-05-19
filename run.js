@@ -8,6 +8,7 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 const excelWorker = require('./excelWorker.js');
+const readAOIsWorker = require('./readAOIs.js');
 /* eslint-disable no-console, global-require */
 const fs = require('fs');
 const del = require('del');
@@ -20,7 +21,7 @@ var bodyParser = require('body-parser');
 
 //Listen to POST requests to /users
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '50mb'}));
 var router = express.Router();
 router.post('/', function(req, res) {
   //get sent data
@@ -36,15 +37,23 @@ router.post('/', function(req, res) {
   try {
     if (request === 'save aois') {
       saveJson(user.path, user.fileName, user.data);
-      res.json({message: 'Success'});
+      res.json({message: 'Successfully'});
+    }
+    else if (request === 'read aois') {
+      let result = readAOIsWorker.readAOIs(user.fileName);
+      res.json(result);
     }
     else if (request === 'save question') {
       saveJson(user.path, user.fileName, user.data);
-      res.json({message: 'Success'});
+      res.json({message: 'Successfully'});
+    }
+    else if (request === 'copy image') {
+      copyImage(user.imageName, user.image, user.desPath);
+      res.json({message: 'Successfully'});
     }
     else if (request === 'save data') {
       excelWorker.saveAsExcel(user.path, user.fileName, user.data);
-      res.json({message: 'Success'});
+      res.json({message: 'Successfully'});
     }
     else if(request === 'read stimuli data'){
       let result = readStimuliData(user.fileName);
@@ -69,24 +78,26 @@ var port = 3000;
 app.listen(port);
 
 //check the existence of aois.json file, if it does not exist, create new one
-function ensureAOIsJson() {
-  var aoiJson = './public/experiment/aois.json';
-  var aoiJsonData = {
-    AOIs: []
-  };
-  fs.stat(aoiJson, function(err, stat) {
-    if(err == null) {
-        console.log('File exists');
-    } else if(err.code == 'ENOENT') {
-        // file does not exist
-        fs.writeFile(aoiJson, JSON.stringify(aoiJsonData, null, "\t"));
-    } else {
-        console.log('Some other error: ', err.code);
+function copyImage(imageName, image, desPath) {
+  // console.log(image);
+  if(!fs.existsSync(desPath)) {
+    fs.mkdirSync(desPath);
+  }
+  // declare a regexp to match the non base64 first characters
+  var dataUrlRegExp = /^data:image\/\w+;base64,/;
+  // remove the "header" of the data URL via the regexp
+  var base64Data = image.replace(dataUrlRegExp, "");
+  // declare a binary buffer to hold decoded base64 data
+  var imageBuffer = new Buffer(base64Data, "base64");
+  fs.writeFile(desPath + '/' + imageName, imageBuffer, function(err) {
+    if(err) {
+      console.log(err);
+    }
+    else {
+      console.log('image copied!');
     }
   });
 }
-ensureAOIsJson();
-
 function saveJson(path, fileName, data) {
   if(!fs.existsSync(path)) {
     fs.mkdirSync(path);
