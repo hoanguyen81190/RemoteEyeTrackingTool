@@ -48,6 +48,11 @@ class StimuliComponent extends React.Component {
 
   componentDidMount() {
     this.firstUpdate = true;
+    let timestampAction = {
+      type: 'SET_TRIAL_START_TS',
+      timestamp: Date.now()
+    }
+    store.dispatch(timestampAction);
     this.startTime = performance.now();
 
     key.setScope('stimuli');
@@ -64,7 +69,7 @@ class StimuliComponent extends React.Component {
   }
 
   _onNewFixation() {
-    if(!firstUpdate) {
+    // if(!firstUpdate) {
       let newFixation = store.getState().fixation;
 
       if(this.aoiRefs.length > 0){
@@ -112,7 +117,7 @@ class StimuliComponent extends React.Component {
         }
         this.props.gazeDataCallback(gazePathAction);
       }
-    }
+    // }
   }
 
   readStimuliDir(filename, callback) {
@@ -228,16 +233,16 @@ class StimuliComponent extends React.Component {
   }
 
   updateAOIs(){
-    if(this.firstUpdate){
-      let timestampAction = {
-        type: 'SET_TRIAL_START_TS',
-        timestamp: Date.now()
-      }
-      store.dispatch(timestampAction);
-
-      this.firstUpdate = false;
-    }
-
+    // if(this.firstUpdate){
+    //   let timestampAction = {
+    //     type: 'SET_TRIAL_START_TS',
+    //     timestamp: Date.now()
+    //   }
+    //   store.dispatch(timestampAction);
+    //
+    //   this.firstUpdate = false;
+    // }
+    //
     this.timeSinceStart += this.timerInterval;
     if(this.aoiRefs.length > 0){
       var closestAOI = null;
