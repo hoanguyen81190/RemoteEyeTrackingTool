@@ -50,6 +50,11 @@ class Question extends React.Component {
   }
 
   _onSaveButtonClicked() {
+    var correctAnswer = this.findCheckedRadioButton();
+    if (correctAnswer < 0 || correctAnswer > 2) {
+      alert("Cannot save trial. Please pick one option as the correct answer!");
+      return;
+    }
     var path = './public/experiment/stimuli/HSI' + this.refs["hsiIdRef"].value + '/Question' + this.refs["questionIdRef"].value;
     var request = new Request('http://localhost:3000/api', {
        method: 'POST',
