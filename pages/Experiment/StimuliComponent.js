@@ -4,6 +4,7 @@ import s from './StimuliComponent.css';
 import store from '../../core/store';
 
 import wamp from '../../core/wamp';
+import fixationStore from '../../core/wamp';
 
 import AOI from './AOIComponent';
 
@@ -37,6 +38,8 @@ class StimuliComponent extends React.Component {
       aois: null
     }
     this.dataRecieved = false;
+    this.handleNewFixation = this._onNewFixation.bind(this);
+    this.startTime = 0;
   }
 
   componentWillMount() {
@@ -45,6 +48,7 @@ class StimuliComponent extends React.Component {
 
   componentDidMount() {
     this.firstUpdate = true;
+    this.startTime = performance.now();
 
     key.setScope('stimuli');
     key(this.props.trueKey, 'stimuli', this.handleTruePressed);
@@ -56,6 +60,59 @@ class StimuliComponent extends React.Component {
 
     this.updateRatios();
     window.addEventListener("resize", this.updateRatios.bind(this));
+    fixationStore.addFixationListener(this.handleNewFixation);
+  }
+
+  _onNewFixation() {
+    if(!firstUpdate) {
+      let newFixation = store.getState().fixation;
+
+      if(this.aoiRefs.length > 0){
+        var closestAOI = null;
+        var closestResult = null;
+        this.aoiRefs.map((aoiRef, index) => {
+          var aoi = this.refs[aoiRef];
+          if(aoi) {
+
+            let result = aoi.isInside({locX: newFixation.locX, locY: newFixation.locY});
+            if(result.inside) {
+              if(!closestAOI || result.distance < closestResult.distance){
+                closestAOI = aoi;
+                closestResult = result;
+              }
+
+              //Mark active aois as inactive if the cursor is not inside, or if the key was pressed
+              if(!result.inside && aoi.isActive() || this.keyPressed && aoi.isActive()){
+                // aoi.onExit();
+              }
+            }
+          }
+        });
+
+        let eventEnd = Date.now() - store.getState().trialStartTimestamp;
+
+        let fixationLocX = parseFloat(newFixation.locX.toFixed(1));
+        let fixationLocY = parseFloat(newFixation.locY.toFixed(1));
+        let name = 'unspecified AOI';
+        if(closestAOI) {
+          name = closestAOI.getName();
+        }
+        let gazePathAction =
+        {
+          category: "Fixation",
+          eventStart: eventEnd - newFixation.duration,
+          eventEnd: eventEnd,
+          eventDuration: newFixation.duration,
+          fixationPos: {
+            posX: fixationLocX,
+            posY: fixationLocY
+          },
+          aoiName: name,
+          image: "-"
+        }
+        this.props.gazeDataCallback(gazePathAction);
+      }
+    }
   }
 
   readStimuliDir(filename, callback) {
@@ -113,6 +170,7 @@ class StimuliComponent extends React.Component {
     key.deleteScope('stimuli');
     clearInterval(this.timer);
     window.removeEventListener("resize", this.updateRatios.bind(this));
+    fixationStore.removeFixationListener(this.handleNewFixation);
   }
 
  render() {

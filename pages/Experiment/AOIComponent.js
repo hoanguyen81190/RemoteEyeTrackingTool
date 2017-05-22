@@ -158,6 +158,10 @@ class AOIComponent extends React.Component {
     });
   }
 
+  getName() {
+    return this.props.name;
+  }
+
   //Called from the timer in the StimuliComponent
   onTick(DeltaTime){
     this.timeSinceBeginning += DeltaTime;
