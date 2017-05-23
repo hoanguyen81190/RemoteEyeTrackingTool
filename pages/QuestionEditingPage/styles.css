@@ -30,24 +30,36 @@
 
 .homePageButton {
   margin-left: 15%;
-  /*margin-left: 100%;
-  transform: translateX(-100%);*/
+}
+
+.experimentHeaderText{
+  text-align: center;
+  border-bottom: 1px solid white;
+  height: 2em;
 }
 
 .experimentPane {
   border: 1px solid white;
   width: 30%;
-  height: 40%;
+  height: 42%;
   top: 20px;
   padding: 10px;
   left: 0;
+
+  font-weight: bold;
+}
+
+.experimentContent{
   overflow: scroll;
   overflow-x: hidden;
+  height: 95%;
+  width: 100%;
 }
 
 .questionPane {
   border: 1px solid white;
   width: 30%;
+  height: 48%;
   position: absolute;
   left: 0;
   padding: 10px;
@@ -77,10 +89,6 @@
 
 .trialtitle{
   margin-top: 10px;
-}
-
-.indent{
-  left: 15px;
 }
 
 .titlePane{

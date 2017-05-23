@@ -37,6 +37,8 @@ class ExperimentData extends React.Component {
     let hsiData = this.props.hsiData;
     if(hsiData) {
       return (<div className={s.experimentPane}>
+        <div className={s.experimentHeaderText}>Current Experiment Data</div>
+        <div className={s.experimentContent}>
         {hsiData.map((hsi, hsi_index) => {
           return <div className={s.hsiMargin}>
             <div className={s.hsiText+ " " + s.clickable}>{hsi.hsi}</div>
@@ -45,7 +47,7 @@ class ExperimentData extends React.Component {
             })}
             </div>
          })}
-      </div>);
+      </div></div>);
     }
     else {
       return (<div/>);
