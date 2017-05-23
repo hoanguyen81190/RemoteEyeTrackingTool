@@ -28,7 +28,8 @@ class Experiment extends React.Component {
 
     //Set the initial state of the component
     this.state = {
-      type: "DataInput",
+      // type: "DataInput",
+      type: "Stimuli",
       hsiData: null
     };
 

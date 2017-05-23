@@ -18,6 +18,7 @@ class Fixation extends React.Component {
     this.handleVisibility = this.toggleVisibility.bind(this);
     this.handleUpdate = this.updateData.bind(this);
     this.fixationRadius = 50;
+    this.ID = "fixationDiv";
 
     // let radiusAction = {
     //   type: 'SET_GAZE_RADIUS',
@@ -38,8 +39,9 @@ class Fixation extends React.Component {
 
   render() {
     let cursor = null;
+    this.ID = "fixationDiv" + this.props.index;
     if(this.state.visible){
-      cursor = <div className={s.fixation} id="fixationDiv"/>;
+      cursor = <div className={s.fixation} id={this.ID}/>;
     }
 
     return (
@@ -50,7 +52,7 @@ class Fixation extends React.Component {
   updateData(fixation){
     //Only draw the cursor if it is visible
     if(this.state.visible){
-      var fixationDiv = document.getElementById("fixationDiv");
+      var fixationDiv = document.getElementById(this.ID);
       let radius = fixation.duration/50;
       fixationDiv.style.left = (fixation.locX-radius)+'px';
       fixationDiv.style.top = (fixation.locY-radius)+'px';
