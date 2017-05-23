@@ -2,7 +2,7 @@
   width: 100%;
   height: 100%;
   background-color: rgb(223,223,223);
-  padding: 10px;
+  /*padding: 10px;*/
 }
 
 .smallTextBox {
@@ -30,23 +30,36 @@
 
 .homePageButton {
   margin-left: 15%;
-  /*margin-left: 100%;
-  transform: translateX(-100%);*/
+}
+
+.experimentHeaderText{
+  text-align: center;
+  border-bottom: 1px solid white;
+  height: 2em;
 }
 
 .experimentPane {
   border: 1px solid white;
   width: 30%;
-  height: 40%;
+  height: 42%;
   top: 20px;
+  padding: 10px;
   left: 0;
+
+  font-weight: bold;
+}
+
+.experimentContent{
   overflow: scroll;
   overflow-x: hidden;
+  height: 95%;
+  width: 100%;
 }
 
 .questionPane {
   border: 1px solid white;
   width: 30%;
+  height: 48%;
   position: absolute;
   left: 0;
   padding: 10px;
@@ -78,6 +91,46 @@
   margin-top: 10px;
 }
 
-.indent{
-  left: 15px;
+.titlePane{
+  margin-bottom: 10px;
+  padding-top: 10px;
+  margin-left: 10px;
+}
+
+.clickable{
+  border-radius: 20px;
+  margin-bottom: 2px;
+  display: inline-block;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  -webkit-appearance:button;
+  cursor: pointer;
+  margin-bottom: 5px;
+}
+
+.hsiMargin{
+  margin-top: 25px;
+}
+
+.hsiMargin:first-of-type{
+  margin-top: 10px;
+}
+
+.hsiMargin:last-of-type{
+  margin-bottom: 10px;
+}
+
+
+.hsiText{
+  margin-left: 10px;
+}
+
+.questionText{
+  margin-left: 30px;
+}
+
+.trialText{
+  margin-left: 50px;
 }

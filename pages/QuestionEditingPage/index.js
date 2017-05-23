@@ -105,7 +105,7 @@ class Trial extends React.Component {
   }
 
   render() {
-    return(<div onClick={this.pickTrial.bind(this)}>Trial {this.state.name}</div>);
+    return(<div onClick={this.pickTrial.bind(this)} className={s.trialText + " " + s.clickable>Trial {this.state.name}</div>);
   }
 }
 
@@ -146,8 +146,8 @@ class Question extends React.Component {
     let question = this.props.question;
 
     return(<div >
-          <div onClick={this.editBlockInstructions.bind(this)}> {question.question}</div>
-          <div >Block Instructions</div>
+          <div className={s.questionText + " " + s.clickable} onClick={this.editBlockInstructions.bind(this)}> {question.question}</div>
+          {/* <div >Block Instructions</div> */}
           {question.trials.map((trial, trial_index) => {
             return <Trial hsiID={hsiID} questionID={question.question} trial={trial} key={trial_index}/>
           })}
@@ -165,15 +165,17 @@ class ExperimentData extends React.Component {
     let hsiData = this.props.hsiData;
     if(hsiData) {
       return (<div className={s.experimentPane}>
+        <div className={s.experimentHeaderText}>Current Experiment Data</div>
+        <div className={s.experimentContent}>
         {hsiData.map((hsi, hsi_index) => {
-          return <div key={hsi_index}>
-            {hsi.hsi}
+          return <div className={s.hsiMargin} key={hsi_index}>
+            <div className={s.hsiText+ " " + s.clickable}>{hsi.hsi}</div>
             {hsi.questions.map((question, q_index) => {
               return <Question key={q_index} question={question} hsiID={hsi.hsi}/>;
             })}
             </div>
          })}
-      </div>);
+      </div></div>);
     }
     else {
       return (<div/>);
