@@ -11,7 +11,6 @@ import DataInput from './DataInputComponent';
 
 //The gaze cursor
 import GazeCursor from './GazeCursor';
-import Fixation from './Fixation';
 
 //The global store
 import store from '../../core/store';
@@ -167,6 +166,7 @@ class Experiment extends React.Component {
   }
 
   onRecievedStimuliData(data){
+    console.log(data);
     this.dataRecieved = true;
     this.setState({
       hsiData: data
@@ -235,11 +235,9 @@ class Experiment extends React.Component {
         break;
       }
     }
-
     return (
       <Layout>
         <GazeCursor />
-        <Fixation />
         <div className={s.container}>{componentToRender}</div>
       </Layout>
     );
