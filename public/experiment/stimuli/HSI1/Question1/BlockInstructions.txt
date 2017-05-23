@@ -1,4 +1,1 @@
-The following block includes questions about the status of valves. The questions is always What is the 
-status of valve x but the specific component in each question will change? The answer can be either open or 
-closed. Press the "z" key for Open and the "/" key for closed. Rest your left index finger on the z key 
-and you right on the / key.
+The following block includes questions about the status of pumps. The basic question is always  What is the status of pump x, but the specific component in the question will change? The answer  can be either On or off. Press the "z" key for On and the "/" key for off. Rest your left index  finger on the z key and you right on the / key.

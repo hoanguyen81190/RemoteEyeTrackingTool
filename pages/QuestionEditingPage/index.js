@@ -4,10 +4,141 @@ import s from './styles.css';
 import history from '../../core/history';
 
 const stimuliFolder = './public/experiment/stimuli/';
+const stimuliFolderImages = 'experiment/stimuli/';
+
+const EventEmitter = require('events');
+
+class EventSystem extends EventEmitter {
+  constructor() {
+    super();
+    this.pickedTrial = null;
+    this.blockInstructions = null;
+    this.editedQuestion = null;
+  }
+
+  addPickTrialListener(callback) {
+    this.addListener('PICK TRIAL', callback);
+  }
+
+  removePickTrialListener(callback) {
+    this.removeListener('PICK TRIAL', callback);
+  }
+
+  pickTrial(trial) {
+    this.pickedTrial = trial;
+    this.emit('PICK TRIAL');
+  }
+
+  editTrial(trial) {
+    if(this.pickedTrial) {
+      this.pickedTrial.editTrial(trial);
+    }
+  }
+
+  getPickedTrial() {
+    return this.pickedTrial;
+  }
+
+  addPickBIListener(callback) {
+    this.addListener('PICK BLOCK INSTRUCTIONS', callback);
+  }
+
+  removePickBIListener(callback) {
+    this.removeListener('PICK BLOCK INSTRUCTIONS', callback);
+  }
+
+  pickBI(editedQuestion) {
+    this.editedQuestion = editedQuestion;
+    this.emit('PICK BLOCK INSTRUCTIONS');
+  }
+
+  addEditBIListener(callback) {
+    this.addListener('EDIT BLOCK INSTRUCTIONS', callback);
+  }
+
+  removeEditBIListener(callback) {
+    this.removeListener('EDIT BLOCK INSTRUCTIONS', callback);
+  }
+
+  editBI(blockInstructions) {
+    this.blockInstructions = blockInstructions;
+    this.emit('EDIT BLOCK INSTRUCTIONS');
+  }
+  getEditedBlockInstruction() {
+    return this.blockInstructions;
+  }
+  getEditedQuestion() {
+    return this.editedQuestion;
+  }
+}
+
+let eventSystem = new EventSystem();
+
+class Trial extends React.Component {
+  constructor(props) {
+    super(props);
+    this.hsiID = this.props.hsiID.split('HSI')[1];
+    this.questionID = this.props.questionID.split('Question')[1];
+    this.trial = this.props.trial;
+    this.state = {
+      name: this.trial.image.split('.')[0] + '_json'
+    };
+  }
+
+  pickTrial() {
+    eventSystem.pickTrial(this);
+  }
+
+  editTrial(trial) {
+    this.trial = trial;
+    this.state = {
+      name: this.trial.image.split('.')[0] + '_json'
+    };
+  }
+
+  getInfo() {
+    return {
+      hsiID: this.hsiID,
+      questionID: this.questionID,
+      trial: this.trial
+    }
+  }
+
+  render() {
+    return(<div onClick={this.pickTrial.bind(this)}>Trial {this.state.name}</div>);
+  }
+}
 
 class Question extends React.Component {
   constructor(props) {
     super(props);
+    this.question = this.props.question;
+  }
+
+  componentDidMount() {
+    eventSystem.addEditBIListener(this._onEditBI.bind(this));
+  }
+
+  componentWillUnmount() {
+    eventSystem.removeEditBIListener(this._onEditBI.bind(this));
+  }
+
+  _onEditBI() {
+    let editedBI = eventSystem.getEditedQuestion();
+    if(editedBI == this) {
+      this.question = {...this.props.question, blockInstructions: eventSystem.getEditedBlockInstruction()};
+    }
+  }
+
+  editBlockInstructions() {
+    eventSystem.pickBI(this);
+  }
+
+  getInfo() {
+    return {
+      hsiID: this.props.hsiID,
+      question: this.question
+    }
   }
 
   render() {
@@ -15,13 +146,10 @@ class Question extends React.Component {
     let question = this.props.question;
 
     return(<div >
-          <div> {question.question}</div>
+          <div onClick={this.editBlockInstructions.bind(this)}> {question.question}</div>
           <div >Block Instructions</div>
           {question.trials.map((trial, trial_index) => {
-            let trialName = trial.image.split('.')[0] + '_json';
-            return <div key={trial_index}>
-                <div>Trial {trialName}</div>
-              </div>
+            return <Trial hsiID={hsiID} questionID={question.question} trial={trial} key={trial_index}/>
           })}
 
    </div>);
@@ -38,7 +166,7 @@ class ExperimentData extends React.Component {
     if(hsiData) {
       return (<div className={s.experimentPane}>
         {hsiData.map((hsi, hsi_index) => {
-          return <div>
+          return <div key={hsi_index}>
             {hsi.hsi}
             {hsi.questions.map((question, q_index) => {
               return <Question key={q_index} question={question} hsiID={hsi.hsi}/>;
@@ -64,6 +192,51 @@ class NewQuestion extends React.Component {
     this.state = {
       img: null
     };
+  }
+
+  componentDidMount() {
+    eventSystem.addPickBIListener(this._onPickingBI.bind(this));
+    eventSystem.addPickTrialListener(this._onPickingTrial.bind(this));
+  }
+
+  componentWillUnmount() {
+    eventSystem.removePickBIListener(this._onPickingBI.bind(this));
+    eventSystem.removePickTrialListener(this._onPickingTrial.bind(this));
+  }
+
+  _onPickingTrial() {
+    let info = eventSystem.getPickedTrial().getInfo();
+    if((this.refs["hsiIdRef"].value !== info.hsiID) || (this.refs["questionIdRef"].value !== info.questionID)) {
+      this._onResetButtonClicked();
+    }
+    this.refs["hsiIdRef"].value = info.hsiID;
+    this.refs["questionIdRef"].value = info.questionID;
+    this.refs["questionRef"].value = info.trial.question;
+    this.refs["radio0"].checked = (info.trial.correctAnswer == 0);
+    this.refs["radio1"].checked = (info.trial.correctAnswer == 1);
+    this.refs["radio2"].checked = (info.trial.correctAnswer == 2);
+    this.refs["key0Ref"].value = info.trial.responseKeys[0].key;
+    this.refs["key1Ref"].value = info.trial.responseKeys[1].key;
+    this.refs["key2Ref"].value = info.trial.responseKeys[2].key;
+    this.refs["meaning0Ref"].value = info.trial.responseKeys[0].meaning;
+    this.refs["meaning1Ref"].value = info.trial.responseKeys[1].meaning;
+    this.refs["meaning2Ref"].value = info.trial.responseKeys[2].meaning;
+    this.refs["imageLabelRef"].innerHTML=info.trial.image;
+    this.imageName = info.trial.image;
+    this.setState({
+      img: stimuliFolderImages+'HSI'+info.hsiID+"/"+'Question'+info.questionID+"/"+info.trial.image
+    });
+  }
+
+  _onPickingBI() {
+    let info = eventSystem.getEditedQuestion().getInfo();
+    if((this.refs["hsiIdRef"].value !== info.hsiID) || (this.refs["questionIdRef"].value !== info.question.question)) {
+      this._onResetButtonClicked();
+    }
+    this.refs["hsiIdRef"].value = info.hsiID.split('HSI')[1];
+    this.refs["questionIdRef"].value = info.question.question.split('Question')[1];
+    this.refs["blockInstructionsRef"].value = info.question.blockInstructions;
+    this.forceUpdate();
   }
 
   findCheckedRadioButton() {
@@ -127,6 +300,7 @@ class NewQuestion extends React.Component {
         alert("Image Saved " + j.message);
       });
     this.props.addCallBack();
+    eventSystem.editTrial(this.getInformation().body);
   }
 
   _onResetButtonClicked() {
@@ -144,6 +318,7 @@ class NewQuestion extends React.Component {
     this.refs["meaning2Ref"].value = '';
     this.refs["imageRef"].value = '';
     this.imageName = '';
+    this.refs["imageLabelRef"].innerHTML='';
     this.setState({img: null});
   }
 
@@ -157,6 +332,7 @@ class NewQuestion extends React.Component {
       var reader = new FileReader();
       reader.onloadend = this._readFileCallback.bind(this);
       reader.readAsDataURL(e.target.files[0]);
+      this.refs["imageLabelRef"].innerHTML=e.target.files[0].name;
     }
   }
 
@@ -190,6 +366,7 @@ class NewQuestion extends React.Component {
         }).then(function(j) {
           alert("Block Instruction Saved " + j.message);
         });
+      eventSystem.editBI(this.refs["blockInstructionsRef"].value);
     }
   }
 
@@ -211,7 +388,8 @@ class NewQuestion extends React.Component {
             <div><input type="radio" name="correct" value="1" ref="radio1"/>Key: <input type="text" placeholder="/" ref="key1Ref" className={s.smallTextBox}/>Meaning: <input type="text" ref="meaning1Ref"/></div>
             <div><input type="radio" name="correct" value="2" ref="radio2"/>Key: <input type="text" placeholder="space" ref="key2Ref" className={s.smallTextBox}/>Meaning: <input type="text" ref="meaning2Ref" placeholder="Alarm"/></div>
           </div>
-          <div>Image: <input type="file" ref="imageRef" accept="image/*"
+          <div>Image: <label for="files" class="btn" ref="imageLabelRef">Select Image</label>
+            <input type="file" ref="imageRef" accept="image/*"
             onChange={this.handleChosenFile}
             className={s.fileUploader}/></div>
           <div><button className={s.button} onClick={this.onSaveButtonClicked}>Save Trial</button><button className={s.button} onClick={this.onResetButtonClicked}>Clear Fields</button></div>
