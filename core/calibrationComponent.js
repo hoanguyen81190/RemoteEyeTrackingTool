@@ -1,6 +1,6 @@
 import React from 'react';
 import s from './calibrationComponent.css';
-
+import store from './store';
 import {publishEvent} from './wampPublisher';
 
 //Used for the trial instructions
@@ -8,6 +8,52 @@ class CalibrationComponent extends React.Component {
   constructor(props){
     super(props);
     this.handleCalibration = this.onCalibration.bind(this);
+
+    this.state = {
+      calResult: null
+    }
+  }
+
+  componentDidMount() {
+    let calCompAction = {
+      type: 'SET_CAL_COMP',
+      calComp: this
+    }
+    store.dispatch(calCompAction);
+    this.setDefaultValues();
+  }
+
+  componentWillUnmount(){
+
+    var calMethod = document.getElementById('calMethod');
+    var animSpeed = document.getElementById('animSpeed');
+    var acceptPoints = document.getElementById('acceptPoints');
+    var selDisplay = document.getElementById('selDisplay');
+
+    if(calMethod && animSpeed && acceptPoints && selDisplay){
+      let calSettingsAction = {
+        type: 'SET_CALIBRATION_SETTINGS',
+        calibrationSettings: {
+          calMethod: calMethod.value,
+          animSpeed: animSpeed.value,
+          accPoints: acceptPoints.value,
+          display: selDisplay.value
+        }
+      }
+      store.dispatch(calSettingsAction);
+    }
+
+    let calCompAction = {
+      type: 'SET_CAL_COMP',
+      calComp: null
+    }
+    store.dispatch(calCompAction);
+  }
+
+  setAccuracyResult(calResult){
+    this.setState({
+      calResult: calResult
+    });
   }
 
   onCalibration(){
@@ -87,7 +133,31 @@ class CalibrationComponent extends React.Component {
     publishEvent('onCalibration', msg);
   }
 
+  setDefaultValues(){
+    let calSettings = store.getState().calibrationSettings;
+
+    var calMethod = document.getElementById('calMethod');
+    if(calMethod) calMethod.value = calSettings.calMethod;
+
+    var animSpeed = document.getElementById('animSpeed');
+    if(animSpeed) animSpeed.value = calSettings.animSpeed;
+
+    var acceptPoints = document.getElementById('acceptPoints');
+    if(acceptPoints) acceptPoints.value = calSettings.accPoints;
+
+    var selDisplay = document.getElementById('selDisplay');
+    if(selDisplay) selDisplay.value = calSettings.display;
+
+  }
+
   render() {
+    let calResultDiv = null;
+    if(this.state.calResult){
+      let accX = this.state.calResult.calX.toFixed(2);
+      let accY = this.state.calResult.calY.toFixed(2);
+      calResultDiv = <div className={s.calResult}>Accuracy (X/Y): <br/> {accX} / {accY}</div>;
+    }
+
     return (
       <div className={s.container}>
         <div className={s.formWrapper}>
@@ -119,6 +189,7 @@ class CalibrationComponent extends React.Component {
                 <option value="display2">Display 2</option>
               </select>
             </div>
+            {calResultDiv}
             <button className={s.calibrateButton} onClick={this.handleCalibration}>Calibrate</button>
         </div>
 

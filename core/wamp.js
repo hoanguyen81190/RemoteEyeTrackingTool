@@ -78,8 +78,20 @@ connection.onopen = function (sess, details) {
     fixationStore.addNewFixation();
   }
 
+  function onRetCalibrationResult(args) {
+    let calResultAction = {
+      type: 'SET_CALIBRATION_RESULT',
+      calResult: {
+        calX: args[1],
+        calY: args[2],
+      }
+    }
+    store.dispatch(calResultAction);
+  }
+
   session.subscribe('RETDataSample', onRETData);
   session.subscribe('RETDataFixations', onRETDataFixations);
+  session.subscribe('RETCalibrationResult', onRetCalibrationResult);
 }
 
 // fired when connection was lost (or could not be established)
