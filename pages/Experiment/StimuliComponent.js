@@ -71,7 +71,10 @@ class StimuliComponent extends React.Component {
   _onNewFixation() {
     // if(!firstUpdate) {
       let newFixation = store.getState().fixation;
-
+      let eventEnd = Date.now() - store.getState().trialStartTimestamp;
+      if(eventEnd - newFixation.duration < 0) {
+        return;
+      }
       if(this.aoiRefs.length > 0){
         var closestAOI = null;
         var closestResult = null;
@@ -93,8 +96,6 @@ class StimuliComponent extends React.Component {
             }
           }
         });
-
-        let eventEnd = Date.now() - store.getState().trialStartTimestamp;
 
         let fixationLocX = parseFloat(newFixation.locX.toFixed(1));
         let fixationLocY = parseFloat(newFixation.locY.toFixed(1));

@@ -169,12 +169,12 @@ class AOIComponent extends React.Component {
     let gazeLoc = store.getState().gazeData;
     let result = this.isInside(gazeLoc);
 
-    if(result.inside){
-      this.addedFixationPoints.locX += gazeLoc.locX;
-      this.addedFixationPoints.locY += gazeLoc.locY;
-      this.numberOfFixationPoints ++;
-      this.activationTimer += DeltaTime;
-    }
+    // if(result.inside){
+    //   this.addedFixationPoints.locX += gazeLoc.locX;
+    //   this.addedFixationPoints.locY += gazeLoc.locY;
+    //   this.numberOfFixationPoints ++;
+    //   this.activationTimer += DeltaTime;
+    // }
 
     return result;
   }

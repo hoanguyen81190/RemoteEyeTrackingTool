@@ -305,7 +305,7 @@ class Experiment extends React.Component {
 
         //Increment the hsiIndex and check if the experiment is finished
         this.hsiIndex++;
-        if(this.hsiIndex === this.nmbHSI){
+        if(this.hsiIndex === 1){ //this.nmbHSI){
           //TODO end experiment here
           this.experimentFinished = true;
           console.log(this.experimentData);
