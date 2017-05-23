@@ -2,6 +2,20 @@ import { createStore } from 'redux';
 
 // Centralized application state
 // For more information visit http://redux.js.org/
+// const EventEmitter = require('events');
+// class EventStore extends EventEmitter {
+//   addFixationListener(callback) {
+//     this.addListener('NEW FIXATION', callback);
+//   }
+//   removeFixationListener(callback) {
+//     this.removeListener('NEW FIXATION', callback);
+//   }
+//   addNewFixation() {
+//     this.emit('NEW FIXATION');
+//   }
+// }
+// let eventStore = new EventStore();
+
 const initialState = {
   participantId: 0,
 
@@ -9,6 +23,12 @@ const initialState = {
   gazeData: {
     locX: 0,
     locY: 0
+  },
+  fixation: {
+    locX: 0,
+    locY: 0,
+    duration: 0,
+    timestamp: 0
   },
 
   widthRatio: 1,
@@ -25,6 +45,9 @@ const store = createStore((state = initialState, action) => {
       return { ...state, gazeCursorRadius: action.gazeRadius};
     case 'SET_GAZE_DATA':{
       return { ...state, gazeData: action.gazeData};
+    }
+    case 'SET_FIXATION_DATA':{
+      return { ...state, fixation: action.fixation};
     }
     case 'SET_AOI_RATIOS': {
       return {...state, widthRatio: action.widthRatio, heightRatio: action.heightRatio};

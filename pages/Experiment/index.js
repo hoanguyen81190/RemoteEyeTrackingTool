@@ -11,6 +11,7 @@ import DataInput from './DataInputComponent';
 
 //The gaze cursor
 import GazeCursor from './GazeCursor';
+import Fixation from './Fixation';
 
 //The global store
 import store from '../../core/store';
@@ -77,6 +78,7 @@ class Experiment extends React.Component {
     this.trialIndexData = null;
 
     this.previousFixationIndex = null;
+    this.fixations = [];
   }
 
   initDataStructure(){
@@ -237,6 +239,7 @@ class Experiment extends React.Component {
     return (
       <Layout>
         <GazeCursor />
+        <Fixation />
         <div className={s.container}>{componentToRender}</div>
       </Layout>
     );
@@ -302,7 +305,7 @@ class Experiment extends React.Component {
 
         //Increment the hsiIndex and check if the experiment is finished
         this.hsiIndex++;
-        if(this.hsiIndex === this.nmbHSI){
+        if(this.hsiIndex === 1){ //this.nmbHSI){
           //TODO end experiment here
           this.experimentFinished = true;
           console.log(this.experimentData);

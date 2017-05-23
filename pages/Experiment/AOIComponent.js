@@ -110,7 +110,7 @@ class AOIComponent extends React.Component {
 
   onEnter(){
     //this.eventStart = this.timeSinceBeginning;
-    this.eventStart = Date.now() - store.getState().trialStartTimestamp;
+    // this.eventStart = Date.now() - store.getState().trialStartTimestamp;
 
     this.setState({
       active: true,
@@ -119,43 +119,47 @@ class AOIComponent extends React.Component {
 
   onExit(){
     //this.eventEnd = this.timeSinceBeginning;
-    this.eventEnd = Date.now() - store.getState().trialStartTimestamp;
-    let eventDuration = this.eventEnd-this.eventStart;
-
-    if(eventDuration > this.activationThreshold){
-      //TODO calculate fixation centroid instead of the average of the points
-      let fixationLocX = parseFloat((this.addedFixationPoints.locX/this.numberOfFixationPoints).toFixed(1));
-      let fixationLocY = parseFloat((this.addedFixationPoints.locY/this.numberOfFixationPoints).toFixed(1));
-
-      let gazePathAction =
-      {
-          category: "Fixation",
-          eventStart: this.eventStart,
-          eventEnd: this.eventEnd,
-          eventDuration: eventDuration,
-          fixationPos: {
-            posX: fixationLocX,
-            posY: fixationLocY
-          },
-          aoiName: this.props.name,
-          image: "-"
-      }
-
-      this.props.gazeDataCallback(gazePathAction)
-    }
-
-    //Reset the state and the duration as it is no longer being looked at
-    this.addedFixationPoints.locX = 0;
-    this.addedFixationPoints.locY = 0;
-    this.numberOfFixationPoints = 0;
-    this.activationTimer = 0;
-    this.eventStart = 0;
-    this.eventEnd = 0;
-    this.timeSinceBeginning = 0;
+    // this.eventEnd = Date.now() - store.getState().trialStartTimestamp;
+    // let eventDuration = this.eventEnd-this.eventStart;
+    //
+    // if(eventDuration > this.activationThreshold){
+    //   //TODO calculate fixation centroid instead of the average of the points
+    //   let fixationLocX = parseFloat((this.addedFixationPoints.locX/this.numberOfFixationPoints).toFixed(1));
+    //   let fixationLocY = parseFloat((this.addedFixationPoints.locY/this.numberOfFixationPoints).toFixed(1));
+    //
+    //   let gazePathAction =
+    //   {
+    //       category: "Fixation",
+    //       eventStart: this.eventStart,
+    //       eventEnd: this.eventEnd,
+    //       eventDuration: eventDuration,
+    //       fixationPos: {
+    //         posX: fixationLocX,
+    //         posY: fixationLocY
+    //       },
+    //       aoiName: this.props.name,
+    //       image: "-"
+    //   }
+    //
+    //   this.props.gazeDataCallback(gazePathAction)
+    // }
+    //
+    // //Reset the state and the duration as it is no longer being looked at
+    // this.addedFixationPoints.locX = 0;
+    // this.addedFixationPoints.locY = 0;
+    // this.numberOfFixationPoints = 0;
+    // this.activationTimer = 0;
+    // this.eventStart = 0;
+    // this.eventEnd = 0;
+    // this.timeSinceBeginning = 0;
 
     this.setState({
       active: false,
     });
+  }
+
+  getName() {
+    return this.props.name;
   }
 
   //Called from the timer in the StimuliComponent
@@ -165,12 +169,12 @@ class AOIComponent extends React.Component {
     let gazeLoc = store.getState().gazeData;
     let result = this.isInside(gazeLoc);
 
-    if(result.inside){
-      this.addedFixationPoints.locX += gazeLoc.locX;
-      this.addedFixationPoints.locY += gazeLoc.locY;
-      this.numberOfFixationPoints ++;
-      this.activationTimer += DeltaTime;
-    }
+    // if(result.inside){
+    //   this.addedFixationPoints.locX += gazeLoc.locX;
+    //   this.addedFixationPoints.locY += gazeLoc.locY;
+    //   this.numberOfFixationPoints ++;
+    //   this.activationTimer += DeltaTime;
+    // }
 
     return result;
   }
