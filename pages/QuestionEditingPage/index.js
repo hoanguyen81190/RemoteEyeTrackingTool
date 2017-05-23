@@ -15,12 +15,12 @@ class Question extends React.Component {
     let question = this.props.question;
 
     return(<div >
-          <div> {question.question}</div>
-          <div >Block Instructions</div>
+          <div className={s.questionText + " " + s.clickable}> {question.question}</div>
+          {/* <div >Block Instructions</div> */}
           {question.trials.map((trial, trial_index) => {
             let trialName = trial.image.split('.')[0] + '_json';
             return <div key={trial_index}>
-                <div>Trial {trialName}</div>
+                <div className={s.trialText + " " + s.clickable}>Trial {trialName}</div>
               </div>
           })}
 
@@ -38,8 +38,8 @@ class ExperimentData extends React.Component {
     if(hsiData) {
       return (<div className={s.experimentPane}>
         {hsiData.map((hsi, hsi_index) => {
-          return <div>
-            {hsi.hsi}
+          return <div className={s.hsiMargin}>
+            <div className={s.hsiText+ " " + s.clickable}>{hsi.hsi}</div>
             {hsi.questions.map((question, q_index) => {
               return <Question key={q_index} question={question} hsiID={hsi.hsi}/>;
             })}
