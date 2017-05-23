@@ -1,4 +1,5 @@
 import store from './store';
+import fixationData from '../public/experiment/fixation_data.json'
 
 var autobahn = require('./autobahn.min.js');
 
@@ -65,6 +66,10 @@ connection.onopen = function (sess, details) {
   }
 
   function onRETDataFixations(args) {
+    if(args[4] < fixationData.fixationThresholdMS){
+      return;
+    }
+
     let fixationAction = {
       type: 'SET_FIXATION_DATA',
       fixation: {
@@ -74,12 +79,25 @@ connection.onopen = function (sess, details) {
         duration: args[4]
       }
     }
+
     store.dispatch(fixationAction);
     fixationStore.addNewFixation();
   }
 
+  function onRetCalibrationResult(args) {
+    let calResultAction = {
+      type: 'SET_CALIBRATION_RESULT',
+      calResult: {
+        calX: args[1],
+        calY: args[2],
+      }
+    }
+    store.dispatch(calResultAction);
+  }
+
   session.subscribe('RETDataSample', onRETData);
   session.subscribe('RETDataFixations', onRETDataFixations);
+  session.subscribe('RETCalibrationResult', onRetCalibrationResult);
 }
 
 // fired when connection was lost (or could not be established)

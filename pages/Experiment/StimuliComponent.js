@@ -42,6 +42,7 @@ class StimuliComponent extends React.Component {
     this.handleNewFixation = this._onNewFixation.bind(this);
     this.startTime = 0;
     this.currentFixation = 0;
+    this.fixations = [];
   }
 
   componentWillMount() {
@@ -77,11 +78,17 @@ class StimuliComponent extends React.Component {
       if(eventEnd - newFixation.duration < 0) {
         return;
       }
-      let fixationComponent = this.refs["fixationDiv"+this.currentFixation];
-      if(fixationComponent) {
-        fixationComponent.updateData(newFixation);
+      if(this.fixations.length >= 10) {
+        this.fixations.shift();
       }
-      this.currentFixation = (this.currentFixation + 1) % 10;
+      this.fixations.push(newFixation);
+      this.fixations.map((f, f_i) => {
+        let fixationComponent = this.refs["fixationDiv"+f_i];
+        if(fixationComponent) {
+          fixationComponent.updateData(f);
+        }
+      });
+
       if(this.aoiRefs.length > 0){
         var closestAOI = null;
         var closestResult = null;
@@ -219,7 +226,6 @@ class StimuliComponent extends React.Component {
     var aois = this.state.aois ? <div>{this.state.aois.AOIs.map((item, index) => {
       var ref = "AOIref" + index;
       this.aoiRefs.push(ref);
-      console.log(item);
       return (<AOI key={index} topLeftX={item.left} topLeftY={item.top} width={item.width} height={item.height} visible={true} name={item.name} ref={ref} gazeDataCallback={this.props.gazeDataCallback}/>);
     })}</div> : null;
     return (
@@ -237,7 +243,7 @@ class StimuliComponent extends React.Component {
           aois
         }
         {
-          [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i, index)=>{<Fixation key={index} ref={"fixationDiv" + index}/>})
+          [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i, index)=>{return <Fixation key={index} ref={"fixationDiv" + index} index={index}/>})
         }
       </div>
     );

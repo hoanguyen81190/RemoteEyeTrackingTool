@@ -1,21 +1,5 @@
 import { createStore } from 'redux';
 
-// Centralized application state
-// For more information visit http://redux.js.org/
-// const EventEmitter = require('events');
-// class EventStore extends EventEmitter {
-//   addFixationListener(callback) {
-//     this.addListener('NEW FIXATION', callback);
-//   }
-//   removeFixationListener(callback) {
-//     this.removeListener('NEW FIXATION', callback);
-//   }
-//   addNewFixation() {
-//     this.emit('NEW FIXATION');
-//   }
-// }
-// let eventStore = new EventStore();
-
 const initialState = {
   participantId: 0,
 
@@ -34,7 +18,20 @@ const initialState = {
   widthRatio: 1,
   heightRatio: 1,
 
-  trialStartTimestamp: null
+  trialStartTimestamp: null,
+
+  calibrationAccuracy: {
+    calX: -1,
+    calY: -1
+  },
+
+  calibrationComponent: null,
+  calibrationSettings: {
+    calMethod: "best",
+    animSpeed: "fast",
+    accPoints: "semiauto",
+    display: "display2"
+  }
 };
 
 const store = createStore((state = initialState, action) => {
@@ -52,9 +49,21 @@ const store = createStore((state = initialState, action) => {
     case 'SET_AOI_RATIOS': {
       return {...state, widthRatio: action.widthRatio, heightRatio: action.heightRatio};
     }
+    case 'SET_CAL_COMP': {
+      return {...state, calibrationComponent: action.calComp};
+    }
     case 'SET_TRIAL_START_TS': {
       console.log("STORE RECIEVED TIMESTAMP");
       return {...state, trialStartTimestamp: action.timestamp};
+    }
+    case 'SET_CALIBRATION_SETTINGS': {
+      return {...state, calibrationSettings: action.calibrationSettings};
+    }
+    case 'SET_CALIBRATION_RESULT': {
+      if(state.calibrationComponent){
+        state.calibrationComponent.setAccuracyResult(action.calResult);
+      }
+      return {...state, calibrationAccuracy: action.calResult};
     }
     default:
       return state;
