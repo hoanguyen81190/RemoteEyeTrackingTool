@@ -14,7 +14,7 @@ class Question extends React.Component {
     let hsiID = this.props.hsiID;
     let question = this.props.question;
 
-    return(<div className={s.indent}>
+    return(<div >
           <div> {question.question}</div>
           <div >Block Instructions</div>
           {question.trials.map((trial, trial_index) => {
