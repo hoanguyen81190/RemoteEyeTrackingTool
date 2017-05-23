@@ -29,7 +29,6 @@ class Fixation extends React.Component {
   componentDidMount() {
     key.setScope('stimuli');
     key('f', this.handleVisibility);
-    this.timer = setInterval(this.handleUpdate, 4.5); //Update the gaze cursor location every 2ms
   }
 
   componentWillUnmount(){
@@ -48,8 +47,7 @@ class Fixation extends React.Component {
     );
   }
 
-  updateData(){
-    let fixation = store.getState().fixation;
+  updateData(fixation){
     //Only draw the cursor if it is visible
     if(this.state.visible){
       var fixationDiv = document.getElementById("fixationDiv");

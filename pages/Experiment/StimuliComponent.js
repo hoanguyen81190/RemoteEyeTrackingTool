@@ -7,6 +7,7 @@ import wamp from '../../core/wamp';
 import fixationStore from '../../core/wamp';
 
 import AOI from './AOIComponent';
+import Fixation from './Fixation';
 
 // import aois from '../../public/experiment/aois.json';
 const aoisPath = './public/experiment/aois.json'; //For the webserver
@@ -40,6 +41,7 @@ class StimuliComponent extends React.Component {
     this.dataRecieved = false;
     this.handleNewFixation = this._onNewFixation.bind(this);
     this.startTime = 0;
+    this.currentFixation = 0;
   }
 
   componentWillMount() {
@@ -75,6 +77,11 @@ class StimuliComponent extends React.Component {
       if(eventEnd - newFixation.duration < 0) {
         return;
       }
+      let fixationComponent = this.refs["fixationDiv"+this.currentFixation];
+      if(fixationComponent) {
+        fixationComponent.updateData(newFixation);
+      }
+      this.currentFixation = (this.currentFixation + 1) % 10;
       if(this.aoiRefs.length > 0){
         var closestAOI = null;
         var closestResult = null;
@@ -228,6 +235,9 @@ class StimuliComponent extends React.Component {
         </div>
         {
           aois
+        }
+        {
+          [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i, index)=>{<Fixation key={index} ref={"fixationDiv" + index}/>})
         }
       </div>
     );
