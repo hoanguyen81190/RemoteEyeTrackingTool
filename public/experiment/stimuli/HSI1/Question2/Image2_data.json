@@ -1,13 +1,13 @@
 {
-	"question": "What is the current status of P 09B? Edited",
+	"question": "What is the current status of P 10A? Edited",
 	"responseKeys": [
 		{
 			"key": "z",
-			"meaning": "On"
+			"meaning": "Closed"
 		},
 		{
 			"key": "/",
-			"meaning": "Off"
+			"meaning": "Opened"
 		},
 		{
 			"key": "space",
@@ -15,5 +15,5 @@
 		}
 	],
 	"correctAnswer": 1,
-	"image": "Image2.png"
+	"image": "Image2.PNG"
 }

@@ -3,104 +3,28 @@ import Layout from '../../components/Layout';
 import s from './styles.css';
 import history from '../../core/history';
 
+import eventSystem from './QuestionPageEvents';
+
 const stimuliFolder = './public/experiment/stimuli/';
 const stimuliFolderImages = 'experiment/stimuli/';
-
-const EventEmitter = require('events');
-
-class EventSystem extends EventEmitter {
-  constructor() {
-    super();
-    this.pickedTrial = null;
-    this.blockInstructions = null;
-    this.editedQuestion = null;
-  }
-
-  addPickTrialListener(callback) {
-    this.addListener('PICK TRIAL', callback);
-  }
-
-  removePickTrialListener(callback) {
-    this.removeListener('PICK TRIAL', callback);
-  }
-
-  pickTrial(trial) {
-    this.pickedTrial = trial;
-    this.emit('PICK TRIAL');
-  }
-
-  editTrial(trial) {
-    if(this.pickedTrial) {
-      this.pickedTrial.editTrial(trial);
-    }
-  }
-
-  getPickedTrial() {
-    return this.pickedTrial;
-  }
-
-  addPickBIListener(callback) {
-    this.addListener('PICK BLOCK INSTRUCTIONS', callback);
-  }
-
-  removePickBIListener(callback) {
-    this.removeListener('PICK BLOCK INSTRUCTIONS', callback);
-  }
-
-  pickBI(editedQuestion) {
-    this.editedQuestion = editedQuestion;
-    this.emit('PICK BLOCK INSTRUCTIONS');
-  }
-
-  addEditBIListener(callback) {
-    this.addListener('EDIT BLOCK INSTRUCTIONS', callback);
-  }
-
-  removeEditBIListener(callback) {
-    this.removeListener('EDIT BLOCK INSTRUCTIONS', callback);
-  }
-
-  editBI(blockInstructions) {
-    this.blockInstructions = blockInstructions;
-    this.emit('EDIT BLOCK INSTRUCTIONS');
-  }
-  getEditedBlockInstruction() {
-    return this.blockInstructions;
-  }
-  getEditedQuestion() {
-    return this.editedQuestion;
-  }
-}
-
-let eventSystem = new EventSystem();
 
 class Trial extends React.Component {
   constructor(props) {
     super(props);
-    this.hsiID = this.props.hsiID.split('HSI')[1];
-    this.questionID = this.props.questionID.split('Question')[1];
-    this.trial = this.props.trial;
     this.state = {
-      name: this.trial.image.split('.')[0] + '_json'
+      name: this.props.trial.image.split('.')[0] + '_json'
     };
   }
 
   pickTrial() {
-    eventSystem.pickTrial(this);
-  }
-
-  editTrial(trial) {
-    this.trial = trial;
-    this.setState({
-      name: this.trial.image.split('.')[0] + '_json'
-    });
+    eventSystem.pickTrial(this.getInfo());
   }
 
   getInfo() {
     return {
-      hsiID: this.hsiID,
-      questionID: this.questionID,
-      trial: this.trial
+      hsiID: this.props.hsiID.split('HSI')[1],
+      questionID: this.props.questionID.split('Question')[1],
+      trial: this.props.trial
     }
   }
 
@@ -115,29 +39,14 @@ class Question extends React.Component {
     this.question = this.props.question;
   }
 
-  componentDidMount() {
-    eventSystem.addEditBIListener(this._onEditBI.bind(this));
-  }
-
-  componentWillUnmount() {
-    eventSystem.removeEditBIListener(this._onEditBI.bind(this));
-  }
-
-  _onEditBI() {
-    let editedBI = eventSystem.getEditedQuestion();
-    if(editedBI == this) {
-      this.question = {...this.props.question, blockInstructions: eventSystem.getEditedBlockInstruction()};
-    }
-  }
-
   editBlockInstructions() {
-    eventSystem.pickBI(this);
+    eventSystem.pickBI(this.getInfo());
   }
 
   getInfo() {
     return {
       hsiID: this.props.hsiID,
-      question: this.question
+      question: this.props.question
     }
   }
 
@@ -160,10 +69,23 @@ class Question extends React.Component {
 class ExperimentData extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      hsiData: this.props.hsiData
+    }
+  }
+
+  updateData(data) {
+    this.setState({
+      hsiData: null
+    });
+    this.setState({
+      hsiData: data
+    });
+    console.log('reload');
   }
 
   render() {
-    let hsiData = this.props.hsiData;
+    let hsiData = this.state.hsiData;
     if(hsiData) {
       return (<div className={s.experimentPane}>
         <div className={s.experimentHeaderText}>Current Experiment Data</div>
@@ -195,20 +117,23 @@ class NewQuestion extends React.Component {
     this.state = {
       img: null
     };
+    this.onPickingBI = this._onPickingBI.bind(this);
+    this.onPickingTrial = this._onPickingTrial.bind(this);
+    this.oldImage = null;
   }
 
   componentDidMount() {
-    eventSystem.addPickBIListener(this._onPickingBI.bind(this));
-    eventSystem.addPickTrialListener(this._onPickingTrial.bind(this));
+    eventSystem.addPickBIListener(this.onPickingBI);
+    eventSystem.addPickTrialListener(this.onPickingTrial);
   }
 
   componentWillUnmount() {
-    eventSystem.removePickBIListener(this._onPickingBI.bind(this));
-    eventSystem.removePickTrialListener(this._onPickingTrial.bind(this));
+    eventSystem.removePickBIListener(this.onPickingBI);
+    eventSystem.removePickTrialListener(this.onPickingTrial);
   }
 
   _onPickingTrial() {
-    let info = eventSystem.getPickedTrial().getInfo();
+    let info = eventSystem.getPickedTrial();
     if((this.refs["hsiIdRef"].value !== info.hsiID) || (this.refs["questionIdRef"].value !== info.questionID)) {
       this._onResetButtonClicked();
     }
@@ -226,13 +151,14 @@ class NewQuestion extends React.Component {
     this.refs["meaning2Ref"].value = info.trial.responseKeys[2].meaning;
     this.refs["imageLabelRef"].innerHTML=info.trial.image;
     this.imageName = info.trial.image;
+    this.oldImage = info.trial.image;
     this.setState({
       img: stimuliFolderImages+'HSI'+info.hsiID+"/"+'Question'+info.questionID+"/"+info.trial.image
     });
   }
 
   _onPickingBI() {
-    let info = eventSystem.getEditedQuestion().getInfo();
+    let info = eventSystem.getEditedBlockInstruction();
     if((this.refs["hsiIdRef"].value !== info.hsiID) || (this.refs["questionIdRef"].value !== info.question.question)) {
       this._onResetButtonClicked();
     }
@@ -275,6 +201,62 @@ class NewQuestion extends React.Component {
     });
   }
 
+  addNewQuestion() {
+      var q = this.getInformation();
+      var hsiID = q.hsiID;
+      var questionID = q.questionID;
+      if((hsiID === "") || (questionID === "")) {
+        return;
+      }
+
+      var path = './public/experiment/stimuli/HSI' + hsiID + '/Question' + questionID;
+
+      if(this.oldImage && this.oldImage != q.body.image) {
+        var request = new Request('http://localhost:3000/api', {
+           method: 'POST',
+           headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+           },
+           redirect: 'follow',
+           body: JSON.stringify({
+              request: 'delete stimuli data',
+              path: path,
+              fileName: this.oldImage.split('.')[0] + '_data.json'
+          })
+          // mode: 'no-cors'
+        });
+          fetch(request).then(function(response) {
+            return response.json();
+          }).then(function(j) {
+            console.log('Delete', j.message);
+          });
+      }
+      this.oldImage = null;
+
+      var fileName = q.body.image.split('.')[0] + '_data.json';
+      var request = new Request('http://localhost:3000/api', {
+         method: 'POST',
+         headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+         },
+         redirect: 'follow',
+         body: JSON.stringify({
+            request: 'save question',
+            path: path,
+            fileName: fileName,
+            data: JSON.stringify(q.body, null, "\t"),
+        })
+        // mode: 'no-cors'
+      });
+        fetch(request).then(function(response) {
+          return response.json();
+        }).then(this._onSavedCallback.bind(this));
+
+
+  }
+
   _onSaveButtonClicked() {
     var correctAnswer = this.findCheckedRadioButton();
     if (correctAnswer < 0 || correctAnswer > 2) {
@@ -302,8 +284,12 @@ class NewQuestion extends React.Component {
       }).then(function(j) {
         alert("Image Saved " + j.message);
       });
-    this.props.addCallBack();
-    eventSystem.editTrial(this.getInformation().body);
+    this.addNewQuestion();
+  }
+
+  _onSavedCallback(j) {
+    alert("Saved " + j.message);
+    this.props.reloadPageCallback();
   }
 
   _onResetButtonClicked() {
@@ -366,10 +352,7 @@ class NewQuestion extends React.Component {
       });
         fetch(request).then(function(response) {
           return response.json();
-        }).then(function(j) {
-          alert("Block Instruction Saved " + j.message);
-        });
-      eventSystem.editBI(this.refs["blockInstructionsRef"].value);
+        }).then(this._onSavedCallback.bind(this));
     }
   }
 
@@ -417,46 +400,10 @@ class QuestionPane extends React.Component {
     this.readStimuliDir(stimuliFolder, this.handleRecievedData);
   }
 
-  addNewQuestion() {
-    var qRef = this.refs["newQuestionRef"];
-    if(qRef) {
-      var q = qRef.getInformation();
-      var hsiID = q.hsiID;
-      var questionID = q.questionID;
-      if((hsiID === "") || (questionID === "")) {
-        return;
-      }
-      var fileName = q.body.image.split('.')[0] + '_data.json';
-      var path = './public/experiment/stimuli/HSI' + hsiID + '/Question' + questionID;
-      var request = new Request('http://localhost:3000/api', {
-         method: 'POST',
-         headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-         },
-         redirect: 'follow',
-         body: JSON.stringify({
-            request: 'save question',
-            path: path,
-            fileName: fileName,
-            data: JSON.stringify(q.body, null, "\t"),
-        })
-        // mode: 'no-cors'
-      });
-        fetch(request).then(function(response) {
-          return response.json();
-        }).then(function(j) {
-          alert("Trial Saved " + j.message);
-        });
-    }
-  }
-
   onRecievedStimuliData(data){
     console.log(data);
     this.dataRecieved = true;
-    this.setState({
-      hsiData: data
-    })
+    this.refs["experimentExplorerRef"].updateData(data);
   }
 
   readStimuliDir(filename, callback) {
@@ -483,12 +430,8 @@ class QuestionPane extends React.Component {
     history.push('/');
   }
 
-  editBlockInstruction() {
-
-  }
-
-  editTrial() {
-
+  reloadPage() {
+    this.readStimuliDir(stimuliFolder, this.handleRecievedData);
   }
 
   render() {
@@ -496,8 +439,8 @@ class QuestionPane extends React.Component {
       <Layout>
       <div className={s.questionPage}>
       <div className={s.titlePane}><div className={s.title}> Question Editor </div><button onClick={this.goToHomePage} className={s.homePageButton}>Home Page</button></div>
-      <ExperimentData hsiData={this.state.hsiData} editBlockInstructionCallback={()=>{this.editBlockInstruction()}} editTrialCallback={()=>this.editTrial}/>
-      <NewQuestion addCallBack={()=>{this.addNewQuestion()}} ref="newQuestionRef"/>
+      <ExperimentData ref="experimentExplorerRef" hsiData={this.state.hsiData} editBlockInstructionCallback={()=>{this.editBlockInstruction()}} editTrialCallback={()=>this.editTrial}/>
+      <NewQuestion ref="newQuestionRef" reloadPageCallback={()=>{this.reloadPage()}}/>
     </div>
   </Layout>);
   }
