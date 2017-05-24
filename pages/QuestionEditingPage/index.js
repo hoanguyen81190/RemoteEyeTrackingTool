@@ -105,7 +105,7 @@ class Trial extends React.Component {
   }
 
   render() {
-    return(<div onClick={this.pickTrial.bind(this)} className={s.trialText + " " + s.clickable>Trial {this.state.name}</div>);
+    return(<div className={s.trialWrapper}><div onClick={this.pickTrial.bind(this)} className={s.trialText + " " + s.clickable}>Trial {this.state.name}</div></div>);
   }
 }
 
@@ -146,7 +146,7 @@ class Question extends React.Component {
     let question = this.props.question;
 
     return(<div >
-          <div className={s.questionText + " " + s.clickable} onClick={this.editBlockInstructions.bind(this)}> {question.question}</div>
+          <div className={s.questionWrapper}><div className={s.questionText + " " + s.clickable} onClick={this.editBlockInstructions.bind(this)}> {question.question}</div></div>
           {/* <div >Block Instructions</div> */}
           {question.trials.map((trial, trial_index) => {
             return <Trial hsiID={hsiID} questionID={question.question} trial={trial} key={trial_index}/>
@@ -169,7 +169,7 @@ class ExperimentData extends React.Component {
         <div className={s.experimentContent}>
         {hsiData.map((hsi, hsi_index) => {
           return <div className={s.hsiMargin} key={hsi_index}>
-            <div className={s.hsiText+ " " + s.clickable}>{hsi.hsi}</div>
+            <div className={s.hsiText}>{hsi.hsi}</div>
             {hsi.questions.map((question, q_index) => {
               return <Question key={q_index} question={question} hsiID={hsi.hsi}/>;
             })}
@@ -493,12 +493,14 @@ class QuestionPane extends React.Component {
   render() {
     return(
       <Layout>
-      <div className={s.questionPage}>
-      <div className={s.titlePane}><div className={s.title}> Question Editor </div><button onClick={this.goToHomePage} className={s.homePageButton}>Home Page</button></div>
-      <ExperimentData hsiData={this.state.hsiData} editBlockInstructionCallback={()=>{this.editBlockInstruction()}} editTrialCallback={()=>this.editTrial}/>
-      <NewQuestion addCallBack={()=>{this.addNewQuestion()}} ref="newQuestionRef"/>
-    </div>
-  </Layout>);
+        <div className={s.questionPage}>
+          <div className={s.titlePane}>
+            <div className={s.title}> Question Editor </div><button onClick={this.goToHomePage} className={s.homePageButton}>Home Page</button>
+          </div>
+          <ExperimentData hsiData={this.state.hsiData} editBlockInstructionCallback={()=>{this.editBlockInstruction()}} editTrialCallback={()=>this.editTrial}/>
+          <NewQuestion addCallBack={()=>{this.addNewQuestion()}} ref="newQuestionRef"/>
+        </div>
+    </Layout>);
   }
 }
 QuestionPane.propTypes = {

@@ -29,7 +29,7 @@ class Experiment extends React.Component {
     //Set the initial state of the component
     this.state = {
       // type: "DataInput",
-      type: "Stimuli",
+      type: "DataInput",
       hsiData: null
     };
 
@@ -303,7 +303,7 @@ class Experiment extends React.Component {
 
         //Increment the hsiIndex and check if the experiment is finished
         this.hsiIndex++;
-        if(this.hsiIndex === 1){ //this.nmbHSI){
+        if(this.hsiIndex === this.nmbHSI){
           //TODO end experiment here
           this.experimentFinished = true;
           console.log(this.experimentData);
