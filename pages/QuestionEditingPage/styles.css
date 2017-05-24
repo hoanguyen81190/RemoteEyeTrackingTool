@@ -68,6 +68,7 @@
 
 .imagePane {
   position: absolute;
+  top:0;
   right: 0;
   width: 70%;
   height: auto;

@@ -91,9 +91,9 @@ class Trial extends React.Component {
 
   editTrial(trial) {
     this.trial = trial;
-    this.state = {
+    this.setState({
       name: this.trial.image.split('.')[0] + '_json'
-    };
+    });
   }
 
   getInfo() {
@@ -105,7 +105,7 @@ class Trial extends React.Component {
   }
 
   render() {
-    return(<div onClick={this.pickTrial.bind(this)} className={s.trialText + " " + s.clickable>Trial {this.state.name}</div>);
+    return(<div onClick={this.pickTrial.bind(this)} className={s.trialText + " " + s.clickable}>Trial {this.state.name}</div>);
   }
 }
 
@@ -148,8 +148,9 @@ class Question extends React.Component {
     return(<div >
           <div className={s.questionText + " " + s.clickable} onClick={this.editBlockInstructions.bind(this)}> {question.question}</div>
           {/* <div >Block Instructions</div> */}
+
           {question.trials.map((trial, trial_index) => {
-            return <Trial hsiID={hsiID} questionID={question.question} trial={trial} key={trial_index}/>
+            return <div><Trial hsiID={hsiID} questionID={question.question} trial={trial} key={trial_index}/></div>
           })}
 
    </div>);
