@@ -8,16 +8,20 @@ import eventSystem from './QuestionPageEvents';
 const stimuliFolder = './public/experiment/stimuli/';
 const stimuliFolderImages = 'experiment/stimuli/';
 
+var idCounter = 0;
+
 class Trial extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       name: this.props.trial.image.split('.')[0] + '_json'
     };
+    this.refID = "Trial" + idCounter++;
   }
 
   pickTrial() {
     eventSystem.pickTrial(this.getInfo());
+    eventSystem.setActiveRefID(this.refID , s.activeClickable);
   }
 
   getInfo() {
@@ -29,9 +33,7 @@ class Trial extends React.Component {
   }
 
   render() {
-
-
-    return(<div className={s.itemWrapper + " " + s.trialText}><div onClick={this.pickTrial.bind(this)} className={s.clickable}>Trial {this.state.name}</div><div className={s.deleteIcon}><div className={s.iconText}>X</div></div></div>);
+    return(<div id={this.refID} className={s.itemWrapper + " " + s.trialText}><div onClick={this.pickTrial.bind(this)} className={s.clickable}>Trial {this.state.name}</div><div className={s.deleteIcon}><div className={s.iconText}>X</div></div></div>);
   }
 }
 
@@ -39,10 +41,12 @@ class Question extends React.Component {
   constructor(props) {
     super(props);
     this.question = this.props.question;
+    this.refID = "Question" + idCounter++;
   }
 
   editBlockInstructions() {
     eventSystem.pickBI(this.getInfo());
+    eventSystem.setActiveRefID(this.refID , s.activeClickable);
   }
 
   getInfo() {
@@ -57,7 +61,7 @@ class Question extends React.Component {
     let question = this.props.question;
 
     return(<div >
-          <div className={s.itemWrapper + " " + s.questionText}><div className={s.clickable} onClick={this.editBlockInstructions.bind(this)}> {question.question}</div><div className={s.deleteIcon}><div className={s.iconText}>X</div></div></div>
+          <div id={this.refID} className={s.itemWrapper + " " + s.questionText}><div className={s.clickable} onClick={this.editBlockInstructions.bind(this)}> {question.question}</div><div className={s.deleteIcon}><div className={s.iconText}>X</div></div></div>
           {/* <div >Block Instructions</div> */}
 
           {question.trials.map((trial, trial_index) => {
