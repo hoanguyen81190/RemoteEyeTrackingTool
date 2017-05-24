@@ -375,7 +375,9 @@ class NewQuestion extends React.Component {
 
   render() {
     var image = this.state.img ? <img src={this.state.img} ref="imageInputRef"/> : null;
-    return(<div className={s.question}>
+    return(
+      <div className={s.questionImgWrapper}>
+      <div className={s.question}>
         <div className={s.questionPane}>
           <div>
             <div className={s.bold}>HSI Folder ID: <input type="text" ref="hsiIdRef" className={s.smallTextBox}/>Question Folder ID: <input type="text" ref="questionIdRef" className={s.smallTextBox}/>
@@ -397,10 +399,11 @@ class NewQuestion extends React.Component {
             className={s.fileUploader}/></div>
           <div><button className={s.button} onClick={this.onSaveButtonClicked}>Save Trial</button><button className={s.button} onClick={this.onResetButtonClicked}>Clear Fields</button></div>
         </div>
-      <div className={s.imagePane}>
-        {image}
-      </div>
-   </div>);
+     </div>
+     <div className={s.imagePane}>
+       {image}
+     </div>
+ </div>);
   }
 }
 
@@ -494,12 +497,12 @@ class QuestionPane extends React.Component {
   render() {
     return(
       <Layout>
-      <div className={s.questionPage}>
-      <div className={s.titlePane}><div className={s.title}> Question Editor </div><button onClick={this.goToHomePage} className={s.homePageButton}>Home Page</button></div>
-      <ExperimentData hsiData={this.state.hsiData} editBlockInstructionCallback={()=>{this.editBlockInstruction()}} editTrialCallback={()=>this.editTrial}/>
-      <NewQuestion addCallBack={()=>{this.addNewQuestion()}} ref="newQuestionRef"/>
-    </div>
-  </Layout>);
+        <div className={s.questionPage}>
+          <div className={s.titlePane}><div className={s.title}> Question Editor </div><button onClick={this.goToHomePage} className={s.homePageButton}>Home Page</button></div>
+          <ExperimentData hsiData={this.state.hsiData} editBlockInstructionCallback={()=>{this.editBlockInstruction()}} editTrialCallback={()=>this.editTrial}/>
+          <NewQuestion addCallBack={()=>{this.addNewQuestion()}} ref="newQuestionRef"/>
+        </div>
+      </Layout>);
   }
 }
 QuestionPane.propTypes = {
