@@ -14,6 +14,7 @@ class Trial extends React.Component {
     this.state = {
       name: this.props.trial.image.split('.')[0] + '_json'
     };
+    this.deleteTrial = this.onDeleteTrial.bind(this);
   }
 
   pickTrial() {
@@ -28,10 +29,34 @@ class Trial extends React.Component {
     }
   }
 
+  onDeleteTrial() {
+    let path = './public/experiment/stimuli/' + this.props.hsiID + '/' + this.props.questionID;
+    let fileName = this.props.trial.image.split('.')[0] + '_data.json';
+    var request = new Request('http://localhost:3000/api', {
+       method: 'POST',
+       headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+       },
+       redirect: 'follow',
+       body: JSON.stringify({
+          request: 'delete stimuli data',
+          path: path,
+          fileName: fileName
+      })
+      // mode: 'no-cors'
+    });
+      fetch(request).then(function(response) {
+        return response.json();
+      }).then(function(j) {
+        eventSystem.reloadPage();
+      });
+  }
+
   render() {
 
 
-    return(<div className={s.itemWrapper + " " + s.trialText}><div onClick={this.pickTrial.bind(this)} className={s.clickable}>Trial {this.state.name}</div><div className={s.deleteIcon}><div className={s.iconText}>X</div></div></div>);
+    return(<div className={s.itemWrapper + " " + s.trialText}><div onClick={this.pickTrial.bind(this)} className={s.clickable}>Trial {this.state.name}</div><div className={s.deleteIcon} onClick={this.deleteTrial}><div className={s.iconText}>X</div></div></div>);
   }
 }
 
@@ -39,9 +64,11 @@ class Question extends React.Component {
   constructor(props) {
     super(props);
     this.question = this.props.question;
+    this.editBlockInstructions = this.onEditBlockInstructions.bind(this);
+    this.deleteQuestion = this.onDeleteQuestion.bind(this);
   }
 
-  editBlockInstructions() {
+  onEditBlockInstructions() {
     eventSystem.pickBI(this.getInfo());
   }
 
@@ -52,12 +79,36 @@ class Question extends React.Component {
     }
   }
 
+  onDeleteQuestion() {
+    let path = './public/experiment/stimuli/' + this.props.hsiID;
+    let fileName = this.props.question.question;
+    var request = new Request('http://localhost:3000/api', {
+       method: 'POST',
+       headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+       },
+       redirect: 'follow',
+       body: JSON.stringify({
+          request: 'delete stimuli data',
+          path: path,
+          fileName: fileName
+      })
+      // mode: 'no-cors'
+    });
+      fetch(request).then(function(response) {
+        return response.json();
+      }).then(function(j) {
+        eventSystem.reloadPage();
+      });
+  }
+
   render() {
     let hsiID = this.props.hsiID;
     let question = this.props.question;
 
     return(<div >
-          <div className={s.itemWrapper + " " + s.questionText}><div className={s.clickable} onClick={this.editBlockInstructions.bind(this)}> {question.question}</div><div className={s.deleteIcon}><div className={s.iconText}>X</div></div></div>
+          <div className={s.itemWrapper + " " + s.questionText}><div className={s.clickable} onClick={this.editBlockInstructions}> {question.question}</div><div className={s.deleteIcon} onClick={this.deleteQuestion}><div className={s.iconText}>X</div></div></div>
           {/* <div >Block Instructions</div> */}
 
           {question.trials.map((trial, trial_index) => {
@@ -399,10 +450,19 @@ class QuestionPane extends React.Component {
     this.state = {
       hsiData: null
     };
+    this.handleReloadPage = this.reloadPage.bind(this);
   }
 
   componentWillMount() {
     this.readStimuliDir(stimuliFolder, this.handleRecievedData);
+  }
+
+  componentDidMount() {
+    eventSystem.addReloadPageListener(this.handleReloadPage);
+  }
+
+  componentWillUnmount() {
+    eventSystem.removeReloadPageListener(this.handleReloadPage);
   }
 
   onRecievedStimuliData(data){

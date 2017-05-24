@@ -33,7 +33,7 @@ class Fixation extends React.Component {
   }
 
   componentWillUnmount(){
-    clearInterval(this.timer);
+    // clearInterval(this.timer);
     key.unbind('f');
   }
 

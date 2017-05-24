@@ -2,6 +2,7 @@ const EventEmitter = require('events');
 
 const PICK_TRIAL = 'pick trial';
 const PICK_BLOCK_INSTRUCTIONS = 'pick block instructions';
+const RELOAD_PAGE = 'reload page';
 class EventSystem extends EventEmitter {
   constructor() {
     super();
@@ -43,6 +44,18 @@ class EventSystem extends EventEmitter {
 
   getEditedBlockInstruction() {
     return this.blockInstructions;
+  }
+
+  addReloadPageListener(callback) {
+    this.addListener(RELOAD_PAGE, callback);
+  }
+
+  removeReloadPageListener(callback) {
+    this.removeListener(RELOAD_PAGE, callback);
+  }
+
+  reloadPage() {
+    this.emit(RELOAD_PAGE);
   }
 }
 

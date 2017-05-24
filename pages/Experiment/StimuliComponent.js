@@ -15,6 +15,43 @@ var key = require('keymaster');
 
 const stimuliFolderImages = 'experiment/stimuli/'; //To read the images
 
+function createLineElement(x, y, length, angle, label) {
+    var line = document.createElement("div");
+    if (angle === Math.PI) angle = 0;
+    var styles = 'border: 0.5px solid red; '
+               + 'opacity: 0.75;'
+               + 'width: ' + length + 'px; '
+               + 'height: 0px; '
+               + '-moz-transform: rotate(' + angle + 'rad); '
+               + '-webkit-transform: rotate(' + angle + 'rad); '
+               + '-o-transform: rotate(' + angle + 'rad); '
+               + '-ms-transform: rotate(' + angle + 'rad); '
+               + 'position: absolute; '
+               + 'top: ' + y + 'px; '
+               + 'left: ' + x + 'px; ';
+    line.setAttribute('style', styles);
+    line.innerHTML = label;
+    return line;
+}
+
+function createLine(x1, y1, x2, y2, label) {
+    var a = x1 - x2,
+        b = y1 - y2,
+        c = Math.sqrt(a * a + b * b);
+
+    var sx = (x1 + x2) / 2,
+        sy = (y1 + y2) / 2;
+
+    var x = sx - c / 2,
+        y = sy;
+
+    var alpha = Math.PI - Math.atan2(-b, a);
+
+    return createLineElement(x, y, c, alpha, label);
+}
+
+var linesDomRefs = [];
+
 class StimuliComponent extends React.Component {
   constructor(props){
     super(props);
@@ -43,6 +80,8 @@ class StimuliComponent extends React.Component {
     this.startTime = 0;
     this.currentFixation = 0;
     this.fixations = [];
+    this.isDrawingSaccades = false;
+    this.handleLinesVisibility = this._onLinesVisibility.bind(this);
   }
 
   componentWillMount() {
@@ -69,6 +108,30 @@ class StimuliComponent extends React.Component {
     this.updateRatios();
     window.addEventListener("resize", this.updateRatios.bind(this));
     fixationStore.addFixationListener(this.handleNewFixation);
+    key.setScope('stimuli');
+    key('f', this.handleLinesVisibility);
+  }
+
+  _onLinesVisibility() {
+    this.isDrawingSaccades = !this.isDrawingSaccades;
+    if(this.isDrawingSaccades) {
+      this.drawSaccadeLines();
+    }
+    else {
+      linesDomRefs.map((line, index) => line.remove());
+    }
+  }
+
+  drawSaccadeLines() {
+    linesDomRefs.map((line, index) => line.remove());
+    for (var i = 1; i < this.fixations.length; i++) {
+      var prevFix = this.fixations[i - 1];
+      var currFix = this.fixations[i];
+      var line = createLine(prevFix.locX, prevFix.locY, currFix.locX, currFix.locY, '');
+      // document.getElementsByClassName("procedureDivContainer")[0].appendChild(line);
+      document.body.appendChild(line);
+      linesDomRefs.push(line);
+    }
   }
 
   _onNewFixation() {
@@ -88,6 +151,9 @@ class StimuliComponent extends React.Component {
           fixationComponent.updateData(f);
         }
       });
+      if(this.isDrawingSaccades) {
+        this.drawSaccadeLines();
+      }
 
       if(this.aoiRefs.length > 0){
         var closestAOI = null;
@@ -191,6 +257,8 @@ class StimuliComponent extends React.Component {
     clearInterval(this.timer);
     window.removeEventListener("resize", this.updateRatios.bind(this));
     fixationStore.removeFixationListener(this.handleNewFixation);
+    linesDomRefs.map((line, index) => line.remove());
+    key.unbind('f');
   }
 
  render() {

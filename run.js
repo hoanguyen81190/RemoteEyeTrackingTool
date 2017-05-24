@@ -192,16 +192,42 @@ function readStimuliData(dirname) {
 };
 
 function deleteStimuliData(path, fileName) {
-  console.log('delete ', path + '/' + fileName);
-  fs.unlink(path + '/' + fileName, (err) => {
+  if(fs.lstatSync(path + '/' + fileName).isDirectory()) {
+    // console.log('is directory');
+    // fs.rmdirSync(path + '/' + fileName, (err) => {
+    //   if(err) {
+    //     console.log("failed to delete local image: " + err);
+    //   }
+    //   else {
+    //     console.log("successfully deleted local image");
+    //   }
+    // });
+    deleteFolderRecursive(path + '/' + fileName);
+    return;
+  }
+  fs.unlinkSync(path + '/' + fileName, (err) => {
     if(err) {
       console.log("failed to delete local image: " + err);
     }
     else {
       console.log("successfully deleted local image");
     }
-  })
+  });
 }
+
+function deleteFolderRecursive(path) {
+  if( fs.existsSync(path) ) {
+    fs.readdirSync(path).forEach(function(file,index){
+      var curPath = path + "/" + file;
+      if(fs.lstatSync(curPath).isDirectory()) { // recurse
+        deleteFolderRecursive(curPath);
+      } else { // delete file
+        fs.unlinkSync(curPath);
+      }
+    });
+    fs.rmdirSync(path);
+  }
+};
 
 /**
  * Randomize array element order in-place.
