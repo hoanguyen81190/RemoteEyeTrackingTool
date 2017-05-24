@@ -29,7 +29,9 @@ class Trial extends React.Component {
   }
 
   render() {
-    return(<div onClick={this.pickTrial.bind(this)} className={s.trialText + " " + s.clickable}>Trial {this.state.name}</div>);
+
+
+    return(<div className={s.itemWrapper + " " + s.trialText}><div onClick={this.pickTrial.bind(this)} className={s.clickable}>Trial {this.state.name}</div><div className={s.deleteIcon}><div className={s.iconText}>X</div></div></div>);
   }
 }
 
@@ -55,7 +57,7 @@ class Question extends React.Component {
     let question = this.props.question;
 
     return(<div >
-          <div className={s.questionText + " " + s.clickable} onClick={this.editBlockInstructions.bind(this)}> {question.question}</div>
+          <div className={s.itemWrapper + " " + s.questionText}><div className={s.clickable} onClick={this.editBlockInstructions.bind(this)}> {question.question}</div><div className={s.deleteIcon}><div className={s.iconText}>X</div></div></div>
           {/* <div >Block Instructions</div> */}
 
           {question.trials.map((trial, trial_index) => {
@@ -92,7 +94,7 @@ class ExperimentData extends React.Component {
         <div className={s.experimentContent}>
         {hsiData.map((hsi, hsi_index) => {
           return <div className={s.hsiMargin} key={hsi_index}>
-            <div className={s.hsiText+ " " + s.clickable}>{hsi.hsi}</div>
+            <div className={s.itemWrapper + " " + s.hsiText}>{hsi.hsi}</div>
             {hsi.questions.map((question, q_index) => {
               return <Question key={q_index} question={question} hsiID={hsi.hsi}/>;
             })}
@@ -358,7 +360,9 @@ class NewQuestion extends React.Component {
 
   render() {
     var image = this.state.img ? <img src={this.state.img} ref="imageInputRef"/> : null;
-    return(<div className={s.question}>
+    return(
+      <div className={s.questionImgWrapper}>
+      <div className={s.question}>
         <div className={s.questionPane}>
           <div>
             <div className={s.bold}>HSI Folder ID: <input type="text" ref="hsiIdRef" className={s.smallTextBox}/>Question Folder ID: <input type="text" ref="questionIdRef" className={s.smallTextBox}/>
@@ -380,10 +384,11 @@ class NewQuestion extends React.Component {
             className={s.fileUploader}/></div>
           <div><button className={s.button} onClick={this.onSaveButtonClicked}>Save Trial</button><button className={s.button} onClick={this.onResetButtonClicked}>Clear Fields</button></div>
         </div>
-      <div className={s.imagePane}>
-        {image}
-      </div>
-   </div>);
+     </div>
+     <div className={s.imagePane}>
+       {image}
+     </div>
+ </div>);
   }
 }
 
