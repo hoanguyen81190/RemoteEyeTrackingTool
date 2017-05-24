@@ -59,6 +59,10 @@ router.post('/', function(req, res) {
       let result = readStimuliData(user.fileName);
       res.json(result);
     }
+    else if(request === 'delete stimuli data'){
+      let result = deleteStimuliData(user.path, user.fileName);
+      res.json({message: 'Successfully'});
+    }
   }
   catch (err) {
     res.json({message: 'Failed'});
@@ -132,6 +136,9 @@ function readStimuliData(dirname) {
     {
       //Read the question folders
       var questionFolders = fs.readdirSync(dirname + "/" + hsiFolders[i]);
+      questionFolders.sort(function(a, b) {
+        return a.split('Question')[1] - b.split('Question')[1];
+      });
       for(var y = 0; y < questionFolders.length; y++)
       {
         //check if the file is a dir
@@ -183,6 +190,18 @@ function readStimuliData(dirname) {
   //Return the list of hsi data
   return hsiData;
 };
+
+function deleteStimuliData(path, fileName) {
+  console.log('delete ', path + '/' + fileName);
+  fs.unlink(path + '/' + fileName, (err) => {
+    if(err) {
+      console.log("failed to delete local image: " + err);
+    }
+    else {
+      console.log("successfully deleted local image");
+    }
+  })
+}
 
 /**
  * Randomize array element order in-place.
