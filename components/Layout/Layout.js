@@ -3,7 +3,10 @@ import cx from 'classnames';
 import s from './Layout.css';
 
 class Layout extends React.Component {
-
+  constructor(props) {
+    super(props);
+    this.onWindowResized = this._onWindowResized.bind(this);
+  }
   static propTypes = {
     className: PropTypes.string,
     footerLeftContent: PropTypes.object,
@@ -11,15 +14,16 @@ class Layout extends React.Component {
   };
 
   componentDidMount() {
-    // window.componentHandler.upgradeElement(this.root);
-    // this.setupTouchListeners();
+    window.addEventListener("resize", this.onWindowResized);
   }
 
   componentWillUnmount() {
-    // window.componentHandler.downgradeElements(this.root);
-    // this.removeTouchListeners();
+    window.removeEventListener("resize", this.onWindowResized);
   }
 
+  _onWindowResized() {
+    this.forceUpdate();
+  }
 
   render() {
     const {...newProps } = this.props; //exclude footer properties from props because we cannot pass them to the div tag in main content

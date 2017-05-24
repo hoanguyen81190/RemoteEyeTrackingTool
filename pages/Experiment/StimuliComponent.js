@@ -18,10 +18,7 @@ const stimuliFolderImages = 'experiment/stimuli/'; //To read the images
 function createLineElement(x, y, length, angle, label) {
     var line = document.createElement("div");
     if (angle === Math.PI) angle = 0;
-    var styles = 'border: 0.5px solid red; '
-               + 'opacity: 0.75;'
-               + 'width: ' + length + 'px; '
-               + 'height: 0px; '
+    var styles = 'width: ' + length + 'px; '
                + '-moz-transform: rotate(' + angle + 'rad); '
                + '-webkit-transform: rotate(' + angle + 'rad); '
                + '-o-transform: rotate(' + angle + 'rad); '
@@ -30,6 +27,7 @@ function createLineElement(x, y, length, angle, label) {
                + 'top: ' + y + 'px; '
                + 'left: ' + x + 'px; ';
     line.setAttribute('style', styles);
+    line.classList.add(s.saccade);
     line.innerHTML = label;
     return line;
 }
@@ -128,8 +126,12 @@ class StimuliComponent extends React.Component {
       var prevFix = this.fixations[i - 1];
       var currFix = this.fixations[i];
       var line = createLine(prevFix.locX, prevFix.locY, currFix.locX, currFix.locY, '');
-      // document.getElementsByClassName("procedureDivContainer")[0].appendChild(line);
-      document.body.appendChild(line);
+      let saccDiv = document.getElementById("stimuliDiv");
+      if(saccDiv){
+        saccDiv.appendChild(line);
+      }
+
+      //document.body.appendChild(line);
       linesDomRefs.push(line);
     }
   }
@@ -297,7 +299,7 @@ class StimuliComponent extends React.Component {
       return (<AOI key={index} topLeftX={item.left} topLeftY={item.top} width={item.width} height={item.height} visible={true} name={item.name} ref={ref} gazeDataCallback={this.props.gazeDataCallback}/>);
     })}</div> : null;
     return (
-      <div className={s.container} ref="imgContainerRef">
+      <div className={s.container} ref="imgContainerRef" id="stimuliDiv">
         <div className={s.instructionsWrapper}>
           <div className={s.instructions}>{trialData.data.question}</div>
           <div className={s.trueText}>{trueInstruction}</div>

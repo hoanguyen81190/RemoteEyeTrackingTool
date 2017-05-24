@@ -428,18 +428,18 @@ class NewQuestion extends React.Component {
           <div className={s.bold + ' ' + s.blockinstructions}>Block Instructions: <textarea name="BlockInstructions" cols="40" rows="5" ref="blockInstructionsRef" className={s.questionInputText} placeholder="Input Block Instructions Here"/>
           <button className={s.button} onClick={this.onSaveBlockInstructions}>Save Block Instructions</button>
           </div>
-          <div>
+          <div className={s.padding}>
             <div><div className={s.bold + ' ' + s.trialtitle}>New Trial: </div><textarea name="Text1" cols="40" rows="5" ref="questionRef" className={s.questionInputText} placeholder="Input Trial Question Here"/></div>
             Response Keys: (Please choose the correct one)
             <div><input type="radio" name="correct" value="0" ref="radio0"/>Key: <input type="text" placeholder="z" ref="key0Ref" className={s.smallTextBox}/>Meaning: <input type="text" ref="meaning0Ref"/></div>
             <div><input type="radio" name="correct" value="1" ref="radio1"/>Key: <input type="text" placeholder="/" ref="key1Ref" className={s.smallTextBox}/>Meaning: <input type="text" ref="meaning1Ref"/></div>
             <div><input type="radio" name="correct" value="2" ref="radio2"/>Key: <input type="text" placeholder="space" ref="key2Ref" className={s.smallTextBox}/>Meaning: <input type="text" ref="meaning2Ref" placeholder="Alarm"/></div>
           </div>
-          <div>Image: <label for="files" class="btn" ref="imageLabelRef">Select Image</label>
+          <div className={s.padding}>Image: <label for="files" class="btn" ref="imageLabelRef">Select Image</label>
             <input type="file" ref="imageRef" accept="image/*"
             onChange={this.handleChosenFile}
             className={s.fileUploader}/></div>
-          <div><button className={s.button} onClick={this.onSaveButtonClicked}>Save Trial</button><button className={s.button} onClick={this.onResetButtonClicked}>Clear Fields</button></div>
+          <div className={s.padding}><button className={s.button} onClick={this.onSaveButtonClicked}>Save Trial</button><button className={s.button} onClick={this.onResetButtonClicked}>Clear Fields</button></div>
         </div>
      </div>
      <div className={s.imageWrapper}>
