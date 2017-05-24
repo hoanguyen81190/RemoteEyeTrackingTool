@@ -77,6 +77,7 @@
 
 .imagePane {
   position: absolute;
+  top:0;
   right: 0;
   width: 70%;
   height: auto;
@@ -125,7 +126,7 @@
 .hsiText{
   margin-left: 10px;
 
-  background-color: rgb(180,180,180);
+  background-color: rgb(200,200,200);
 
   border-radius: 20px;
   margin-bottom: 2px;
