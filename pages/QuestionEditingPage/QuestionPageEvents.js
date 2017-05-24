@@ -9,6 +9,7 @@ class EventSystem extends EventEmitter {
     this.pickedTrial = null;
     this.blockInstructions = null;
     // this.editedQuestion = null;
+    this.refID = null;
   }
 
   addPickTrialListener(callback) {
@@ -22,6 +23,23 @@ class EventSystem extends EventEmitter {
   pickTrial(trial) {
     this.pickedTrial = trial;
     this.emit(PICK_TRIAL);
+  }
+
+  setActiveRefID(refID, className){
+    console.log(this.refID);
+    if(this.refID !== null){
+      let prevActive = document.getElementById(this.refID);
+      if(prevActive){
+        console.log("classname removed");
+        prevActive.classList.remove(className);
+      }
+    }
+
+    let newActive = document.getElementById(refID);
+    if(newActive){
+      newActive.classList.add(className);
+    }
+    this.refID = refID;
   }
 
   getPickedTrial() {

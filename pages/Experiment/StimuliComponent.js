@@ -179,7 +179,7 @@ class StimuliComponent extends React.Component {
 
         let fixationLocX = parseFloat(newFixation.locX.toFixed(1));
         let fixationLocY = parseFloat(newFixation.locY.toFixed(1));
-        let name = 'unspecified AOI';
+        let name = 'Blank Space';
         if(closestAOI) {
           name = closestAOI.getName();
         }

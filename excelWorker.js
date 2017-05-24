@@ -57,9 +57,10 @@ function saveHelper(workbook, fileName, data) {
 
   var row2 = [];
   row2.push("HSI order: ");
-  hsiOrder.map((d, i)=>{
-    row2.push(d);
-  });
+  row2.push(hsiOrder);
+  // hsiOrder.map((d, i)=>{
+  //   row2.push(d);
+  // });
   worksheet.addRow(row2);
 
   var rows = [];
@@ -106,7 +107,7 @@ function saveHelper(workbook, fileName, data) {
         // ['Participant', 'HSI', 'Question', 'Trial', 'Category', 'Event Start Trial Time [ms]', 'Event End Trial Time [ms]', 'Event Duration [ms]',
         //               'Fixation Position X [px]', 'Fixation Position Y [px]', 'AOI Name', 'Image', 'Response Time', 'Answer', 'Correct Answer'];
         hsiRows.push([participantId, hsiID, questionId, trialID, 'KeyPressed', keyResponse.eventStart, '-', '-',
-                          '-', '-', '-', '-', '-', keyResponse.keyPressed, correctAnswer]);
+                          '-', '-', '-', '-', keyResponse.eventStart, keyResponse.keyPressed, correctAnswer]);
       });
     });
     rows.push({id: hsiID, hsi: hsiRows});
