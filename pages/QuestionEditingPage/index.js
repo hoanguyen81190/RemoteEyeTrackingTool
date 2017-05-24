@@ -402,8 +402,10 @@ class NewQuestion extends React.Component {
           <div><button className={s.button} onClick={this.onSaveButtonClicked}>Save Trial</button><button className={s.button} onClick={this.onResetButtonClicked}>Clear Fields</button></div>
         </div>
      </div>
-     <div className={s.imagePane}>
-       {image}
+     <div className={s.imageWrapper}>
+       <div className={s.imagePane}>
+         {image}
+       </div>
      </div>
  </div>);
   }

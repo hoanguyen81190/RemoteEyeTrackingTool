@@ -8,7 +8,7 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 30%;
+  width: 20%;
   height: 30px;
 }
 
@@ -20,7 +20,7 @@
   -webkit-box-sizing: border-box;
 
   border: 1px solid white;
-  width: 30%;
+  width: 20%;
   height: calc(50% - 15px);
   top: 30px;
   left: 0;
@@ -33,17 +33,27 @@
   height: 100%;
 }
 
+.imageWrapper{
+  position: absolute;
+  width: 80%;
+  height: 100%;
+  left: 20%;
+  top: 0;
+}
+
 .imagePane {
   position: absolute;
-  top:0;
-  right: 0;
-  width: 70%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: auto;
   height: auto;
 }
 
 .question {
   position: absolute;
-  width: 30%;
+  width: 20%;
   height: auto;
   bottom: 0;
 }
@@ -60,7 +70,7 @@
 }
 
 .questionInputText {
-  width: 99%;
+  width: 98%;
 }
 
 .title {
@@ -109,7 +119,7 @@
 .itemWrapper{
   /*display: inline-block;*/
   position: relative;
-  width: 40%;
+  width: 80%;
   /*border-radius: 12%;*/
 
   background: rgb(225,225,225);
@@ -180,22 +190,18 @@
 .hsiText{
   margin-left: 10px;
   padding-left: 10px;
-  width: calc(40% + 30px);
+  width: calc(80% + 30px);
 
   display: inline-block;
   cursor: default;
 
   border: solid 1px rgb(160,160,160);
   background: rgb(200,200,200);
-  /*background: -webkit-linear-gradient(rgb(200,200,200), rgb(180,180,180));
-  background: -o-linear-gradient(rgb(240,240,240), rgb(200,200,200));
-  background: -moz-linear-gradient(rgb(240,240,240), rgb(200,200,200));
-  background: linear-gradient(rgb(200,200,200), rgb(210,210,210));*/
 }
 
 .questionText{
   margin-left: 30px;
-  width: calc(40% + 20px);
+  width: calc(80% + 20px);
 }
 
 .trialText{
