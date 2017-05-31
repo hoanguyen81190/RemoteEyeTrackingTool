@@ -2,6 +2,7 @@ import React from 'react';
 import s from './calibrationComponent.css';
 import store from './store';
 import {publishEvent} from './wampPublisher';
+import REDGeometry from '../public/experiment/redGeometryData.json';
 
 //Used for the trial instructions
 class CalibrationComponent extends React.Component {
@@ -21,6 +22,8 @@ class CalibrationComponent extends React.Component {
     }
     store.dispatch(calCompAction);
     this.setDefaultValues();
+
+    console.log(REDGeometry);
   }
 
   componentWillUnmount(){
@@ -127,9 +130,10 @@ class CalibrationComponent extends React.Component {
         selectedDisplay = 0;
         break;
       }
-    }
+    }    
 
-    let msg = [calMethod, animSpeed, acceptMethod, selectedDisplay];
+    let msg = [calMethod, animSpeed, acceptMethod, selectedDisplay,
+      REDGeometry.Depth, REDGeometry.Height, REDGeometry.ScreenWidth, REDGeometry.ScreenHeight, REDGeometry.REDAngle];
     publishEvent('onCalibration', msg);
   }
 
